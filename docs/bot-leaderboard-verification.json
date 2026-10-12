@@ -1,0 +1,144 @@
+{
+  "release": {
+    "release": "zhixiaohui-leaderboard-20261010-175044",
+    "image": "sha256:955e4d7143a83eb2067e921004dcf24eb213d499312f687e98cbea680447ddea",
+    "previous_image": "sha256:6a3cc80a6d3f7df9915e5224b3bc75fb21b59a086ab1d7f0f459389a9ed603c1",
+    "deployed_at": "2026-10-10T17:55:13+0800",
+    "api_and_worker_same_image": true,
+    "schema": 9,
+    "rollback_image": "atlas-knowledge:before-zhixiaohui-leaderboard-20261010-175044",
+    "backup": "/work/project/atlas-knowledge/backups/zhixiaohui-leaderboard-20261010-175044"
+  },
+  "api_contract": {
+    "start": "POST /api/bot/game/inspiration/runs",
+    "finish": "POST /api/bot/game/inspiration/runs/{id}/finish",
+    "leaderboard": "GET /api/bot/game/inspiration/leaderboard",
+    "scope": "authenticated active browser member, own enterprise only",
+    "scoring": "one immutable score per run, best per member, rank ties by best score, top ten plus own rank",
+    "validation": "integer 0..20, minimum 15 seconds server elapsed, expires after 24 hours"
+  },
+  "tests": {
+    "sqlite_local": 3,
+    "sqlite_isolated_release": 3,
+    "sqlite_linux_candidate": 3,
+    "postgres_isolated_linux_candidate": 3,
+    "browser_isolated_release": 14,
+    "browser_production_assets_with_api_fixtures": 14,
+    "format": "Rust and affected frontend files passed"
+  },
+  "candidate": {
+    "api": "healthy",
+    "frontend_asset_bytes_match": true,
+    "companion_bundle_present": true,
+    "existing_stream_contract_present": true,
+    "production_database_access": false,
+    "real_model_calls": 0,
+    "assets_checked": 17,
+    "cloud_leaderboard_persistence": true,
+    "idempotent_score_submission": true,
+    "browser_session_only": true,
+    "premature_submission_rejected": true,
+    "leaderboard_survives_restart": true
+  },
+  "live": {
+    "real_game_score": 20,
+    "cloud_best": 20,
+    "enterprise_rank": 1,
+    "participants": 1,
+    "full_conversation_playfield": true,
+    "automatic_popup": true,
+    "authenticated_cloud_score": true,
+    "escape_closes_ranking_only": true,
+    "mobile_390_and_320_no_overflow": true,
+    "replay_and_draft_restoration": true,
+    "best_survives_reload": true,
+    "frontend_asset_bytes_match": true,
+    "no_model_task_requests": true,
+    "page_errors": []
+  },
+  "performance": {
+    "avatar": {
+      "updates": 180,
+      "renderedFps": 59.97001499250375,
+      "displayFps": 59.97001499250375,
+      "p95UpdateMs": 17.400000005960464,
+      "reactCommits": 1,
+      "LayoutDuration": 0.02939,
+      "RecalcStyleDuration": 0.030221,
+      "TaskDuration": 0.239388
+    },
+    "game": {
+      "updates": 179,
+      "renderedFps": 59.634861407367886,
+      "displayFps": 59.96801705768838,
+      "p95UpdateMs": 17.400000005960464,
+      "reactCommits": 5,
+      "LayoutDuration": 0.028547000000000003,
+      "RecalcStyleDuration": 0.028234999999999996,
+      "TaskDuration": 0.28620199999999996
+    },
+    "throttledGame": {
+      "updates": 179,
+      "renderedFps": 59.64877203493767,
+      "displayFps": 59.98200539826135,
+      "p95UpdateMs": 17.5,
+      "reactCommits": 9,
+      "LayoutDuration": 0.066415,
+      "RecalcStyleDuration": 0.08147,
+      "TaskDuration": 0.7518789999999999
+    }
+  },
+  "preservation": {
+    "production_healthy": true,
+    "same_api_worker_image": true,
+    "business_counts_preserved": true,
+    "model_settings_preserved": true,
+    "environment_preserved": true,
+    "mounts_preserved": true,
+    "release_source_whitelist": [
+      "backend/src/inspiration.rs",
+      "backend/migrations/009_inspiration_game.sql",
+      "backend/tests/inspiration.rs",
+      "frontend/src/BotCompanion.tsx",
+      "frontend/src/InspirationLeaderboard.tsx",
+      "frontend/src/bot-companion.css",
+      "backend/src/lib.rs",
+      "backend/src/db.rs",
+      "docs/openapi.json"
+    ],
+    "other_source_updates_detected_and_left_in_place": [
+      "frontend/src/LandingBotDemo.tsx",
+      "frontend/src/App.tsx",
+      "frontend/src/landing-bot.css",
+      "frontend/src/BotPage.tsx"
+    ],
+    "schema_version": 9
+  },
+  "screenshots": [
+    "docs/screenshots/bot-leaderboard-production-desktop.png",
+    "docs/screenshots/bot-leaderboard-production-mobile.png"
+  ],
+  "followup_release": {
+    "image": "sha256:77503830f7cbe502533eb099437bcaa47707c51031e04fc0916291cc20e132f5",
+    "api_worker_image_equal": true,
+    "schema_version": 9,
+    "healthy": true,
+    "live": {
+      "real_game_score": 20,
+      "cloud_best": 20,
+      "enterprise_rank": 1,
+      "participants": 1,
+      "full_conversation_playfield": true,
+      "automatic_popup": true,
+      "authenticated_cloud_score": true,
+      "escape_closes_ranking_only": true,
+      "mobile_390_and_320_no_overflow": true,
+      "replay_and_draft_restoration": true,
+      "best_survives_reload": true,
+      "frontend_asset_bytes_match": true,
+      "no_model_task_requests": true,
+      "page_errors": []
+    },
+    "context": "A separate homepage deployment followed this release. Its guest game mode preserves the authenticated enterprise leaderboard; verified again on the current image."
+  }
+}

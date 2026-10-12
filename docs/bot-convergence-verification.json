@@ -1,0 +1,178 @@
+{
+  "incident": {
+    "duration_seconds": 1212,
+    "tool_calls": 106,
+    "compactions": 15,
+    "artifacts": 0,
+    "repeated_source_reads": 14,
+    "plan_first_step_only": true,
+    "original_status": "cancelled"
+  },
+  "changes": [
+    "paginated_web_fetch",
+    "durable_facts_and_references",
+    "journal_seeded_read_cache",
+    "evidence_novelty_and_phase_guidance",
+    "cached_read_authorization_barrier",
+    "concurrent_lease_renewal_without_row_lock_deadlock",
+    "automatic_literal_evidence_memory",
+    "draft_before_more_stalled_research",
+    "factual_synthesis_counts_as_progress",
+    "authoritative_saved_artifact_directory",
+    "delivery_step_review_closure",
+    "intermediate_files_do_not_close_research",
+    "300_second_generation_with_15_second_protocol_heartbeat"
+  ],
+  "validation": {
+    "node_tests": 24,
+    "rust_unit_tests": 4,
+    "integration_tests_with_postgresql_qdrant_minio": 35,
+    "postgresql_checkpoint_renewal_overlap": "passed",
+    "browser_tests": 12,
+    "clippy_warnings_denied": "passed",
+    "frontend_build": "passed",
+    "candidate": {
+      "api": "healthy",
+      "separate_worker": true,
+      "actual_pi_fixture": true,
+      "actual_docker_python_isolation": true,
+      "task_status": "completed",
+      "artifact_download": true,
+      "committed_artifact_not_replayed": true,
+      "worker_restart_recovery": true,
+      "time_slice_auto_resume": true,
+      "auto_compaction": true,
+      "summary_calls": 36,
+      "model_turns": 41,
+      "completed_tools": 39,
+      "attempts": 3,
+      "real_model_calls": 0,
+      "production_database_access": false,
+      "scripted_model_only": true,
+      "image": "sha256:b0d53c0232b83d5b964832ef6424809623b771cfc41470391f06c4b1ee6e1dad"
+    },
+    "browser_api": "mocked; frontend served by production",
+    "runtime_sha256_verified": true
+  },
+  "real_model_replay": {
+    "status": "completed_from_recovered_checkpoint",
+    "model": "gpt-6.1-sol",
+    "isolated": true,
+    "evidence": "original authorized archived results; no new web source verification",
+    "production_task_mutated": false,
+    "fresh_start_full_research_verified": false,
+    "elapsed_seconds_for_final_continuation": 346,
+    "model_turns_for_final_continuation": 8,
+    "compactions_for_final_continuation": 3,
+    "tools_for_final_continuation": [
+      "task_plan",
+      "write_artifact",
+      "task_plan",
+      "read_artifact",
+      "task_plan"
+    ],
+    "all_plan_steps_completed": true,
+    "revised_report": {
+      "name": "research.md",
+      "size": 21387,
+      "internal_refs": [
+        "[7]",
+        "[12]",
+        "[4]",
+        "[5]",
+        "[9]",
+        "[10]",
+        "[11]",
+        "[1]",
+        "[2]",
+        "[6]",
+        "[8]"
+      ],
+      "web_refs": [
+        "[W7]",
+        "[W8]"
+      ],
+      "uncertainty": true,
+      "headings": 36
+    },
+    "citation_ids_matched_archived_receipts": true,
+    "citation_count": 13,
+    "earlier_replays": [
+      {
+        "elapsed_seconds": 291,
+        "outcome": "paused",
+        "files": 0
+      },
+      {
+        "elapsed_seconds": 240,
+        "outcome": "paused",
+        "files": 0
+      },
+      {
+        "elapsed_seconds": 355,
+        "outcome": "error",
+        "files": 0
+      },
+      {
+        "elapsed_seconds": 474,
+        "outcome": "paused",
+        "files": 1
+      }
+    ],
+    "final_candidate_additional_validation": "intermediate-file eligibility and deferred-read regression tested separately; no fresh full model replay after these guards"
+  },
+  "production_deployment": {
+    "status": "deployed",
+    "release": "zhixiaohui-convergence-20261010-165120",
+    "image": "sha256:b0d53c0232b83d5b964832ef6424809623b771cfc41470391f06c4b1ee6e1dad",
+    "previous_image": "sha256:be45222fca45290577c7e170e8ee8128b4c883770ef1ef5f8fb83af9179fa18f",
+    "same_api_worker_image": true,
+    "api_health": "healthy",
+    "verification": {
+      "health": {
+        "status": "ok",
+        "version": "0.1.0"
+      },
+      "app_http": 200,
+      "login_http": 200,
+      "assets_match_build": true,
+      "login": true,
+      "capabilities": {
+        "agent": true,
+        "web": true,
+        "code": true,
+        "runtime": {
+          "auto_compaction": true,
+          "checkpoints": true,
+          "context_window": 32768,
+          "engine": "pi-agent-core",
+          "max_output_tokens": 5000
+        }
+      },
+      "skills": 4,
+      "original_task": {
+        "status": "cancelled",
+        "attempt": 2,
+        "artifacts": 0,
+        "events": 125
+      }
+    },
+    "preservation": {
+      "same_api_worker_image": true,
+      "configuration_preserved": true,
+      "business_and_model_preserved": true,
+      "data_volumes_preserved": true,
+      "infrastructure_preserved": true,
+      "schema_version": 7,
+      "model_revision": [
+        10
+      ]
+    },
+    "backup": "/work/project/atlas-knowledge/backups/zhixiaohui-convergence-20261010-165120"
+  },
+  "cleanup": {
+    "temporary_model_credentials_removed": true,
+    "isolated_validation_containers_removed": true,
+    "temporary_ssh_authentication_removed": true
+  }
+}

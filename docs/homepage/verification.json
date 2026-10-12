@@ -1,0 +1,98 @@
+[
+  {
+    "name": "a-daylight",
+    "errors": [],
+    "query": "我想了解一个项目的需求与技术背景。",
+    "faqOpen": true,
+    "images": [
+      {
+        "complete": true,
+        "width": 512
+      },
+      {
+        "complete": true,
+        "width": 512
+      },
+      {
+        "complete": true,
+        "width": 1440
+      },
+      {
+        "complete": true,
+        "width": 1440
+      },
+      {
+        "complete": true,
+        "width": 512
+      }
+    ],
+    "overflow390": false,
+    "overflow320": false,
+    "menuOpened": "true",
+    "menuClosed": "false"
+  },
+  {
+    "name": "b-brand-blue",
+    "errors": [],
+    "query": "我想了解一个项目的需求与技术背景。",
+    "faqOpen": true,
+    "images": [
+      {
+        "complete": true,
+        "width": 512
+      },
+      {
+        "complete": true,
+        "width": 512
+      },
+      {
+        "complete": true,
+        "width": 1440
+      },
+      {
+        "complete": true,
+        "width": 1440
+      },
+      {
+        "complete": true,
+        "width": 512
+      }
+    ],
+    "overflow390": false,
+    "overflow320": false,
+    "menuOpened": "true",
+    "menuClosed": "false"
+  },
+  {
+    "name": "c-forest-ink",
+    "errors": [],
+    "query": "No visible query switch in this layout",
+    "faqOpen": true,
+    "images": [
+      {
+        "complete": true,
+        "width": 512
+      },
+      {
+        "complete": true,
+        "width": 512
+      },
+      {
+        "complete": true,
+        "width": 1440
+      },
+      {
+        "complete": true,
+        "width": 1440
+      },
+      {
+        "complete": true,
+        "width": 512
+      }
+    ],
+    "overflow390": false,
+    "overflow320": false,
+    "menuOpened": "true",
+    "menuClosed": "false"
+  }
+]

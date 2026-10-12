@@ -1,0 +1,88 @@
+{
+  "plugin_version": "0.1.0-alpha.23",
+  "tested_at": "2026-10-10",
+  "plugin_sha256": "0ad9cc15e09f7caaddc0dda7155d3056e0a6e8d539abbf1f3496a52b2a0dc305",
+  "changes": [
+    "minimal execution popover: cloud, one local-computer dropdown, liquid-glass connect button",
+    "pairing codes, server-address inputs and explanatory sections removed from the popover",
+    "delete connection shown on option hover or keyboard focus; touch access retained",
+    "direct dsh://open request in the user click plus browser connection discovery",
+    "browser-confirmed connection without manual pairing codes",
+    "client and web entry buttons",
+    "automatic discovery and selection of newly connected workspaces"
+  ],
+  "validation": {
+    "plugin_tests": {
+      "passed": 16,
+      "command": "node --test test/team/plugin-host.test.mjs test/team/connection-server.test.mjs test/team/zhixiaohui.test.mjs"
+    },
+    "backend_connection_tests": {
+      "passed": 2,
+      "command": "cargo test -p atlas-server --test security bot_connection --locked"
+    },
+    "backend_local_execution_regression_tests": {
+      "passed": 3,
+      "command": "cargo test -p atlas-server --test security bot_local --locked"
+    },
+    "browser_tests": {
+      "passed": 12,
+      "environment": "Chrome on macOS, API fixtures; external protocol intercepted to avoid opening the installed desktop app",
+      "command": "npx playwright test e2e/bot.spec.ts -g 'local execution|Desktop approval|web connection|expired Desktop|execution locations|local dropdown|empty local|newly connected|composer|bot tasks update'",
+      "covers": [
+        "cloud/local alignment",
+        "no pairing fields or extra controls",
+        "offline device selection and task routing",
+        "hover/focus deletion and selected-device fallback",
+        "keyboard navigation and Escape",
+        "zero/one/multiple devices",
+        "long names and narrow-screen scroll layout",
+        "popup-blocked feedback",
+        "dsh://open link and connection-window request",
+        "browser approval and expiry",
+        "local service discovery",
+        "new workspace auto-selection"
+      ]
+    },
+    "real_flow": {
+      "command": "node scripts/verify-button-connection.mjs <knowledge-base checkout>",
+      "environment": "real isolated Rust API and SQLite database, real loopback listener, Chrome on macOS, simulated Harness workspace registry",
+      "web_initiated": true,
+      "client_initiated": true,
+      "login_preserves_request": true,
+      "form_redirect_under_local_csp": true,
+      "automatic_activation": true,
+      "cancellation": true,
+      "real_model_calls": 0,
+      "glass_button_opens_connection_window": true,
+      "native_launch_link_observed_but_os_action_intercepted": true,
+      "workspace_auto_selected": true
+    },
+    "frontend_build": "passed",
+    "cargo_check": "passed",
+    "cargo_clippy": "passed",
+    "formatting": "passed",
+    "archive_checked": "passed"
+  },
+  "deployment": {
+    "published_to_server": true,
+    "required_schema": 10,
+    "requires_server_and_caddy_update": true,
+    "deployed_at": "2026-10-12",
+    "release": "desktop-connection-20261012-091435",
+    "image": "sha256:1996eae259d518c1fd1a3951a7cd44d692317f5d38fe08192cd5aa400ab84e3b",
+    "base_url": "http://192.168.1.34:18088",
+    "production_verification": "bot-connection-production-verification.json"
+  },
+  "limitations": [
+    "Windows and Electron GUI activation have not been tested on a Windows machine.",
+    "Browser local-network restrictions can block discovery; a direct local-page link and client initiation remain available."
+  ],
+  "screenshots": [
+    "screenshots/bot-execution-compact.png",
+    "screenshots/bot-execution-workspaces.png",
+    "screenshots/bot-execution-connected.png",
+    "screenshots/bot-execution-mobile.png",
+    "screenshots/desktop-connection-approval.png",
+    "screenshots/desktop-connection-mobile.png"
+  ]
+}

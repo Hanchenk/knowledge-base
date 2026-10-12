@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-10",
+  "server": "http://192.168.1.34:18088",
+  "project_id": "9551716f-118a-4521-b345-44df961e0baf",
+  "job_id": "dfe0e3cd-75ea-404a-9f7e-fb685b3fd9c5",
+  "asset_id": "913df355-b9ac-4c74-b41b-cf1f01540f27",
+  "model": "grok-imagine-video-1.5-lite",
+  "browser_playback": {
+    "width": 1280,
+    "height": 720,
+    "duration": 4.041667,
+    "played_seconds": 0.795776
+  },
+  "authenticated_download": true,
+  "range_verified": true,
+  "model_revision": 10,
+  "configuration_preserved": true,
+  "page_errors": 0,
+  "codec": "h264",
+  "file_bytes": 1339192,
+  "requested_seconds": 4,
+  "requested_size": "1280x720",
+  "engine": "pi-agent-core",
+  "tool": "generate_video",
+  "submission_count": 1,
+  "studio_integration_tests_passed": 3,
+  "clippy_passed": true,
+  "rustfmt_passed": true
+}

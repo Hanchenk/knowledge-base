@@ -1,0 +1,47 @@
+# Opt-in isolated Docker daemon. Never mount the production host's Docker socket.
+# docker compose -f compose.yaml -f compose.bot-code.yaml up -d --build
+services:
+  sandbox:
+    image: docker:29-dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+      DOCKER_TLS_SAN: DNS:sandbox
+    volumes:
+      - sandbox_certs:/certs/client
+      - sandbox_data:/var/lib/docker
+    networks: [sandbox]
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 5s
+      timeout: 5s
+      start_period: 15s
+      retries: 20
+    restart: unless-stopped
+  api:
+    environment:
+      BOT_CODE_ENABLED: "true"
+      DOCKER_HOST: tcp://sandbox:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
+    volumes:
+      - sandbox_certs:/certs/client:ro
+    networks: [default, sandbox]
+    depends_on:
+      sandbox: {condition: service_healthy}
+  worker:
+    environment:
+      BOT_CODE_ENABLED: "true"
+      DOCKER_HOST: tcp://sandbox:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
+    volumes:
+      - sandbox_certs:/certs/client:ro
+    networks: [default, sandbox]
+    depends_on:
+      sandbox: {condition: service_healthy}
+networks:
+  sandbox:
+volumes:
+  sandbox_certs:
+  sandbox_data:

@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-10",
+  "url": "http://192.168.1.34:18088",
+  "checks": [
+    "index.html: identical to local release",
+    "assets/App-1T_BeyU2.css: identical to local release",
+    "assets/StudioPage-Bv0jRrs2.js: identical to local release",
+    "Production administrator login: passed",
+    "Production studio loads: passed",
+    "Mobile layout: passed",
+    "Logout: passed",
+    "Browser runtime errors: none"
+  ]
+}

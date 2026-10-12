@@ -1,0 +1,58 @@
+name: Verify Atlas
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.0'
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --project processor --frozen --python 3.12
+      - run: npm ci --prefix agent-runtime --ignore-scripts
+      - run: npm test --prefix agent-runtime
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo test --workspace --locked
+      - run: processor/.venv/bin/python -m unittest discover -s processor -p 'test_*.py'
+      - run: npm ci --prefix frontend
+      - run: npm run format:check --prefix frontend
+      - run: npm run build --prefix frontend
+      - name: Real PostgreSQL and S3 verification
+        run: processor/.venv/bin/python scripts/verify_services.py
+      - name: Browser integration
+        env:
+          PW_CHANNEL: chromium
+          SEED_DEMO: 'true'
+        run: |
+          cargo build --locked
+          cd frontend
+          npx playwright install --with-deps chromium
+          ../target/debug/atlas-server > /tmp/atlas-api.log 2>&1 &
+          npm run dev > /tmp/atlas-web.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/api/health >/dev/null && curl --fail --silent http://127.0.0.1:5173 >/dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:e2e
+          cd ..
+          processor/.venv/bin/python scripts/verify_mcp_sdk.py
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failures
+          path: frontend/test-results
+          if-no-files-found: ignore

@@ -1,0 +1,53 @@
+{
+  "deployment": {
+    "release": "zhixiaohui-companion-20261010-164158",
+    "image": "sha256:be45222fca45290577c7e170e8ee8128b4c883770ef1ef5f8fb83af9179fa18f",
+    "previous_image": "sha256:76be73f12a1335c30dbb027dfaf2c416da95b13c7d7f6c2419aa35ba1be94acd",
+    "deployed_at": "2026-10-10T16:45:53+0800",
+    "api_and_worker_same_image": true,
+    "schema": 7,
+    "rollback_image": "atlas-knowledge:before-zhixiaohui-companion-20261010-164158",
+    "backup": "/work/project/atlas-knowledge/backups/zhixiaohui-companion-20261010-164158"
+  },
+  "candidate": {
+    "api": "healthy",
+    "frontend_asset_bytes_match": true,
+    "companion_bundle_present": true,
+    "existing_stream_contract_present": true,
+    "production_database_access": false,
+    "real_model_calls": 0,
+    "assets_checked": 75
+  },
+  "live": {
+    "base_url": "http://192.168.1.34:18088",
+    "verified_at": "2026-10-10T08:47:34.414Z",
+    "production_tasks_created": 0,
+    "real_model_calls": 0,
+    "horizontal_gaze": true,
+    "actual_star_catch": true,
+    "keyboard_control": true,
+    "pause": true,
+    "escape_restores_focus": true,
+    "composer_usable": true,
+    "mobile_touch": true,
+    "reduced_motion_gaze": true,
+    "narrow_mobile": true,
+    "assets_checked": 12,
+    "browser_errors": []
+  },
+  "preservation": {
+    "business_data_preserved": true,
+    "model_configuration_preserved": true,
+    "environment_preserved": true,
+    "data_volumes_preserved": true,
+    "backend_runtime_source_unchanged": true,
+    "api_healthy": true,
+    "api_and_worker_same_image": true
+  },
+  "tests": {
+    "local_bot_browser_tests": 11,
+    "production_companion_browser_tests": 2,
+    "production_build": "passed",
+    "format": "passed"
+  }
+}

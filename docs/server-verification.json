@@ -1,0 +1,22 @@
+{
+  "result": "passed",
+  "url": "http://192.168.1.34:18088",
+  "checks": [
+    "admin_login",
+    "postgres_metadata",
+    "qdrant_semantic_only_recall",
+    "minio_page_read_write_delete",
+    "file_upload_index_download_delete",
+    "personal_preference",
+    "one_character_password",
+    "postgres_session_survives_restart",
+    "qdrant_points_survive_restart",
+    "minio_file_survives_restart",
+    "encrypted_settings_survive_restart",
+    "production_browser_settings",
+    "production_mobile_390px"
+  ],
+  "generated_media_calls": 0,
+  "temporary_document": "91ec019b-9cce-4a76-ab88-91ff18986425",
+  "time_utc": "2026-10-09T10:08:42Z"
+}

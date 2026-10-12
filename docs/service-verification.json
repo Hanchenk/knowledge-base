@@ -1,0 +1,8 @@
+{
+  "database": "PostgreSQL 17",
+  "vectors": "Qdrant 1.15.4",
+  "storage": "MinIO S3",
+  "result": "passed",
+  "suite": "backend/tests/security.rs",
+  "time_utc": "2026-10-10T10:07:42Z"
+}

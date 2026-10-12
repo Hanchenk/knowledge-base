@@ -1,0 +1,51 @@
+{
+  "release": "startup-logo-20261012-095856",
+  "origin": "http://192.168.1.34:18088",
+  "verified_at": "2026-10-12T02:05:17.678Z",
+  "health": {
+    "status": "ok",
+    "version": "0.1.0"
+  },
+  "asset_files_verified": 41,
+  "checks": [
+    "production API is healthy",
+    "all 41 published files match the release build",
+    "HTML shows the animated logo before JavaScript downloads",
+    "lazy application loading uses the same logo screen",
+    "session restoration displays the rotating and breathing logo",
+    "390px and 320px mobile views center the logo without overflow",
+    "reduced-motion disables logo, halo and dot animations",
+    "login appears after loading with no browser errors",
+    "real production sign-in and workspace refresh succeed",
+    "real production bot destination survives refresh",
+    "real production sign-out succeeds"
+  ],
+  "screenshots": [
+    "screenshots/startup-production-desktop.png",
+    "screenshots/startup-production-mobile.png"
+  ],
+  "production_tasks_created": 0,
+  "service_verification": {
+    "release": "startup-logo-20261012-095856",
+    "image": "sha256:90017e1b1bfc9e7b46df9d4aa36b96d4ca90de36973a33fea9aa69b4dda186df",
+    "api_health": "healthy",
+    "worker": "running",
+    "runtime_unchanged": true,
+    "environment_unchanged": true,
+    "volume_mounts_unchanged": true,
+    "infrastructure_unchanged": true,
+    "schema_versions": "1,2,3,4,5,6,7,8,9,10",
+    "restarts": {
+      "api": 0,
+      "worker": 0
+    }
+  },
+  "existing_browser_regression_tests": {
+    "passed": 2,
+    "covers": [
+      "login, workspace refresh, logout",
+      "question and creation destinations through login and refresh"
+    ],
+    "base_url": "http://192.168.1.34:18088"
+  }
+}

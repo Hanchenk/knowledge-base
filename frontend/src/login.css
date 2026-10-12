@@ -1,0 +1,219 @@
+.daylight-login {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 450px) minmax(0, 420px);
+  justify-content: center;
+  align-items: center;
+  gap: clamp(40px, 8vw, 140px);
+  padding: 120px 6vw 60px;
+  background: #e9eeec;
+  color: #405775;
+  color-scheme: light;
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+.daylight-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: -2;
+}
+.daylight-login::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f4f5f217, #f6f7f3b8);
+  z-index: -1;
+  pointer-events: none;
+}
+.daylight-login-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88px;
+  padding: 0 4.5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.daylight-login .brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  color: #292b2e;
+  font-size: 25px;
+  text-decoration: none;
+}
+.daylight-login .brand .product-logo {
+  width: 34px;
+  height: 34px;
+}
+.daylight-login .login-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  align-self: center;
+  color: #586a79;
+  font-size: 13px;
+  text-decoration: none;
+}
+.daylight-login .login-home-link svg {
+  transform: rotate(180deg);
+}
+.daylight-login-welcome > svg {
+  display: block;
+  margin-bottom: 32px;
+}
+.daylight-login-welcome > span {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #687e91;
+}
+.daylight-login-welcome h1 {
+  font-size: clamp(32px, 3.6vw, 50px);
+  font-weight: 500;
+  color: #303e4c;
+  margin: 20px 0;
+  letter-spacing: -1px;
+}
+.daylight-login-welcome h1 .product-name {
+  font-size: 1.12em;
+}
+.daylight-login-welcome p {
+  font-size: 15px;
+  line-height: 2;
+  color: #65798b;
+}
+.daylight-login .login-side {
+  padding: 0;
+  min-height: 0;
+  width: 100%;
+}
+.daylight-login .login-form {
+  width: 100%;
+  max-width: 420px;
+  padding: 38px;
+  background: #ffffffe0;
+  border: 1px solid #ffffffdf;
+  border-radius: 26px;
+  box-shadow: 0 24px 75px #35403d12;
+  backdrop-filter: blur(18px);
+}
+.daylight-login .login-form h2 {
+  font-size: 23px;
+  color: #3e5368;
+  font-weight: 550;
+}
+.daylight-login .login-form > p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #728398;
+  margin: 12px 0 28px;
+}
+.daylight-login .login-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  color: #63768b;
+  font-size: 12px;
+  margin-top: 20px;
+}
+.daylight-login .login-form input {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #dce4eb;
+  background: #ffffffa8;
+  color: #405775;
+  padding: 0 14px;
+  font-size: 14px;
+}
+.daylight-login .login-form input::placeholder {
+  color: #97a4b2;
+}
+.daylight-login .login-form input:focus {
+  outline: none;
+  border-color: #82a4c6;
+  box-shadow: 0 0 0 3px #82a4c61c;
+}
+.daylight-login .login-submit {
+  height: 46px;
+  border-radius: 24px;
+  padding: 0 20px;
+  background: #405d7b;
+  border-color: #405d7b;
+  color: white;
+  font-size: 13px;
+}
+.daylight-login .login-submit:hover:not(:disabled) {
+  background: #304b68;
+}
+.daylight-login .login-submit:disabled {
+  opacity: 0.6;
+}
+.daylight-login .login-note {
+  font-size: 10px;
+  color: #8292a2;
+  margin-top: 24px;
+}
+.daylight-login .sso-button {
+  border-radius: 24px;
+  color: #58718b;
+}
+.daylight-login .demo-login {
+  background: #eef3f6;
+  border-color: #dfe7ee;
+  border-radius: 12px;
+}
+.daylight-login .demo-login button {
+  color: #58718b;
+}
+.daylight-login a:focus-visible,
+.daylight-login button:focus-visible {
+  outline: 3px solid #467bea;
+  outline-offset: 4px;
+}
+@media (max-width: 760px) {
+  .daylight-login {
+    grid-template-columns: minmax(0, 420px);
+    gap: 26px;
+    padding: 106px 22px 38px;
+    align-content: center;
+  }
+  .daylight-login-header {
+    height: 76px;
+    padding: 0 22px;
+  }
+  .daylight-login-welcome {
+    text-align: center;
+  }
+  .daylight-login-welcome > svg {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 12px;
+  }
+  .daylight-login-welcome h1 {
+    font-size: 30px;
+    margin: 10px 0 0;
+  }
+  .daylight-login-welcome > span {
+    font-size: 10px;
+  }
+  .daylight-login-welcome p {
+    display: none;
+  }
+  .daylight-login .login-form {
+    padding: 28px 24px;
+    border-radius: 22px;
+  }
+  .daylight-login .login-form h2 {
+    font-size: 21px;
+  }
+}

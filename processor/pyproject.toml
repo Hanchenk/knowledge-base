@@ -1,0 +1,5 @@
+[project]
+name = "atlas-document-processor"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["pymupdf>=1.25,<2", "python-docx>=1.1,<2", "openpyxl>=3.1,<4", "python-pptx>=1.0,<2", "pillow>=11,<13"]

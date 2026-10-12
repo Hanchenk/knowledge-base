@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-10T09:36:31.090Z",
+  "title": "这里是知汇",
+  "letterSequence": [
+    "这",
+    "里",
+    "是",
+    "知",
+    "汇"
+  ],
+  "fontLoaded": true,
+  "videoPlays": true,
+  "samples": {
+    "整理会议纪要": "产品评审 · 决策与下一步",
+    "研究一个课题": "让团队知识更容易被使用",
+    "分析业务报表": "业务报表 · 从数据到判断"
+  },
+  "download": true,
+  "avatarGaze": true,
+  "actualStarCatch": true,
+  "gamePause": true,
+  "escapeFocus": true,
+  "screenshotUrl": "/assets/bot-5Fvpv3Qs.png",
+  "mobileWidths": [
+    390,
+    320
+  ],
+  "reducedMotion": true,
+  "botDestinationSurvivesLoginAndRefresh": true,
+  "botCapabilitiesAvailable": true,
+  "productionTasksCreated": 0,
+  "homepageApiRequests": [],
+  "health": {
+    "status": "ok",
+    "version": "0.1.0"
+  },
+  "errors": [],
+  "failedRequests": [],
+  "tests": {
+    "isolatedLocalBrowserTests": 7,
+    "productionBrowserTests": 7,
+    "productionBuild": "passed"
+  },
+  "deployment": {
+    "release": "homepage-bot-20261010-173449",
+    "image": "sha256:6a3cc80a6d3f7df9915e5224b3bc75fb21b59a086ab1d7f0f459389a9ed603c1",
+    "previousImage": "sha256:49b044a6a65409022ca0c11ad11f8505d7cee7c3c93d63f2d150792f03845a00",
+    "backendAndAgentRuntimeHashesMatch": true,
+    "environmentPreserved": true,
+    "apiAndWorkerSameImage": true
+  }
+}

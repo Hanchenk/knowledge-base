@@ -1,0 +1,133 @@
+name: atlas-knowledge
+x-app-env: &app-env
+  ENVIRONMENT: production
+  BIND_ADDRESS: 0.0.0.0:8000
+  DATABASE_URL: postgresql://atlas:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/atlas
+  PUBLIC_URL: ${PUBLIC_URL:?Set PUBLIC_URL}
+  CORS_ORIGINS: ${PUBLIC_URL}
+  ALLOW_INSECURE_HTTP: ${ALLOW_INSECURE_HTTP:-false}
+  QDRANT_URL: http://qdrant:6333
+  QDRANT_API_KEY: ${QDRANT_API_KEY:?Set QDRANT_API_KEY}
+  QDRANT_COLLECTION_PREFIX: atlas
+  SEED_DEMO: "false"
+  WORKER_ENABLED: "false"
+  PI_AGENT_ENABLED: ${PI_AGENT_ENABLED:-true}
+  BOT_CODE_ENABLED: ${BOT_CODE_ENABLED:-false}
+  BOT_CODE_IMAGE: ${BOT_CODE_IMAGE:-python:3.12-alpine}
+  BOT_CONNECTOR_HOSTS: ${BOT_CONNECTOR_HOSTS:-}
+  PI_AGENT_NODE: /usr/local/bin/node
+  PI_AGENT_SCRIPT: /app/agent-runtime/agent.mjs
+  AGENT_WEB_ENABLED: ${AGENT_WEB_ENABLED:-true}
+  AGENT_CONTEXT_WINDOW: ${AGENT_CONTEXT_WINDOW:-32768}
+  AGENT_MAX_OUTPUT_TOKENS: ${AGENT_MAX_OUTPUT_TOKENS:-5000}
+  BOT_AGENT_SLICE_SECONDS: ${BOT_AGENT_SLICE_SECONDS:-600}
+  WEB_SEARCH_URL: ${WEB_SEARCH_URL:-}
+  S3_ENDPOINT: http://minio:9000
+  S3_BUCKET: atlas
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY:?Set S3_ACCESS_KEY}
+  S3_SECRET_KEY: ${S3_SECRET_KEY:?Set S3_SECRET_KEY}
+  S3_REGION: us-east-1
+  AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
+  AI_API_KEY: ${AI_API_KEY:-}
+  MODEL_CONFIG_ENCRYPTION_KEY: ${MODEL_CONFIG_ENCRYPTION_KEY:?Set MODEL_CONFIG_ENCRYPTION_KEY}
+  CHAT_MODEL: ${CHAT_MODEL:-}
+  VISION_MODEL: ${VISION_MODEL:-}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
+  EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-1536}
+  VISION_BASE_URL: ${VISION_BASE_URL:-}
+  VISION_API_KEY: ${VISION_API_KEY:-}
+  OIDC_DISCOVERY_URL: ${OIDC_DISCOVERY_URL:-}
+  OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+  OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+  OIDC_TENANT_SLUG: ${BOOTSTRAP_TENANT_SLUG:-Yemast}
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: atlas
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atlas -d atlas"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  qdrant:
+    image: qdrant/qdrant:v1.15.4
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY}
+    volumes: ["qdrant_data:/qdrant/storage"]
+    restart: unless-stopped
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
+    volumes: ["object_data:/data"]
+    restart: unless-stopped
+  storage-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on: [minio]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        attempts=0
+        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" >/dev/null 2>&1; do
+          attempts=$$((attempts + 1))
+          [ "$$attempts" -lt 30 ] || exit 1
+          sleep 2
+        done
+        mc mb --ignore-existing local/atlas
+        mc anonymous set none local/atlas
+        mc admin user add local "$$S3_ACCESS_KEY" "$$S3_SECRET_KEY"
+        mc admin policy create local atlas-service /config/atlas-policy.json
+        mc admin policy attach local atlas-service --user "$$S3_ACCESS_KEY"
+    volumes: ["./deploy/atlas-policy.json:/config/atlas-policy.json:ro"]
+  api:
+    build: .
+    image: atlas-knowledge:local
+    environment:
+      <<: *app-env
+      BOOTSTRAP_TENANT_SLUG: ${BOOTSTRAP_TENANT_SLUG:-Yemast}
+      BOOTSTRAP_TENANT_NAME: ${BOOTSTRAP_TENANT_NAME:-Yemast}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@yemast.com}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?Set BOOTSTRAP_ADMIN_PASSWORD}
+    volumes: ["local_files:/app/data/files"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      storage-init: {condition: service_completed_successfully}
+      qdrant: {condition: service_started}
+    restart: unless-stopped
+  worker:
+    image: atlas-knowledge:local
+    command: ["--worker"]
+    environment: *app-env
+    volumes: ["local_files:/app/data/files"]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck: {disable: true}
+    restart: unless-stopped
+  gateway:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports: ["${HTTP_PORT:-18088}:80"]
+    volumes: ["./deploy/Caddyfile:/etc/caddy/Caddyfile:ro", "caddy_data:/data", "caddy_config:/config"]
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  object_data:
+  qdrant_data:
+  caddy_data:
+  caddy_config:
+  local_files:

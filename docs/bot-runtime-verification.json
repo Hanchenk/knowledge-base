@@ -1,0 +1,53 @@
+{
+  "release": "zhixiaohui-agent-20261010-145906",
+  "image_id": "sha256:4260c1a53d83ad19fac1afeb7456c88d7e3acee40924fde459218dd934829bb8",
+  "verified_at": "2026-10-10T07:08:33.533012+00:00",
+  "engine": "pi-agent-core 0.87.0",
+  "local_checks": {
+    "node_runtime_tests": 11,
+    "backend_unit_tests": 2,
+    "backend_integration_tests": 34,
+    "postgres_qdrant_minio": "passed",
+    "bot_browser_tests": 3,
+    "clippy_warnings_denied": "passed",
+    "frontend_build": "passed"
+  },
+  "server_isolated_runtime": {
+    "api": "healthy",
+    "separate_worker": true,
+    "actual_pi_fixture": true,
+    "actual_docker_python_isolation": true,
+    "task_status": "completed",
+    "artifact_download": true,
+    "committed_artifact_not_replayed": true,
+    "worker_restart_recovery": true,
+    "time_slice_auto_resume": true,
+    "auto_compaction": true,
+    "summary_calls": 36,
+    "model_turns": 41,
+    "completed_tools": 39,
+    "attempts": 3,
+    "real_model_calls": 0,
+    "production_database_access": false
+  },
+  "production": {
+    "url": "http://192.168.1.34:18088",
+    "schema_version": 6,
+    "api_health": "healthy",
+    "api_worker_same_image": true,
+    "restarts": 0,
+    "existing_env_preserved": true,
+    "model_revision_preserved": 10,
+    "business_counts_preserved": {
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 5,
+      "studio_assets": 3
+    },
+    "data_volumes_preserved": true,
+    "authenticated_browser_check": "passed",
+    "desktop_mobile_asset_hashes": "passed",
+    "browser_regressions": 9
+  }
+}

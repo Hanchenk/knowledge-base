@@ -1,0 +1,16 @@
+{$DOMAIN} {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' http://127.0.0.1:18765 http://127.0.0.1:18766 http://127.0.0.1:18767 http://127.0.0.1:18768 http://127.0.0.1:18769; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        -Server
+    }
+    @uploads path /api/documents/upload
+    request_body @uploads {
+        # 500 MiB file plus 2 MiB multipart overhead, matching the API.
+        max_size 526385152
+    }
+    reverse_proxy api:8000
+}

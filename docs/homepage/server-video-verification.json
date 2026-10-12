@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-10T02:37:49.814Z",
+  "homepage": true,
+  "video": {
+    "src": "http://192.168.1.34:18088/assets/hero-background-Bldyx_Ai.webm",
+    "muted": true,
+    "paused": false,
+    "duration": 31.25,
+    "loop": true,
+    "inline": true,
+    "error": null
+  },
+  "webmRangeStatus": 206,
+  "mp4RangeStatus": 206,
+  "screenshots": [
+    {
+      "src": "http://192.168.1.34:18088/assets/chat-DUBJ8Mzc.png",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "src": "http://192.168.1.34:18088/assets/studio-BCvw6Jla.png",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "mobileWidths": [
+    390,
+    320
+  ],
+  "reducedMotion": true,
+  "login": true,
+  "studio": true,
+  "logout": true,
+  "health": {
+    "status": "ok",
+    "version": "0.1.0"
+  },
+  "errors": [],
+  "failedRequests": []
+}

@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-10-10T09:59:39.397Z",
+  "displaySwitchRemoved": true,
+  "outerFrameRemoved": true,
+  "editableInput": true,
+  "emptySubmitStaysOnHomepage": true,
+  "submitDestination": "/login?view=bot",
+  "draftSurvivesLoginRefresh": true,
+  "draftRestoredAfterRealLogin": true,
+  "noAutomaticTask": true,
+  "draftExcludedFromUrl": true,
+  "draftClearedAfterLogin": true,
+  "loginVideoPlays": true,
+  "fontLoaded": true,
+  "mobileWidths": [
+    390,
+    320
+  ],
+  "mobileLoginGapBelow40px": true,
+  "reducedMotion": true,
+  "botRefresh": true,
+  "logoutAndReturnHome": true,
+  "productionTasksCreated": 0,
+  "homepageApiRequests": [],
+  "taskPosts": [],
+  "health": {
+    "status": "ok",
+    "version": "0.1.0"
+  },
+  "errors": [],
+  "failedRequests": []
+}

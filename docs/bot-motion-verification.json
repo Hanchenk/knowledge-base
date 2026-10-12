@@ -1,0 +1,161 @@
+{
+  "deployment": {
+    "release": "zhixiaohui-motion-20261010-171254",
+    "image": "sha256:49b044a6a65409022ca0c11ad11f8505d7cee7c3c93d63f2d150792f03845a00",
+    "previous_image": "sha256:fc69be3620ef2cc29a0413f5fbc5887c10b18ea4393ab1b2e958a95215f1f61a",
+    "deployed_at": "2026-10-10T17:18:12+0800",
+    "api_and_worker_same_image": true,
+    "schema": 7,
+    "rollback_image": "atlas-knowledge:before-zhixiaohui-motion-20261010-171254",
+    "backup": "/work/project/atlas-knowledge/backups/zhixiaohui-motion-20261010-171254"
+  },
+  "performance_method": "Same host, Chrome headless, continuous sinusoidal pointer input, 3-second observation of SVG eye transforms and catcher CSS transforms; separately compare display RAF cadence and React commits. The 4x CPU rate is a browser simulation, not a guarantee for all devices.",
+  "before": {
+    "avatar": {
+      "updates": 69,
+      "renderedFps": 22.990803678391607,
+      "displayFps": 59.97600959580419,
+      "p95UpdateMs": 50.69999998807907,
+      "reactCommits": 70,
+      "LayoutDuration": 0.008719,
+      "RecalcStyleDuration": 0.014457,
+      "TaskDuration": 0.20665499999999998
+    },
+    "game": {
+      "updates": 65,
+      "renderedFps": 21.65800346536658,
+      "displayFps": 59.97600959639976,
+      "p95UpdateMs": 51,
+      "reactCommits": 69,
+      "LayoutDuration": 0.012556000000000001,
+      "RecalcStyleDuration": 0.021480000000000003,
+      "TaskDuration": 0.385253
+    }
+  },
+  "local_after": {
+    "avatar": {
+      "updates": 178,
+      "renderedFps": 59.299730152560095,
+      "displayFps": 59.966019255397846,
+      "p95UpdateMs": 17.599999994039536,
+      "reactCommits": 1,
+      "LayoutDuration": 0.026884,
+      "RecalcStyleDuration": 0.028147,
+      "TaskDuration": 0.240758
+    },
+    "game": {
+      "updates": 180,
+      "renderedFps": 59.8324690864391,
+      "displayFps": 60.16487169247487,
+      "p95UpdateMs": 17.5,
+      "reactCommits": 5,
+      "LayoutDuration": 0.027236999999999997,
+      "RecalcStyleDuration": 0.029549999999999993,
+      "TaskDuration": 0.31041699999999994
+    },
+    "throttledGame": {
+      "updates": 179,
+      "renderedFps": 59.65473571964126,
+      "displayFps": 59.98800239963926,
+      "p95UpdateMs": 18.299999982118607,
+      "reactCommits": 6,
+      "LayoutDuration": 0.080266,
+      "RecalcStyleDuration": 0.074147,
+      "TaskDuration": 0.836873
+    }
+  },
+  "production_fixture_after": {
+    "avatar": {
+      "updates": 179,
+      "renderedFps": 59.640822310687525,
+      "displayFps": 59.974011262143875,
+      "p95UpdateMs": 17.5,
+      "reactCommits": 1,
+      "LayoutDuration": 0.024034,
+      "RecalcStyleDuration": 0.024263,
+      "TaskDuration": 0.218461
+    },
+    "game": {
+      "updates": 179,
+      "renderedFps": 59.64280954308643,
+      "displayFps": 59.97600959639976,
+      "p95UpdateMs": 17.599999994039536,
+      "reactCommits": 4,
+      "LayoutDuration": 0.028311000000000003,
+      "RecalcStyleDuration": 0.028428999999999996,
+      "TaskDuration": 0.28657800000000005
+    },
+    "throttledGame": {
+      "updates": 179,
+      "renderedFps": 59.6626891537008,
+      "displayFps": 59.99600026629131,
+      "p95UpdateMs": 17.700000017881393,
+      "reactCommits": 4,
+      "LayoutDuration": 0.079124,
+      "RecalcStyleDuration": 0.07791700000000001,
+      "TaskDuration": 0.73594
+    }
+  },
+  "authenticated_production_verification": {
+    "base_url": "http://192.168.1.34:18088",
+    "verified_at": "2026-10-10T09:18:32.995Z",
+    "production_tasks_created": 0,
+    "real_model_calls": 0,
+    "horizontal_gaze": true,
+    "avatar_performance": {
+      "renderedFps": 59.95802937955344,
+      "displayFps": 59.95802937955344,
+      "p95UpdateMs": 17.5
+    },
+    "inline_transition": true,
+    "full_conversation_playfield": true,
+    "workspace_toggle_while_gaming": true,
+    "actual_star_catch": true,
+    "game_performance": {
+      "renderedFps": 59.64280954249417,
+      "displayFps": 59.97600959580419,
+      "p95UpdateMs": 17.599999994039536
+    },
+    "throttled_game_performance": {
+      "renderedFps": 59.99600026688728,
+      "displayFps": 59.99600026688728,
+      "p95UpdateMs": 18.19999998807907
+    },
+    "keyboard_control": true,
+    "pause": true,
+    "escape_restores_focus": true,
+    "draft_preserved": true,
+    "mobile_touch": true,
+    "reduced_motion_gaze": true,
+    "narrow_mobile": true,
+    "assets_checked": 12,
+    "browser_errors": []
+  },
+  "candidate": {
+    "api": "healthy",
+    "frontend_asset_bytes_match": true,
+    "companion_bundle_present": true,
+    "existing_stream_contract_present": true,
+    "production_database_access": false,
+    "real_model_calls": 0,
+    "assets_checked": 12
+  },
+  "preservation": {
+    "business_counts_preserved": true,
+    "model_configuration_preserved": true,
+    "environment_preserved": true,
+    "volume_mounts_preserved": true,
+    "unrelated_source_preserved": true,
+    "infrastructure_images_preserved": true,
+    "api_healthy": true,
+    "api_and_worker_same_image": true,
+    "zero_restarts": true
+  },
+  "checks": {
+    "frontend_build": true,
+    "changed_file_formatting": true,
+    "full_bot_regression_tests": 12,
+    "final_full_playfield_local_tests": 3,
+    "final_production_fixture_tests": 3
+  }
+}

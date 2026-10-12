@@ -1,0 +1,16 @@
+@font-face {
+  font-family: "Zhihui Brand";
+  src: url("./assets/fonts/zhihui-brand.woff2?no-inline") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  unicode-range: U+6C47, U+77E5;
+}
+
+.product-name {
+  font-family: "Zhihui Brand", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  font-synthesis: none;
+  letter-spacing: 0;
+}

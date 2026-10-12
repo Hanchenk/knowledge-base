@@ -1,0 +1,138 @@
+{
+  "plugin_version": "0.1.0-alpha.22",
+  "tested_at": "2026-10-10",
+  "tests": {
+    "plugin": {
+      "passed": 17,
+      "scope": "bridge, Cordis host, account naming"
+    },
+    "backend": {
+      "unit_passed": 4,
+      "security_passed": 38,
+      "inspiration_integration_passed": 3,
+      "stores": [
+        "PostgreSQL",
+        "Qdrant",
+        "MinIO"
+      ],
+      "stores_verified_at": "2026-10-10T10:07:42Z"
+    },
+    "frontend_bot_browser": {
+      "passed": 15
+    },
+    "production_build": "passed",
+    "clippy": "passed",
+    "production_bot_browser": {
+      "passed": 3,
+      "scope": "production frontend with isolated API fixtures; no production tasks created"
+    }
+  },
+  "official_runtime": {
+    "officialDesktopVersion": "0.2.0-rc.2",
+    "runtime": "installed official Desktop CLI, isolated profile, mock model adapter",
+    "webOrigin": {
+      "taskId": "adb87224-8063-4848-8b4f-082df397432d",
+      "status": "completed",
+      "tools": 11,
+      "artifacts": 1,
+      "nativeSession": "session-zhixiaohui-adb87224-8063-4848-8b4f-082df397432d"
+    },
+    "desktopOrigin": {
+      "taskId": "0d7dd0de-6220-4264-b98f-bac6ddded264",
+      "status": "completed",
+      "artifacts": 1
+    },
+    "cancelledNativeStatus": "idle",
+    "publicStreaming": true,
+    "hiddenReasoningExcluded": true,
+    "approvalAuditRoundTrip": true
+  },
+  "limitations": [
+    "Official runtime validation used an isolated profile and simulated model adapter.",
+    "Electron GUI and Windows have not been automated in this verification.",
+    "A real user workspace must be selected and paired by the user."
+  ],
+  "plugin_sha256": "99e231fe7187127bb873f8d6cbc75e67dea1e578388bd8dcb683419d49f203cf",
+  "deployment": {
+    "release": "zhixiaohui-local-bridge-20261010-175944",
+    "image": "sha256:e8cbb64bd3d4e12a21a8fcee66c1bfa9bb577e68d66c0e494128d90f19bbada1",
+    "previous_image": "sha256:77503830f7cbe502533eb099437bcaa47707c51031e04fc0916291cc20e132f5",
+    "backup": "/work/project/atlas-knowledge/backups/zhixiaohui-local-bridge-20261010-175944",
+    "rollback_image": "atlas-knowledge:before-zhixiaohui-local-bridge-20261010-175944",
+    "api_and_worker_same_image": true,
+    "api_health": "healthy",
+    "schema": 9,
+    "business_counts_preserved": true,
+    "model_configuration_preserved": true,
+    "environment_preserved": true,
+    "data_mounts_preserved": true,
+    "tls_sandbox_preserved": true,
+    "published_source_matches_bundle": true,
+    "live_counts": {
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 5,
+      "studio_assets": 4,
+      "schema_version": 9,
+      "model_revision": [
+        10
+      ],
+      "model_config_hash": "d1dc40a3b31efca08e1057042983a053"
+    }
+  },
+  "production": {
+    "health": {
+      "status": "ok",
+      "version": "0.1.0"
+    },
+    "app_http": 200,
+    "login_http": 200,
+    "assets_match_build": true,
+    "login": true,
+    "capabilities": {
+      "agent": true,
+      "web": true,
+      "code": true,
+      "runtime": {
+        "auto_compaction": true,
+        "checkpoints": true,
+        "context_window": 32768,
+        "engine": "pi-agent-core",
+        "max_output_tokens": 5000
+      }
+    },
+    "skills": 4,
+    "paired_devices_api": true,
+    "plugin_package_match": true,
+    "local_routes_openapi": true,
+    "original_task": {
+      "status": "cancelled",
+      "attempt": 2,
+      "artifacts": 0,
+      "events": 125
+    },
+    "production_tasks_created_by_verification": 0,
+    "real_model_calls": 0
+  },
+  "candidate": {
+    "candidate_health": "healthy",
+    "local_routing": true,
+    "native_approval_resume": true,
+    "device_credential_scope": true,
+    "snapshot_retransmission": true,
+    "artifact_saved": true,
+    "revocation": true,
+    "frontend_assets_match": true,
+    "plugin_package_match": true,
+    "production_database_access": false,
+    "real_model_calls": 0
+  },
+  "desktop_installation": {
+    "profile": "desktop",
+    "plugin_version": "0.1.0-alpha.22",
+    "restart_required": true,
+    "real_workspace_paired": false
+  },
+  "source_bundle_sha256": "cf00f1609f3da5d71d2d2b039e0c55f0cdb747cb257ef530da9bdf1c5868782b"
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e9eeec" />
+    <title>知汇 · 知小汇 bot，你的 AI 工作搭档</title>
+    <meta
+      name="description"
+      content="知汇与知小汇 bot，交办研究、会议纪要、报表分析与文档任务，查看执行进度、下载成果，用团队知识和工具把想法变成完成的工作。"
+    />
+    <meta property="og:title" content="知汇 · 知小汇 bot，你的 AI 工作搭档" />
+    <meta
+      property="og:description"
+      content="把下一件工作交给知小汇 bot，从一个想法开始，一起把它做好。"
+    />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/src/startup.css" />
+  </head>
+  <body>
+    <div id="root">
+      <div class="startup-screen" role="status" aria-live="polite">
+        <div class="startup-screen-content">
+          <div class="startup-screen-emblem" aria-hidden="true">
+            <div class="startup-screen-turn">
+              <img
+                class="startup-screen-logo"
+                src="/src/assets/product-logo.png"
+                alt=""
+                width="88"
+                height="88"
+                draggable="false"
+              />
+            </div>
+          </div>
+          <div class="startup-screen-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="startup-screen-status">正在加载知汇…</span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

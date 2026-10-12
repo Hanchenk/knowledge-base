@@ -1,0 +1,58 @@
+{
+  "checkedAt": "2026-10-10T02:48:36.771Z",
+  "checks": [
+    {
+      "page": "homepage",
+      "title": "知汇 · 让知识创造价值",
+      "loaded": true,
+      "family": "\"Zhihui Brand\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    {
+      "page": "login",
+      "title": "知汇 · 登录工作空间",
+      "loaded": true,
+      "family": "\"Zhihui Brand\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    {
+      "page": "workspace",
+      "title": "知汇 · 企业知识库",
+      "loaded": true,
+      "family": "\"Zhihui Brand\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    {
+      "page": "chat",
+      "title": "知汇 · 企业知识库",
+      "loaded": true,
+      "family": "\"Zhihui Brand\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    {
+      "page": "studio",
+      "title": "知汇 · 企业知识库",
+      "loaded": true,
+      "family": "\"Zhihui Brand\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    }
+  ],
+  "font": {
+    "url": "http://192.168.1.34:18088/assets/zhihui-brand-CI4w9_du.woff2",
+    "status": 200,
+    "bytes": 1292,
+    "matchesUploadedFontSubset": true
+  },
+  "screenshots": [
+    "http://192.168.1.34:18088/assets/chat-DmXH5UvQ.png",
+    "http://192.168.1.34:18088/assets/studio-BtVRZdtF.png"
+  ],
+  "mobileWidths": [
+    390,
+    320
+  ],
+  "videoPlays": true,
+  "login": true,
+  "logout": true,
+  "health": {
+    "status": "ok",
+    "version": "0.1.0"
+  },
+  "errors": [],
+  "failedRequests": []
+}

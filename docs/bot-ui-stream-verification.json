@@ -1,0 +1,111 @@
+{
+  "deployment": {
+    "release": "zhixiaohui-ui-stream-20261010-161935",
+    "image": "sha256:76be73f12a1335c30dbb027dfaf2c416da95b13c7d7f6c2419aa35ba1be94acd",
+    "previous_image": "sha256:4260c1a53d83ad19fac1afeb7456c88d7e3acee40924fde459218dd934829bb8",
+    "deployed_at": "2026-10-10T16:26:48+0800",
+    "api_and_worker_same_image": true,
+    "schema": 7,
+    "rollback_image": "atlas-knowledge:before-zhixiaohui-ui-stream-20261010-161935",
+    "backup": "/work/project/atlas-knowledge/backups/zhixiaohui-ui-stream-20261010-161935"
+  },
+  "candidate": {
+    "api": "healthy",
+    "separate_worker": true,
+    "real_pi_protocol_fixture": true,
+    "model_text_before_completion": true,
+    "persisted_output": true,
+    "sse_reconnect": true,
+    "private_reasoning_excluded": true,
+    "openapi_sse": true,
+    "task_status": "completed",
+    "real_model_calls": 0,
+    "production_database_access": false
+  },
+  "live": {
+    "base_url": "http://192.168.1.34:18088",
+    "verified_at": "2026-10-10T08:29:25.534Z",
+    "real_model_calls": 0,
+    "external_connector_writes": 0,
+    "production_tasks_created": 0,
+    "login_status": 200,
+    "health": {
+      "status": "ok",
+      "version": "0.1.0"
+    },
+    "agent_enabled": true,
+    "sandbox_enabled": true,
+    "builtin_skills": 4,
+    "composer_resource_selection": true,
+    "workspace_persists": true,
+    "sidebar_drag_keyboard_persistence": true,
+    "mobile": [
+      {
+        "width": 390,
+        "overflow": false
+      },
+      {
+        "width": 320,
+        "overflow": false
+      }
+    ],
+    "mobile_touch": true,
+    "reduced_motion": true,
+    "authenticated_stream_route": 404,
+    "openapi_sse": true,
+    "assets": [
+      "index.html",
+      "assets/App-BpCRdA0Y.css",
+      "assets/App-CcMafRCy.js",
+      "assets/BotPage-C7p4uOiM.js",
+      "assets/BotPage-WidbC4iL.css",
+      "assets/SettingsPage-Cw-2O3HG.js",
+      "assets/StudioPage-C76K94WJ.js",
+      "assets/image-plus-DJn5evDD.js",
+      "assets/index-Bx_EhHoJ.css",
+      "assets/index-CPTeo777.js",
+      "assets/zhihui-brand-CI4w9_du.woff2",
+      "licenses/bloub.txt"
+    ],
+    "preserved_account_preferences": true,
+    "browser_errors": [],
+    "failed_resources": [],
+    "logout_status": 200
+  },
+  "preservation": {
+    "business": {
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 5,
+      "studio_assets": 3,
+      "schema_version": 7,
+      "model_revision": [
+        10
+      ],
+      "model_config_hash": "d1dc40a3b31efca08e1057042983a053"
+    },
+    "same_api_worker_image": true,
+    "configuration_preserved": true,
+    "data_volumes_preserved": true,
+    "infrastructure_images_preserved": true
+  },
+  "tests": {
+    "rust_sqlite_bot": {
+      "passed": 9
+    },
+    "rust_postgres_qdrant_bot": {
+      "passed": 9
+    },
+    "node_runtime": {
+      "passed": 12
+    },
+    "production_browser_regression": {
+      "passed": 12
+    },
+    "real_paid_model_calls": 0,
+    "production_studio_wide_layout": {
+      "passed": 1
+    }
+  }
+}
