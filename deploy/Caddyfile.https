@@ -2,10 +2,18 @@
     encode zstd gzip
     header {
         Strict-Transport-Security "max-age=31536000"
-        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' http://127.0.0.1:18765 http://127.0.0.1:18766 http://127.0.0.1:18767 http://127.0.0.1:18768 http://127.0.0.1:18769; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
-        Referrer-Policy "strict-origin-when-cross-origin"
         Permissions-Policy "camera=(), microphone=(), geolocation=()"
         -Server
+    }
+    @artifactRender path /api/bot/artifacts/*/render
+    @ordinaryResponse not path /api/bot/artifacts/*/render
+    header @ordinaryResponse {
+        >Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' http://127.0.0.1:18765 http://127.0.0.1:18766 http://127.0.0.1:18767 http://127.0.0.1:18768 http://127.0.0.1:18769; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        >Referrer-Policy "strict-origin-when-cross-origin"
+    }
+    header @artifactRender {
+        >Content-Security-Policy "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+        >Referrer-Policy "no-referrer"
     }
     @uploads path /api/documents/upload
     request_body @uploads {

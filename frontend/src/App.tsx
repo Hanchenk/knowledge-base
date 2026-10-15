@@ -51,6 +51,11 @@ const StudioPage = lazy(() =>
 const BotPage = lazy(() =>
   import("./BotPage").then((module) => ({ default: module.BotPage })),
 );
+const PersonalMemoryCenter = lazy(() =>
+  import("./BotMemory").then((module) => ({
+    default: module.PersonalMemoryCenter,
+  })),
+);
 const SettingsPage = lazy(() =>
   import("./SettingsPage").then((module) => ({ default: module.SettingsPage })),
 );
@@ -139,6 +144,18 @@ export default function App() {
   const sidebar = useSidebar(mobile, setMobile);
   const [revision, setRevision] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [memoryOpen, setMemoryOpen] = useState(false);
+  const [experienceRevision, setExperienceRevision] = useState(0);
+  const [botTaskRequest, setBotTaskRequest] = useState<{
+    id: string;
+    revision: number;
+  }>();
+  useEffect(() => {
+    setProfileOpen(false);
+    setMemoryOpen(false);
+    setBotTaskRequest(undefined);
+    setExperienceRevision(0);
+  }, [identity?.user.id, identity?.user.tenant_id]);
   const [logoutBusy, setLogoutBusy] = useState(false);
   const accountTrigger = useRef<HTMLButtonElement>(null);
   const closeProfile = () => {
@@ -168,7 +185,10 @@ export default function App() {
     api<typeof identity>("/api/auth/me")
       .then(setIdentity)
       .catch(() => setIdentity(null));
-    const out = () => setIdentity(null);
+    const out = () => {
+      setIdentity(null);
+      window.history.replaceState(null, "", `/login${window.location.search}`);
+    };
     window.addEventListener("atlas:unauthorized", out);
     return () => window.removeEventListener("atlas:unauthorized", out);
   }, []);
@@ -194,6 +214,7 @@ export default function App() {
     return () => window.clearInterval(interval);
   }, [identity, stats?.counts.pending, refresh]);
   const navigate = (next: Page, space = "") => {
+    setBotTaskRequest(undefined);
     setPage(next);
     setSelectedSpace(space);
     setMobile(false);
@@ -757,6 +778,8 @@ export default function App() {
                 user={user}
                 feedback={feedback}
                 confirm={confirm}
+                taskRequest={botTaskRequest}
+                experienceRevision={experienceRevision}
                 onDocument={openDocument}
                 onUpload={() => setModal("upload")}
                 onConfigure={() => {
@@ -827,7 +850,45 @@ export default function App() {
           tenantName={tenant.name}
           onSaved={refresh}
           onClose={closeProfile}
+          onMemory={() => {
+            setProfileOpen(false);
+            setMemoryOpen(true);
+          }}
         />
+      )}
+      {memoryOpen && (
+        <Suspense
+          fallback={
+            <Modal
+              title="记忆与经验"
+              onClose={() => {
+                setMemoryOpen(false);
+                setProfileOpen(true);
+              }}
+            >
+              <div className="loading-panel">正在加载记忆与经验…</div>
+            </Modal>
+          }
+        >
+          <PersonalMemoryCenter
+            onClose={() => {
+              setMemoryOpen(false);
+              setProfileOpen(true);
+            }}
+            onTask={(id) => {
+              setMemoryOpen(false);
+              navigate("bot");
+              setBotTaskRequest({ id, revision: Date.now() });
+            }}
+            onDocument={(id) => {
+              setMemoryOpen(false);
+              openDocument(id);
+            }}
+            onChanged={() => setExperienceRevision((value) => value + 1)}
+            feedback={feedback}
+            confirm={confirm}
+          />
+        </Suspense>
       )}
       {modal === "upload" && (
         <UploadDialog

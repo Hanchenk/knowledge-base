@@ -1,0 +1,63 @@
+{
+  "release": "web-search-20261012-135500",
+  "production": {
+    "ok": true,
+    "release": "web-search-20261012-135500",
+    "image": "sha256:58b1512b48303ad3bb9a191aa1ed6095c7cfa9a790dac3621d6f7f05ccd3b46b",
+    "api_healthy": true,
+    "backend_and_runtime_unchanged": true,
+    "database": {
+      "schema": 12,
+      "users": 37,
+      "spaces": 4,
+      "documents": 5,
+      "assets": 4,
+      "tasks": 30,
+      "active_tasks": 0,
+      "active_studio_jobs": 0
+    },
+    "model_configuration_unchanged": true,
+    "environment_unchanged": true,
+    "infrastructure_and_volumes_preserved": true,
+    "static_files_verified": 42,
+    "previous_image": "sha256:a64ef8baa8960e8133a49d2f390ddf5e1117da80edd3e6e8bfc076b2cae57afd",
+    "backup": "/work/project/atlas-knowledge/backups/web-search-20261012-135500",
+    "rollback": "python3 /work/project/atlas-knowledge/releases/web-search-20261012-135500/deploy-web-fix.py rollback"
+  },
+  "runtime_search": {
+    "ok": true,
+    "harness": "0.2.0-rc.2",
+    "plugin": "0.6.0",
+    "explicit_web_off_filtered": true,
+    "web_on_tools_loaded": true,
+    "native_anysearch_real_search": true,
+    "sources": [
+      "https://github.com/deepseek-ai/deepseek-harness",
+      "https://www.deepseek.com/en/harness/"
+    ],
+    "fixture_model_requests": 3,
+    "paid_model_calls": 0,
+    "business_tasks_created": 0
+  },
+  "live_browser": {
+    "ok": true,
+    "production": "http://192.168.1.34:18088",
+    "business_tasks_created": 0,
+    "paid_model_calls": 0,
+    "ui_checks": {
+      "direct_toggle": true,
+      "real_installed_plugin_enables_web": "no installed search plugin on validation account",
+      "submitted_web_true": true,
+      "mobile_toggle_and_layout": true
+    },
+    "page_errors": 0,
+    "intercepted_task_options": {
+      "allow_web": true,
+      "runtime": "deepseek-harness",
+      "plugin_ids": []
+    },
+    "session_revoked": true
+  },
+  "fixture_e2e_passed": 8,
+  "frontend_build": "passed"
+}

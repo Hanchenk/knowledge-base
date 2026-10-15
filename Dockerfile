@@ -21,7 +21,7 @@ COPY agent-runtime/*.mjs ./
 FROM docker:29-cli AS docker-cli
 
 FROM python:3.12-slim-bookworm
-RUN apt-get update && apt-get install -y --no-install-recommends libstdc++6 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends libstdc++6 git && rm -rf /var/lib/apt/lists/*
 RUN groupadd --gid 10001 atlas && useradd --uid 10001 --gid atlas --create-home atlas
 WORKDIR /app
 COPY processor/requirements.txt /tmp/requirements.txt
@@ -32,7 +32,7 @@ COPY --from=agent /usr/local/bin/node /usr/local/bin/node
 COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=agent /build/agent-runtime ./agent-runtime
 COPY processor/extract.py processor/tables.py ./processor/
-RUN mkdir -p /app/data/files && chown -R atlas:atlas /app
+RUN mkdir -p /app/data/files /app/data/harness && chown -R atlas:atlas /app
 USER atlas
 ENV BIND_ADDRESS=0.0.0.0:8000 PROCESSOR_PYTHON=/usr/local/bin/python PROCESSOR_SCRIPT=/app/processor/extract.py
 EXPOSE 8000

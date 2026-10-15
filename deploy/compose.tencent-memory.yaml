@@ -1,0 +1,154 @@
+# Optional overlay: docker compose -f compose.yaml -f deploy/compose.tencent-memory.yaml up -d --build
+# Build the audited upstream checkout; no provider port is published to the host.
+services:
+  api:
+    environment: &memory-client
+      MEMORY_CORE_URL: http://memory-gateway:8080/core
+      MEMORY_CORE_TOKEN: ${MEMORY_CORE_TOKEN:?Set MEMORY_CORE_TOKEN}
+      MEMORY_CORE_ADMIN_USER_KEY: ${MEMORY_CORE_ADMIN_USER_KEY:?Set MEMORY_CORE_ADMIN_USER_KEY}
+      MEMORY_KNOWLEDGE_URL: http://memory-gateway:8080/knowledge
+      MEMORY_KNOWLEDGE_TOKEN: ${MEMORY_KNOWLEDGE_TOKEN:?Set MEMORY_KNOWLEDGE_TOKEN}
+      MEMORY_SERVICE_ID: ${MEMORY_SERVICE_ID:-zhixiaohui}
+    networks: [default, memory-private]
+  worker:
+    environment: *memory-client
+    networks: [default, memory-private]
+  memory-core:
+    build:
+      context: ${TENCENTDB_AGENT_MEMORY_SOURCE:?Set path to the pinned TencentDB-Agent-Memory checkout}/MemoryCore
+    image: zhixiaohui-memory-core:274e549
+    environment:
+      TDAI_GATEWAY_API_KEY: ${MEMORY_CORE_TOKEN}
+      TDAI_GATEWAY_HOST: 0.0.0.0
+      TDAI_GATEWAY_CONFIG: /data/config/tdai-gateway.yaml
+      TDAI_DEPLOY_MODE: standalone
+      TDAI_INSTANCE_ID: ${MEMORY_SERVICE_ID:-zhixiaohui}
+      STATE_BACKEND: local
+      STORE_MODE: sqlite
+      FILE_STORE_MODE: local
+      SCANNER_INSTANCES: ${MEMORY_SERVICE_ID:-zhixiaohui}
+      WORKER_CONCURRENCY: "4"
+      V3_STRICT_ISOLATION: "true"
+      TDAI_LLM_PROVIDER: openai
+      TDAI_LLM_BASE_URL: ${MEMORY_LLM_BASE_URL:?Set MEMORY_LLM_BASE_URL}
+      TDAI_LLM_API_KEY: ${MEMORY_LLM_API_KEY:?Set MEMORY_LLM_API_KEY}
+      TDAI_LLM_MODEL: ${MEMORY_LLM_MODEL:?Set MEMORY_LLM_MODEL}
+      TDAI_SKILL_ENABLED: "true"
+      TDAI_DATA_DIR: /data/tdai-memory
+    volumes: ["tencent_memory_core:/data/tdai-memory"]
+    configs:
+      - source: memory-core-runtime
+        target: /data/config/tdai-gateway.yaml
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:8420/health', {signal: AbortSignal.timeout(4000)})
+          .then(async r => {const h = await r.json(); process.exit(r.ok && h.status === 'ok'
+          && h.stores?.vectorStore && h.services?.stateBackend === 'connected'
+          && h.services?.timerScanner && h.services?.pipelineWorker ? 0 : 1)})
+          .catch(() => process.exit(1))
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    networks: [memory-private, memory-egress]
+    restart: unless-stopped
+  memory-knowledge:
+    build:
+      context: ${TENCENTDB_AGENT_MEMORY_SOURCE:?Set path to the pinned TencentDB-Agent-Memory checkout}/MemoryKnowledge
+    image: zhixiaohui-memory-knowledge:274e549
+    environment:
+      KNOWLEDGE_SERVICE_KEY: ${MEMORY_KNOWLEDGE_TOKEN}
+      KNOWLEDGE_PUBLIC_BASE_URL: http://memory-gateway:8080/knowledge/v3
+      KNOWLEDGE_SSRF_CHECK: "true"
+      KNOWLEDGE_DATA_DIR: /app/data
+      KNOWLEDGE_DB_PATH: /app/data/knowledge.db
+      PORT: "8421"
+      LLM_MODE: custom
+      LLM_BASE_URL: ${MEMORY_LLM_BASE_URL}
+      LLM_API_KEY: ${MEMORY_LLM_API_KEY}
+      LLM_MODEL: ${MEMORY_LLM_MODEL}
+      # Git must not follow a trusted host's redirects or use alternate protocols.
+      GIT_CONFIG_COUNT: "3"
+      GIT_CONFIG_KEY_0: http.followRedirects
+      GIT_CONFIG_VALUE_0: "false"
+      GIT_CONFIG_KEY_1: protocol.allow
+      GIT_CONFIG_VALUE_1: never
+      GIT_CONFIG_KEY_2: protocol.https.allow
+      GIT_CONFIG_VALUE_2: always
+      GIT_TERMINAL_PROMPT: "0"
+      GIT_CONFIG_NOSYSTEM: "1"
+      GIT_CONFIG_GLOBAL: /dev/null
+    volumes: ["tencent_memory_knowledge:/app/data"]
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:8421/health', {signal: AbortSignal.timeout(4000)})
+          .then(async r => {const h = await r.json(); if (!r.ok || h.status !== 'ok') process.exit(1);
+          const Database = require('better-sqlite3');
+          const db = new Database(process.env.KNOWLEDGE_DB_PATH, {readonly: true, fileMustExist: true});
+          db.prepare('SELECT wiki_id FROM knowledge_wiki LIMIT 1').get(); db.close(); process.exit(0)})
+          .catch(() => process.exit(1))
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    networks: [memory-private, memory-egress]
+    restart: unless-stopped
+  memory-gateway:
+    image: caddy:2-alpine
+    environment:
+      MEMORY_CORE_TOKEN: ${MEMORY_CORE_TOKEN}
+      MEMORY_KNOWLEDGE_TOKEN: ${MEMORY_KNOWLEDGE_TOKEN}
+    volumes: ["./deploy/Caddyfile.tencent-memory:/etc/caddy/Caddyfile:ro"]
+    networks: [memory-private]
+    depends_on:
+      memory-core: {condition: service_healthy}
+      memory-knowledge: {condition: service_healthy}
+    restart: unless-stopped
+configs:
+  memory-core-runtime:
+    # Keep credentials in environment variables; this configuration is non-secret.
+    content: |
+      deployMode: standalone
+      stateBackend: local
+      data:
+        baseDir: /data/tdai-memory
+        fileStore: local
+      memory:
+        promptMode: chat
+        storeBackend: sqlite
+        embedding:
+          provider: none
+        bm25:
+          enabled: true
+          language: zh
+      skill:
+        enabled: true
+        storeBackend: sqlite
+        contentBackend: local
+        extraction:
+          enabled: true
+          maxIterations: 16
+        resources:
+          allowExecutable: false
+          maxResourceSizeBytes: 5000000
+networks:
+  memory-private:
+    internal: true
+    ipam:
+      config:
+        - subnet: ${MEMORY_PRIVATE_SUBNET:-10.253.240.0/24}
+  memory-egress:
+    ipam:
+      config:
+        - subnet: ${MEMORY_EGRESS_SUBNET:-10.253.241.0/24}
+volumes:
+  tencent_memory_core:
+  tencent_memory_knowledge:

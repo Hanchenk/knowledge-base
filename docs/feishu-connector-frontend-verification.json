@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "checked_at": "2026-10-13T08:35:22.294853+00:00",
+  "final_feishu_e2e": {
+    "passed": 18,
+    "failed": 0,
+    "seconds": 31.3,
+    "output": "/tmp/zxh-feishu-ui-verify/final-new-results"
+  },
+  "final_related_regressions": {
+    "passed": 8,
+    "failed": 0,
+    "seconds": 32.6,
+    "output": "/tmp/zxh-feishu-ui-verify/final-regression-results"
+  },
+  "initial_run": {
+    "passed": 25,
+    "failed": 1,
+    "failure": "expired draft rejection warning",
+    "correction": "readFeishuReturn is pure; clear invalid draft storage in committed useEffect",
+    "affected_suite_repeated_after_fix": true
+  },
+  "typecheck_and_production_build": true,
+  "prettier_7_changed_files": true,
+  "diff_check": true,
+  "final_three_screenshots_visually_checked": true,
+  "screenshot_sha256": {
+    "feishu-picker-390.png": "1c2f8718ceb80189cfd19fea95eeb18abf6ace0e08e7f363375e2518cc6c3a8d",
+    "feishu-connected-management.png": "d34b6027112f22df9fbe90e0420e2d9de880fda71c839dacb42991d5b0cf18e3",
+    "feishu-picker-1440.png": "e462a100da08bf5b599771fe5a9d9617ae1c2e6ef92397a2f18b4744a12a58fe"
+  },
+  "original_two_docs_screenshots_restored": true,
+  "source_sha256": {
+    "frontend/src/BotPage.tsx": "dbfa0e880b52e9563c20f24987b163ce3c2ab78b4b1e56584a4297ba5fabe12a",
+    "frontend/src/BotComposer.tsx": "bc883af1959c0e515290f352f9e3dab6f0e29df09e659717008d3397c7a65d1f",
+    "frontend/src/bot-types.tsx": "813ed8209cbf83d582181af39755efe876732a11c675fe57acd4e3869acc6462",
+    "frontend/src/feishu-api.ts": "0b48fc8dcc9c4d449809c581d5b95696692f984894c63fbffca73f673345fa3f",
+    "frontend/src/BotFeishu.tsx": "27aca3ef3f5b87f6db81a65e8239e3fc572a764121e424eb15e97ee2572fef6b",
+    "frontend/src/bot-feishu.css": "2b728828058ee116aad55b26cf22c340258589f3de59db65c73f7f54082ac2ce",
+    "frontend/e2e/feishu-connectors.spec.ts": "685160f5ff3cc1d45a3baf3a363a8f7e7d9f85e5a59d3faa3f2be472725442b5",
+    "frontend/e2e/bot.spec.ts": "6b931e8d107ba0ef12d1558eb519f6dea6f2fdafbd375bdcc29797c87eeff171"
+  },
+  "dist_sha256": {
+    "frontend/dist/apple-touch-icon.png": "4460352ce8688df0ac3ba89e778a43abffc5c48a7cc4e8fb590d98b8a85500a6",
+    "frontend/dist/assets/App-B8WSzKIf.css": "568f8bd225317a7c29fc6f645b73f61fff9ea75b07384b01e7335e33e483a9a1",
+    "frontend/dist/assets/App-CLimr5Fd.js": "a0431904b58b9cb906253902ff9307f18c19a24be3473ab819c9ac802795aa30",
+    "frontend/dist/assets/BotMemory-elszYT7K.css": "4ef1b982fa69b39fd7a5a341519f607c31a48ed79076640c631f476b81c9e26d",
+    "frontend/dist/assets/BotMemory-v9QjykDQ.js": "04ca93d2e242df83238264b9a6fc1022c6045bb8cb5247a7c6d7bd708fecb804",
+    "frontend/dist/assets/BotPage-D4XzopSl.js": "c7079dfe5c8d096d508846fdc13875e3a244e50b4ee1013339db1a7ea6fc087a",
+    "frontend/dist/assets/BotPage-DlnlMHCb.css": "a7e67473f863fe860bb7c23616b7a641f26cc2475299e15443c4dd7bd754414f",
+    "frontend/dist/assets/SettingsPage-bgXpmjlg.js": "731195704ee3ae39fdf7644f20ad18ad6d46b5803d77acc7faa1bf8ea502b00d",
+    "frontend/dist/assets/StudioPage-2LcExema.js": "194413b4638adf1358d3bec77bbf5128cf0cf9e25bfa918b9a018c319f594232",
+    "frontend/dist/assets/StudioPage-Biipxi5t.css": "2ffcff33a14340dbc3f4ae726376031d21bf152809f2294c872f925d84ae6281",
+    "frontend/dist/assets/chat-DmXH5UvQ.png": "4a0085948542c26f447290c585bbaa2e243a32589249bb02caa4e0ee845d0bd0",
+    "frontend/dist/assets/citation-sources-DBOd8fKR.js": "8c996b9db53261d83c110ccc5823cdc0b07bbaffc87b56b58a9143c166dd797e",
+    "frontend/dist/assets/harness-api-Mmf5sM_q.js": "052fbb9b6a9d99b978b4b14d736a2ca9c0d97df9bfa925aca05b4f0be0af73bd",
+    "frontend/dist/assets/hero-background-Bldyx_Ai.webm": "6ec0aa668f7f232708ba080b5783be261842655110f9688ac049f2c78589d7c4",
+    "frontend/dist/assets/hero-background-rFi5xpKV.mp4": "cd539a518328361eb515be4b7f48a234a340acbfae910e948e6e715faa999cbe",
+    "frontend/dist/assets/hero-poster-CJv5LX5_.jpg": "8aa2e6de8f5490e3a48c69e3522622da4715bbb73d53a78c264e93e6a873595a",
+    "frontend/dist/assets/image-plus-CQeX87sf.js": "17a835570c26a39792a3e74661e1f9d67b6d0fd19d582d697cb40626e0596de6",
+    "frontend/dist/assets/index-CCMF8l7m.js": "8f24104ca955a67ab42493bb628f506eb5cad9258fc88aa77fcb501b27b7f593",
+    "frontend/dist/assets/index-D4oxbH7k.css": "0e98df92027c5d58e4fbbb6f18375d363af71b2ac99e80567b29cf96be1d66b3",
+    "frontend/dist/assets/product-logo-DTrU2NYD.png": "983c4da534806c8df18105785778c066a8114bfd4b5ab999a9e9ea380c9d00a2",
+    "frontend/dist/assets/studio-BtVRZdtF.png": "caedc3560fb27933cf12732d12772b2d838d20565952ce25379f029bc236ad6f",
+    "frontend/dist/assets/zhihui-brand-CI4w9_du.woff2": "677997398f34f1b475c7bc8a9d9a844a084c6aaaef66fe768b5e8d0be5a93aba",
+    "frontend/dist/downloads/dsh-plugin-team-hub-0.1.0-alpha.20.tgz": "60398435c074853183e82ad1e873e95ccdce42de336c9abf18f7fc16fcd09a30",
+    "frontend/dist/downloads/dsh-plugin-team-hub-0.1.0-alpha.21.tgz": "52798652752a4fad4e4d6491e9a75acf7cdfa7491a70170f5d35932b81dbcd66",
+    "frontend/dist/downloads/dsh-plugin-team-hub-0.1.0-alpha.22.tgz": "99e231fe7187127bb873f8d6cbc75e67dea1e578388bd8dcb683419d49f203cf",
+    "frontend/dist/downloads/dsh-plugin-team-hub-0.1.0-alpha.23.tgz": "0ad9cc15e09f7caaddc0dda7155d3056e0a6e8d539abbf1f3496a52b2a0dc305",
+    "frontend/dist/favicon.png": "25ec75c95f8deba346b051b6f2c8b0e462b72bbfbe61b40c913bb7b92e6779e3",
+    "frontend/dist/homepage-designs/a-daylight.html": "2901c6a2b5ec7b757493f3f2a7a00f860e32adc45ccb0461ef184c40c458380c",
+    "frontend/dist/homepage-designs/b-brand-blue.html": "da7077ec8cbedd2c77fbb34c2cb54fdbdf2eae0d6fdf8d8d84cee884f4aaa9a3",
+    "frontend/dist/homepage-designs/c-forest-ink.html": "2067573e87edb87b4e8c2d268cfdc436f9f6cf1edf8846dffdb8a2fd06287a6f",
+    "frontend/dist/homepage-designs/index.html": "87a89e0634a4639c877eb23f91fd4aca1654ab31c2524d75b6602fa3cfaec5ce",
+    "frontend/dist/homepage-designs/screenshots/a-daylight-desktop.png": "2e45d06ebce81a16a94f0254007c37bc911f86b51ddfe95226e36d3b70f3be56",
+    "frontend/dist/homepage-designs/screenshots/a-daylight-full.png": "b5f3ae4039646af619a0ea737817857b705c26ae029cc20fd450ef57bc12cbe1",
+    "frontend/dist/homepage-designs/screenshots/a-daylight-mobile-hero.png": "a9e730f4b797239dc241875b360edb77af18d99d478fada7d96417ec9e4041bd",
+    "frontend/dist/homepage-designs/screenshots/a-daylight-mobile.png": "d5c434e30299c10f1f693b9072f6a6598d620de0106be24c7775a8aeab2ef469",
+    "frontend/dist/homepage-designs/screenshots/b-brand-blue-desktop.png": "dee99b04e99b4b5f745b886cd6a10efc22e79af1d48788e2845e817e7f757416",
+    "frontend/dist/homepage-designs/screenshots/b-brand-blue-full.png": "c1570ca30bfc41aad32450c5803c0bfa337fabd2be391556fea5bea087333168",
+    "frontend/dist/homepage-designs/screenshots/b-brand-blue-mobile-hero.png": "7d4e4c5c8295752f10fd202af0b3b1217da1d26a21879fce0f3e44f58f148e31",
+    "frontend/dist/homepage-designs/screenshots/b-brand-blue-mobile.png": "93ae2becaf45d19efcbc2a3e1da7e4b7d889890119567aa275ae7eb7d5de135b",
+    "frontend/dist/homepage-designs/screenshots/c-forest-ink-desktop.png": "ae6e735a83d751fdb435ce0001f12099b49a9bb9056e2ece9b56b1a09a2806ca",
+    "frontend/dist/homepage-designs/screenshots/c-forest-ink-full.png": "f0da7268e5367eff4b0bee6e6bed5f2f2519859bf7fdbf478312c39fff5067fe",
+    "frontend/dist/homepage-designs/screenshots/c-forest-ink-mobile-hero.png": "31de59c57deac8ac83e1869bc57955aa6e35293254f11c6285a7c05f6a516b25",
+    "frontend/dist/homepage-designs/screenshots/c-forest-ink-mobile.png": "3cbff2688b6f796e079d5d0f05eff6426468a8cdf13dbd94c3b22b0933a88e36",
+    "frontend/dist/homepage-designs/screenshots/comparison.png": "bb64ab34a2c42b99724c864c318d3a89e2f9dbb6ab3b98fd8d187de1a964c19f",
+    "frontend/dist/index.html": "4a4441c8f70e5efa634d29e30695269baa1cc1871fd2e7446226c63c700af606",
+    "frontend/dist/licenses/bloub.txt": "d43fe2742faaf4a86210ec33bb155f101f64883e3994be9193099367940736b4"
+  },
+  "production_ui_script": {
+    "path": "/tmp/zxh-feishu-ui-verify/production-ui.mjs",
+    "sha256": "973ecf2ab99c39550e8ac0b798f27c4dd02de683dce9d2e4c7b7516e2e879738",
+    "node_syntax_checked": true,
+    "inert": true,
+    "production_not_accessed": true
+  },
+  "reproduction_commands": [
+    "npx playwright test e2e/feishu-connectors.spec.ts --trace=off",
+    "npx playwright test e2e/bot.spec.ts e2e/bot-memory.spec.ts e2e/harness-plugins.spec.ts --grep \"bot tasks update|bot supports mobile|composer searches|composer more combines|composer panels stay usable|task options preserve memory|plugin dialog restores focus\" --trace=off",
+    "npm run build"
+  ],
+  "visual_checks_by_root": true,
+  "mock_screenshots": [
+    "docs/screenshots/feishu-connector-mock-feishu-picker-390.png",
+    "docs/screenshots/feishu-connector-mock-feishu-connected-management.png",
+    "docs/screenshots/feishu-connector-mock-feishu-picker-1440.png"
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "release": "creative-harness-20261012-124002",
+  "verified_at": "2026-10-12T05:18:05.986730+00:00",
+  "url": "http://192.168.1.34:18088",
+  "production": {
+    "ok": true,
+    "release": "creative-harness-20261012-124002",
+    "image": "sha256:a64ef8baa8960e8133a49d2f390ddf5e1117da80edd3e6e8bfc076b2cae57afd",
+    "containers": {
+      "api": {
+        "id": "74da09f70608ca5fa9c409e2d5b5870a861c0db3fb27722a206b8be2e132e814",
+        "image": "sha256:a64ef8baa8960e8133a49d2f390ddf5e1117da80edd3e6e8bfc076b2cae57afd",
+        "status": "running",
+        "health": "healthy",
+        "restarts": 0
+      },
+      "worker": {
+        "id": "5d139bb59268537dd6b4ad445b85e0d42d112d7cba01405d5848e1f450ef7e1a",
+        "image": "sha256:a64ef8baa8960e8133a49d2f390ddf5e1117da80edd3e6e8bfc076b2cae57afd",
+        "status": "running",
+        "health": null,
+        "restarts": 0
+      },
+      "postgres": {
+        "id": "3df52b7b3d188fad6a45d64dd1e286743de5598dd94a8fd644df149548733ab9",
+        "image": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+        "status": "running",
+        "health": "healthy",
+        "restarts": 0
+      },
+      "qdrant": {
+        "id": "b48c62e94071f1a36e6fe2255ddcb17e7aa8b48557de26f081e9a78a89bb1f6e",
+        "image": "sha256:e35e37cf82b6894049e69e168e1135cbc2a084f3b63bdccc7908afff1bdc57d6",
+        "status": "running",
+        "health": null,
+        "restarts": 0
+      },
+      "minio": {
+        "id": "aa46bb1c4ec974062055508abb6f0d21de7607a0827dda5d0bf5aeb382776802",
+        "image": "sha256:69b2ec208575b69597784255eec6fa6a2985ee9e1a47f4411a51f7f5fdd193a9",
+        "status": "running",
+        "health": null,
+        "restarts": 0
+      },
+      "gateway": {
+        "id": "523b4fa160e27a093e5792b5944ccb53159bc2e0d0dba4aabf654ede3211d76c",
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null,
+        "restarts": 0
+      },
+      "sandbox": {
+        "id": "a11c886019bed64c42eed7dd3a06533497cd8ce4a2506bbc78420e3a36607d0a",
+        "image": "sha256:1c6d6ea5ca348694849364514e436202092c36d6a0b4040b0ca64937799046d4",
+        "status": "running",
+        "health": "healthy",
+        "restarts": 0
+      }
+    },
+    "database": {
+      "schema": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 5,
+      "assets": 4,
+      "tasks": 28,
+      "active_tasks": 0
+    },
+    "environment_unchanged": true,
+    "model_ciphertext_unchanged": true,
+    "existing_volumes_preserved": true,
+    "infrastructure_preserved": true,
+    "harness_shared_volume": true,
+    "harness_bridge_on_sandbox_network": true,
+    "static_files_verified": 42,
+    "backup": "/work/project/atlas-knowledge/backups/creative-harness-20261012-124002",
+    "rollback": "python3 /work/project/atlas-knowledge/releases/creative-harness-20261012-124002/release_control.py rollback"
+  },
+  "candidate": {
+    "ok": true,
+    "image": "sha256:a64ef8baa8960e8133a49d2f390ddf5e1117da80edd3e6e8bfc076b2cae57afd",
+    "isolated_postgres_restore_migration": true,
+    "database": {
+      "schema": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 5,
+      "assets": 4,
+      "tasks": 28
+    },
+    "existing_model_ciphertext_preserved": true,
+    "harness_sdk_dind_smoke": true,
+    "native_resume": true,
+    "npm_plugin_lifecycle": true,
+    "binary_artifacts": true,
+    "code_disabled": true,
+    "provider_key_isolation": true,
+    "paid_model_calls": 0,
+    "static_files_verified": 42
+  },
+  "harness_runtime": {
+    "ok": true,
+    "production_worker_image": "sha256:a64ef8baa8960e8133a49d2f390ddf5e1117da80edd3e6e8bfc076b2cae57afd",
+    "production_dind_runtime": true,
+    "harness_version": "0.2.0-rc.2",
+    "real_npm_plugin_install_enable_disable_remove": true,
+    "native_resume": true,
+    "private_text_and_binary_artifacts": true,
+    "platform_bridge": true,
+    "code_disabled": true,
+    "provider_key_isolation": true,
+    "paid_model_calls": 0,
+    "business_tasks_created": 0,
+    "engine_cache_ready": true
+  },
+  "browser": {
+    "ok": true,
+    "started_at": "2026-10-12T05:11:07.857Z",
+    "origin": "http://192.168.1.34:18088",
+    "expected_harness_version": "0.2.0-rc.2",
+    "test_attachment_name": "production-smoke-39367148-5010-4798-9cc5-9709aba16ec2.png",
+    "credentials_file_validated": true,
+    "live_api_checks": {
+      "anonymous:/api/bot/harness": 401,
+      "anonymous:/api/bot/plugins/catalog": 401,
+      "anonymous:/api/studio/capabilities": 401,
+      "anonymous:/api/studio/attachments/production-smoke-missing": 401,
+      "authenticated:/api/auth/me": 200,
+      "harness": {
+        "status": 200,
+        "installed_version": "0.2.0-rc.2",
+        "available": true,
+        "docker_isolation": true,
+        "latest_version": "0.2.0-rc.2"
+      },
+      "catalog": {
+        "status": 200,
+        "plugins": 39,
+        "npm_marketplace": true,
+        "lookup_error": false
+      },
+      "studio": {
+        "status": 200,
+        "attachment_upload": true,
+        "max_files": 8,
+        "png_supported": true
+      }
+    },
+    "ui_checks": {
+      "login": true,
+      "harness_desktop": true,
+      "harness_mobile": true,
+      "studio_desktop": true,
+      "clipboard_handler_upload": true,
+      "attachment_private_download": true,
+      "studio_mobile": true,
+      "attachment_removed": true,
+      "no_browser_exceptions": true,
+      "session_revoked": true
+    },
+    "safe_business_read_fixtures": [
+      "/api/spaces",
+      "/api/documents",
+      "/api/bot/tasks",
+      "/api/bot/skills",
+      "/api/bot/connectors",
+      "/api/bot/devices",
+      "/api/studio/projects"
+    ],
+    "writes": {
+      "login": 1,
+      "logout": 1,
+      "attachment_upload": 1,
+      "attachment_delete": 1
+    },
+    "blocked_writes": [],
+    "page_errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "screenshots": [
+      {
+        "name": "harness-market-production-desktop.png",
+        "credentials_and_business_content_masked": true
+      },
+      {
+        "name": "harness-market-production-mobile.png",
+        "credentials_and_business_content_masked": true
+      },
+      {
+        "name": "studio-production-desktop.png",
+        "credentials_and_business_content_masked": true
+      },
+      {
+        "name": "studio-production-mobile.png",
+        "credentials_and_business_content_masked": true
+      }
+    ],
+    "attachments": {
+      "uploaded": 1,
+      "removed": 1,
+      "known_remaining": 0,
+      "remaining": 0,
+      "unknown_upload_outcome": false
+    },
+    "paid_or_business_operations": 0,
+    "expected_audit_effect": "Login/logout bookkeeping and one studio.attachment upload audit; no project, job, task, or plugin changes.",
+    "finished_at": "2026-10-12T05:11:31.456Z"
+  },
+  "tests": {
+    "linux_rust_passed": 57,
+    "linux_node_passed": 33,
+    "production_fixture_e2e_passed": 7,
+    "frontend_build": "passed"
+  },
+  "paid_model_calls_in_verification": 0,
+  "first_attempt": {
+    "automatic_rollback": true,
+    "cause": "Deployment verification read missing Name on a Docker bind mount; fixed to compare optional metadata.",
+    "application_failure": false,
+    "database_retained": true
+  }
+}

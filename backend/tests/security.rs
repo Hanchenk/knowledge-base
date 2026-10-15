@@ -27,6 +27,16 @@ impl Harness {
         let temporary = tempfile::tempdir().unwrap();
         let mut config = Config::load().unwrap();
         config.production = false;
+        // Local security fixtures must not inherit live service credentials from .env.
+        // External storage tests opt in explicitly through ATLAS_TEST_S3_* below.
+        config.s3_endpoint.clear();
+        config.s3_bucket.clear();
+        config.s3_access_key.clear();
+        config.s3_secret_key.clear();
+        config.memory_core_url.clear();
+        config.memory_core_token.clear();
+        config.memory_knowledge_url.clear();
+        config.memory_knowledge_token.clear();
         config.database_url = format!(
             "sqlite://{}?mode=rwc",
             temporary.path().join("test.db").display()
@@ -2368,6 +2378,10 @@ async fn studio_pi_tools_generate_persisted_media_with_private_assets_and_idempo
         video_size: "1280x720".into(),
         seconds: 4,
         settings: disabled_settings,
+        operation: "generate".into(),
+        quality: "auto".into(),
+        style: String::new(),
+        image_count: 0,
     };
     atlas_server::studio::queue(
         &h.state,
@@ -2542,6 +2556,10 @@ async fn studio_grok_json_video_resumes_and_downloads_proxy_or_native_content() 
             video_size: if native { "720x1280" } else { "1280x720" }.into(),
             seconds: if native { 12 } else { 4 },
             settings,
+            operation: "generate".into(),
+            quality: "auto".into(),
+            style: String::new(),
+            image_count: 0,
         };
         let queued = studio::queue(&h.state, &actor, &context, "video", "连接知识光点")
             .await
@@ -2682,6 +2700,10 @@ async fn studio_interrupted_paid_submission_is_not_repeated_and_failures_are_red
         video_size: "1280x720".into(),
         seconds: 4,
         settings,
+        operation: "generate".into(),
+        quality: "auto".into(),
+        style: String::new(),
+        image_count: 0,
     };
     assert!(
         studio::queue(&h.state, &actor, &context, "video", "invalid mode")
@@ -3658,6 +3680,194 @@ async fn bot_connectors_require_exact_approval_keep_secrets_and_deduplicate_writ
     .await
     .is_err());
     server.abort();
+}
+
+#[tokio::test]
+async fn bot_initial_evidence_is_opt_in_for_agent_tasks_and_preserves_excerpt_fallback() {
+    use atlas_server::bot;
+    use std::sync::Arc;
+
+    let mut h = Harness::new().await;
+    let actor = h.actor("admin@atlas.local").await;
+    let space = h.space("全员知识").await;
+    let selected = id();
+    let unrelated = id();
+    for (document, title, text) in [
+        (
+            &selected,
+            "骑行动画参考",
+            "创建一个 HTML，内容是 SVG 绘制鹈鹕骑自行车的 2D 动画。参考主题颜色为海蓝色。",
+        ),
+        (
+            &unrelated,
+            "音乐视频背景编辑",
+            "生成一个音乐舞蹈视频，使用参考内容替换画面背景。这里不包含骑行实现。",
+        ),
+    ] {
+        h.state.db.exec("INSERT INTO documents(id,tenant_id,space_id,title,filename,mime_type,storage_key,size,checksum,version,indexed_version,status,created_by,created_at,updated_at) VALUES(?,?,?,?,?,'text/plain','fixture',1,'fixture',1,1,'ready',?,?,?)", vec![json!(document),json!(actor.tenant_id),json!(space),json!(title),json!(format!("{title}.txt")),json!(actor.id),json!(now()),json!(now())]).await.unwrap();
+        h.state.db.exec("INSERT INTO chunks(id,tenant_id,space_id,document_id,version,text,search_tokens,page,kind,position) VALUES(?,?,?,?,1,?,?,1,'text',0)",vec![json!(id()),json!(actor.tenant_id),json!(space),json!(document),json!(text),json!(rag::tokens(&format!("{title} {text}")).join(" "))]).await.unwrap();
+    }
+    let prompt = "帮我创建一个 HTML，内容是 SVG 绘制鹈鹕骑自行车的 2D 动画，不使用任何 skill";
+    let recalled = rag::search(
+        &h.state,
+        &actor,
+        SearchInput {
+            query: prompt.into(),
+            space_id: None,
+            document_ids: None,
+            limit: Some(8),
+            image_base64: None,
+            image_mime: None,
+        },
+    )
+    .await
+    .unwrap();
+    assert!(
+        recalled
+            .hits
+            .iter()
+            .any(|hit| hit["document_id"] == unrelated),
+        "The fixture must reproduce incidental full-library matches"
+    );
+
+    // Exercise the Rust/Node protocol without provider calls or runtime npm
+    // dependencies. Capture the actual evidence supplied to model execution.
+    let capture = h._temporary.path().join("agent-input.jsonl");
+    let script = h._temporary.path().join("agent-fixture.mjs");
+    std::fs::write(&script, format!(r#"import {{ appendFileSync }} from 'node:fs';
+import {{ createInterface }} from 'node:readline';
+const input = createInterface({{ input: process.stdin }});
+input.once('line', (line) => {{
+  appendFileSync({}, line + '\n');
+  process.stdout.write(JSON.stringify({{ type: 'result', answer: '已创建 SVG 骑行动画。' }}) + '\n', () => process.exit(0));
+}});
+"#, serde_json::to_string(&capture.to_string_lossy()).unwrap())).unwrap();
+    let config = Arc::make_mut(&mut h.state.config);
+    config.agent_enabled = true;
+    config.ai_api_key = "fixture-no-provider-call".into();
+    config.chat_model = "fixture-agent".into();
+    config.chat_base_url.clear();
+    config.agent_script = script.to_string_lossy().into();
+    h.router = atlas_server::router(h.state.clone());
+    let owner = h.login("admin@atlas.local").await;
+
+    let mut task_ids = Vec::new();
+    for document_ids in [json!([]), json!([selected])] {
+        let (status, created) = h
+            .bot_request(
+                "POST",
+                "/api/bot/tasks",
+                &owner,
+                json!({"request_id":id(),"prompt":prompt,"options":{"document_ids":document_ids}}),
+                Some("http://localhost:5173"),
+            )
+            .await;
+        assert_eq!(status, StatusCode::OK, "{created}");
+        assert!(bot::run_one(&h.state).await.unwrap());
+        let key = created["id"].as_str().unwrap();
+        let (_, detail) = h
+            .bot_request(
+                "GET",
+                &format!("/api/bot/tasks/{key}"),
+                &owner,
+                json!({}),
+                None,
+            )
+            .await;
+        assert_eq!(detail["task"]["status"], "completed", "{detail}");
+        let citations = detail["task"]["citations"].as_array().unwrap();
+        if task_ids.is_empty() {
+            assert!(
+                citations.is_empty(),
+                "A standalone creation task must not acquire unrelated knowledge dependencies"
+            );
+        } else {
+            assert!(
+                !citations.is_empty(),
+                "Explicit reference documents must still seed evidence"
+            );
+            assert!(citations.iter().all(|hit| hit["document_id"] == selected));
+        }
+        task_ids.push(key.to_owned());
+    }
+    let inputs: Vec<Value> = std::fs::read_to_string(&capture)
+        .unwrap()
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    assert_eq!(inputs.len(), 2);
+    let first_history = inputs[0]["history"].to_string();
+    assert!(!first_history.contains("音乐视频背景编辑"));
+    assert!(!first_history.contains("骑行动画参考"));
+    let attachment_history = inputs[1]["history"].to_string();
+    assert!(attachment_history.contains("骑行动画参考"));
+    assert!(!attachment_history.contains("音乐视频背景编辑"));
+
+    // Both ways of reaching original-excerpt mode retain automatic retrieval.
+    for agent_enabled in [false, true] {
+        let config = Arc::make_mut(&mut h.state.config);
+        config.agent_enabled = agent_enabled;
+        config.chat_model.clear();
+        h.router = atlas_server::router(h.state.clone());
+        let (status, created) = h
+            .bot_request(
+                "POST",
+                "/api/bot/tasks",
+                &owner,
+                json!({"request_id":id(),"prompt":prompt}),
+                Some("http://localhost:5173"),
+            )
+            .await;
+        assert_eq!(status, StatusCode::OK, "{created}");
+        assert!(bot::run_one(&h.state).await.unwrap());
+        let (_, detail) = h
+            .bot_request(
+                "GET",
+                &format!("/api/bot/tasks/{}", created["id"].as_str().unwrap()),
+                &owner,
+                json!({}),
+                None,
+            )
+            .await;
+        assert_eq!(detail["task"]["status"], "completed", "{detail}");
+        assert!(detail["task"]["result"]
+            .as_str()
+            .unwrap()
+            .contains("原文检索模式"));
+        assert!(detail["task"]["citations"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|hit| hit["document_id"] == unrelated));
+    }
+    assert_eq!(
+        std::fs::read_to_string(&capture).unwrap().lines().count(),
+        2,
+        "Excerpt fallback must not invoke the model"
+    );
+
+    // The fixture answer has no inline citations. Evidence actually supplied
+    // to execution must still fence access after its document version changes.
+    h.state
+        .db
+        .exec(
+            "UPDATE documents SET version=version+1 WHERE id=?",
+            vec![json!(selected)],
+        )
+        .await
+        .unwrap();
+    for (index, key) in task_ids.iter().enumerate() {
+        let (_, detail) = h
+            .bot_request(
+                "GET",
+                &format!("/api/bot/tasks/{key}"),
+                &owner,
+                json!({}),
+                None,
+            )
+            .await;
+        assert_eq!(detail["evidence_available"], index == 0);
+    }
 }
 
 #[tokio::test]

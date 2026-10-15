@@ -1,0 +1,106 @@
+{
+  "checked_at": "2026-10-12T08:25:22.593628+00:00",
+  "upstream_commit": "274e549069ad780e411d70e6fff51f6a977d81d3",
+  "implemented": [
+    "personal approved cross-task memory",
+    "reviewed task-derived skills",
+    "authorized Wiki and public GitHub CodeGraph"
+  ],
+  "runtime_support": [
+    "pi-agent-core",
+    "deepseek-harness",
+    "authorized local platform tool bridge"
+  ],
+  "verification": [
+    {
+      "command": "CARGO_INCREMENTAL=0 cargo test --workspace --locked",
+      "status": "passed",
+      "tests": 91
+    },
+    {
+      "command": "cargo test --test bot_memory provider_drift_is_repaired_without_a_local_edit_and_disabled_owners_are_purged",
+      "status": "passed",
+      "tests": 1,
+      "note": "Additional regression added after full suite; total 92 unique backend tests validated."
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "status": "passed"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "status": "passed"
+    },
+    {
+      "command": "node --test test/*.test.mjs (agent-runtime)",
+      "status": "passed",
+      "tests": 53
+    },
+    {
+      "command": "npm run build (frontend)",
+      "status": "passed"
+    },
+    {
+      "command": "npx playwright test e2e/bot-memory.spec.ts",
+      "status": "passed",
+      "tests": 9,
+      "scope": "Browser API fixtures; not a real upstream provider deployment."
+    },
+    {
+      "command": "Existing task/composer/narrow-screen browser regression tests",
+      "status": "passed",
+      "tests": 3,
+      "scope": "Verified by frontend integration subagent."
+    },
+    {
+      "command": "processor/.venv/bin/python -m unittest discover -s processor -p 'test_*.py'",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "command": "docker compose -f compose.yaml -f deploy/compose.tencent-memory.yaml config --quiet",
+      "status": "passed",
+      "scope": "Static configuration using non-secret fixture values."
+    },
+    {
+      "command": "prettier --check (modified memory and task frontend files)",
+      "status": "passed"
+    },
+    {
+      "command": "npm run format:check (all frontend files)",
+      "status": "failed_existing_vendor_format",
+      "files": [
+        "src/vendor/bloub/decor.ts",
+        "src/vendor/bloub/engine.ts",
+        "src/vendor/bloub/expressions.ts",
+        "src/vendor/bloub/eyefit.ts",
+        "src/vendor/bloub/face.ts",
+        "src/vendor/bloub/math.ts",
+        "src/vendor/bloub/profiles.ts",
+        "src/vendor/bloub/repere.ts",
+        "src/vendor/bloub/shape.ts",
+        "src/vendor/bloub/skins.ts",
+        "src/vendor/bloub/states.ts"
+      ],
+      "note": "These files are unchanged by this task."
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed"
+    }
+  ],
+  "remaining_deployment_verification": [
+    "Tencent Core and Knowledge container builds, authenticated gateway runtime and real model-backed extraction/ingestion have not been exercised.",
+    "Local Docker runtime could not start the provider containers because its VM metadata filesystem was read-only.",
+    "Public repository indexing time, graph quality, model distillation quality and production Postgres/provider interoperability require deployment acceptance.",
+    "API/worker must receive the MEMORY_* configuration and provider model credentials before remote functions can be used."
+  ],
+  "governance": {
+    "identity": "Tenant/user identities injected by Rust; owner-specific Knowledge team IDs.",
+    "memory": "Encrypted local approved records plus curated Core L3 snapshots; local keyword ranking. No raw automatic L0/L1/L2 conversation export.",
+    "skills": "Versioned owner review, encrypted candidates, live source hash/ACL and iterative dependency validation; only workflow text is selected.",
+    "recall": "Live ACL/version checks, durable context receipts, cached/checkpoint/history reuse fenced after revocation.",
+    "deletion": "Local revocation immediate; remote cleanup retried. Uncertain creation/extraction acknowledgements retain reconciliation receipts.",
+    "retention": "Original task records and upstream historical versions/backups are not physically erased by snapshot overwrite."
+  }
+}

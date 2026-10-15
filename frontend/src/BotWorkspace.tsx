@@ -1,16 +1,16 @@
 import {
   ArrowRight,
   Cloud,
-  Download,
   FileText,
   Globe2,
   PanelRightClose,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { bytes } from "./api";
+import { ArtifactMarkdown } from "./ArtifactMarkdown";
+import { BotArtifactFiles } from "./BotArtifactFiles";
+import type { BotArtifact } from "./artifact-preview";
 import { BloubAvatar, type BotMood } from "./BloubAvatar";
 import { Badge, type Detail } from "./bot-types";
+import { visibleCitationSources } from "./citation-sources";
 
 export function BotWorkspace({
   detail,
@@ -19,6 +19,10 @@ export function BotWorkspace({
   onTab,
   onClose,
   onDocument,
+  selectedArtifactId,
+  previewArtifact,
+  previewArtifacts,
+  onArtifact,
 }: {
   detail?: Detail;
   mood: BotMood;
@@ -26,12 +30,22 @@ export function BotWorkspace({
   onTab: (value: "result" | "files") => void;
   onClose: () => void;
   onDocument: (id: string) => void;
+  selectedArtifactId?: string;
+  previewArtifact?: BotArtifact;
+  previewArtifacts?: BotArtifact[];
+  onArtifact: (id: string) => void;
 }) {
   const latest = detail?.messages?.at(-1);
+  const artifacts = detail?.evidence_available ? detail.artifacts : [];
   const active = ["running", "queued"].includes(detail?.task.status || "");
   const text = active
     ? latest?.content || detail?.task.result
     : detail?.task.result || latest?.content;
+  const sources = visibleCitationSources(
+    text || "",
+    detail?.evidence_available === false ? [] : detail?.task.citations || [],
+    detail?.evidence_available === false ? [] : detail?.task.web_sources || [],
+  );
   return (
     <aside className="bot-workspace-pane" aria-label="bot 工作区">
       <header className="bot-workspace-header">
@@ -69,9 +83,7 @@ export function BotWorkspace({
           onClick={() => onTab("files")}
         >
           文件
-          {detail?.artifacts.length ? (
-            <small>{detail.artifacts.length}</small>
-          ) : null}
+          {artifacts.length ? <small>{artifacts.length}</small> : null}
         </button>
       </div>
       <div
@@ -105,62 +117,58 @@ export function BotWorkspace({
               )}
             </div>
             <div className="markdown">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+              <ArtifactMarkdown artifacts={artifacts} onArtifact={onArtifact}>
+                {text}
+              </ArtifactMarkdown>
             </div>
-            {!!detail?.task.citations.length && (
+            {!!sources.citations.length && (
               <div className="bot-sources">
                 <h4>知识来源</h4>
-                {detail.task.citations.map((source, index) => (
+                {sources.citations.map((source, index) => (
                   <button
                     key={`${source.chunk_id}-${index}`}
                     onClick={() => onDocument(source.document_id)}
                   >
                     <FileText size={14} />
                     <span>
-                      [{index + 1}] {source.title} · 第 {source.page} 页
+                      [{source.citation_number}] {source.title} · 第{" "}
+                      {source.page} 页
                     </span>
                     <ArrowRight size={13} />
                   </button>
                 ))}
               </div>
             )}
-            {!!detail?.task.web_sources.length && (
+            {!!sources.webSources.length && (
               <div className="bot-sources">
                 <h4>公开来源</h4>
-                {detail.task.web_sources.map((source, index) => (
+                {sources.webSources.map((source) => (
                   <a
                     key={source.url}
-                    href={
-                      /^https?:\/\//.test(source.url) ? source.url : undefined
-                    }
+                    href={source.url}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                   >
                     <Globe2 size={14} />
-                    [W{index + 1}] {source.title}
+                    [W{source.citation_number}] {source.title}
                   </a>
                 ))}
               </div>
             )}
           </section>
-        ) : tab === "files" && detail?.artifacts.length ? (
+        ) : tab === "files" && (artifacts.length || previewArtifact) ? (
           <section className="bot-files">
             <h3>
               <Cloud size={16} />
               成果文件
             </h3>
-            {detail.artifacts.map((file) => (
-              <a key={file.id} href={`/api/bot/artifacts/${file.id}`}>
-                <span>
-                  <FileText size={20} />
-                </span>
-                <div>
-                  <strong>{file.name}</strong>
-                  <small>{bytes(file.size)} · 私有文件</small>
-                </div>
-                <Download size={15} />
-              </a>
-            ))}
+            <BotArtifactFiles
+              artifacts={artifacts}
+              selectedArtifactId={selectedArtifactId}
+              previewArtifact={previewArtifact}
+              previewArtifacts={previewArtifacts}
+              onArtifact={onArtifact}
+            />
           </section>
         ) : (
           <div className="bot-workspace-empty">

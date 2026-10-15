@@ -1,0 +1,426 @@
+{
+  "ok": true,
+  "generated_at": "2026-10-12T11:45:29.494019+00:00",
+  "release": "agent-memory-20261012-184000",
+  "url": "http://192.168.1.34:18088/app?view=bot",
+  "production": {
+    "ok": true,
+    "release": "agent-memory-20261012-184000",
+    "image": "sha256:1bfac5375a3bbf27c0427e9cfeee8e5f4ac22d73f65c89b1ad5797653565a126",
+    "api_healthy": true,
+    "database": {
+      "schema": 16,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32,
+      "active_tasks": 0,
+      "active_studio_jobs": 0,
+      "active_bot_actions": 0
+    },
+    "model_configuration_unchanged": true,
+    "existing_environment_preserved": true,
+    "memory_services_configured": true,
+    "infrastructure_and_volumes_preserved": true,
+    "static_files_verified": 44,
+    "runtime_files_verified": 21,
+    "previous_image": "sha256:6b303fc37ca744844e7cd7b24a4cc9fe12f3fbcc6c47f0748b29066a0743fa21",
+    "backup": "/work/project/atlas-knowledge/backups/agent-memory-20261012-184000",
+    "rollback": "python3 /work/project/atlas-knowledge/releases/agent-memory-20261012-184000/release-control.py rollback"
+  },
+  "candidate": {
+    "ok": true,
+    "image": "sha256:1bfac5375a3bbf27c0427e9cfeee8e5f4ac22d73f65c89b1ad5797653565a126",
+    "isolated_postgres_restore": true,
+    "validation_subnet": "10.253.242.0/24",
+    "vpn_route_preserved": true,
+    "database": {
+      "schema": 16,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32
+    },
+    "existing_model_ciphertext_preserved": true,
+    "features": {
+      "anonymous_memory_skill_and_knowledge_management_denied": true,
+      "completed_private_source_task": true,
+      "input_contract": true,
+      "isolated_candidate_identities": true,
+      "memory_approve_and_reject": true,
+      "memory_crud_and_unknown_identity_rejection": true,
+      "memory_delete_tombstone": true,
+      "memory_forget_only_clears_owner_and_disables_capture": true,
+      "memory_owner_and_admin_isolation": true,
+      "memory_review_owner_and_admin_isolation": true,
+      "memory_settings_are_private": true,
+      "ok": true,
+      "pending_memory_fixture_is_reviewable": true,
+      "provider_status_public_contract": true,
+      "skill_candidate_delete_revokes_published_skill": true,
+      "skill_draft_browser_owner_and_spoof_isolation": true,
+      "skill_exact_version_review_and_single_publication": true,
+      "skill_pending_is_not_runnable": true,
+      "skill_rejection_never_publishes": true
+    },
+    "real_platform_core": {
+      "completed_synthetic_task_owner_and_evidence": true,
+      "core_scope_dlq_empty": true,
+      "core_scope_inventory_valid": true,
+      "core_scope_queue_empty": true,
+      "durable_receipt_and_imported_candidate_binding": true,
+      "encrypted_fixture_recovery_protected": true,
+      "finished_fixture_archives_deleted": true,
+      "fixture_bound_owner_key_and_private_registry": true,
+      "fixture_external_cleanup_completed": true,
+      "fixture_native_assets_and_registry_deleted": true,
+      "fixture_platform_candidates_deleted": true,
+      "fresh_fixture_registry_and_candidates": true,
+      "integration_completed": true,
+      "isolated_candidate_owner_and_database": true,
+      "isolated_input_and_container_bindings": true,
+      "native_registry_ready": true,
+      "ok": true,
+      "platform_receipt_acknowledgement_verified": true,
+      "platform_requested_real_core_extraction": true,
+      "real_core_candidate_owner_and_admin_isolation": true,
+      "real_core_candidate_pending_not_published": true,
+      "real_core_candidate_ready": true,
+      "submitted_archive_evidence_present": true,
+      "synthetic_completed_task_fixture_committed": true,
+      "synthetic_fixture_calculation_verified": true
+    },
+    "static_files_verified": 44,
+    "runtime_files_verified": 21
+  },
+  "real_provider": {
+    "isolated_invocation_and_internal_tokens": true,
+    "real_provider_health_and_gateway_auth": true,
+    "core_curated_l3_write_read_and_isolation": true,
+    "skill_native_private_actor_registered": true,
+    "wiki_real_model_ingestion_search_and_read": true,
+    "code_graph_real_repository_build_and_queries": true,
+    "skill_real_model_extract_list_get": true,
+    "wiki_verification_asset_deleted": true,
+    "code_graph_verification_asset_deleted": true,
+    "skill_verification_assets_and_finished_archive_deleted": true,
+    "core_curated_snapshot_cleared": true,
+    "skill_native_validation_registry_deleted": true,
+    "cleanup_completed_before_deadline": true,
+    "within_eight_minutes": true,
+    "ok": true,
+    "real_providers": true,
+    "exit_code": 0,
+    "completed_at": "2026-10-12T10:50:04.163344+00:00",
+    "reused_from": "/work/project/atlas-knowledge/releases/agent-memory-20261012-180500/provider-verification.json",
+    "provider_configuration_unchanged": true,
+    "providers": {
+      "memory-core": {
+        "id": "df6ee415bbac14d99c447bbea9ad85dbe30d0c9dfcf6df478c791ecec3f31797",
+        "image": "sha256:d18f09189803d637de4141b4dbf4cac8baadf7c7ded2355f838531110de59609"
+      },
+      "memory-knowledge": {
+        "id": "2775526bfaa650de278f0a97f5567fbfde3721b7846d28eab4a6b35604fc545a",
+        "image": "sha256:4de783a8f4c36c91c716031225c223246d01a95b0005842759e6242cbb79920c"
+      },
+      "memory-gateway": {
+        "id": "15388b5ee348cca6e1a46dc550b57fb50ecfdceb37018dc36211f9d6d6983fa3",
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77"
+      }
+    }
+  },
+  "network": {
+    "ok": true,
+    "vpn_route_preserved": true,
+    "explicit_subnets_verified": true,
+    "read_only_network_observer": true
+  },
+  "browser": {
+    "mode": "live authenticated UI, business requests read-only",
+    "generated_at": "2026-10-12T11:37:59.156Z",
+    "target": "http://192.168.1.34:18088",
+    "passed": true,
+    "stage": "completed",
+    "api_statuses": {
+      "/api/bot/knowledge/assets": 200,
+      "/api/bot/memory/providers": 200,
+      "/api/bot/memories": 200,
+      "/api/bot/skill-candidates": 200
+    },
+    "business_mutations_sent": 0,
+    "blocked_mutations": [],
+    "heartbeat_skipped": 0,
+    "javascript_errors": 0,
+    "credential_values_logged": false,
+    "session_data_saved": false,
+    "screenshots": [
+      "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/agent-memory-production-personal-desktop.png",
+      "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/agent-memory-production-skill-review-desktop.png",
+      "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/agent-memory-production-wiki-codegraph-desktop.png",
+      "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/agent-memory-production-wiki-codegraph-mobile.png"
+    ],
+    "task_memory_toggle_restored": true,
+    "ready_asset_picker_visible": true,
+    "provider": {
+      "core": {
+        "configured": true,
+        "available": true
+      },
+      "knowledge": {
+        "configured": true,
+        "available": true
+      }
+    },
+    "knowledge_create_matches_provider": true,
+    "mobile_dialog_overflow": false,
+    "escape_restores_focus": true,
+    "logout_ok": true,
+    "logout_status": 200,
+    "browser_cleanup_ok": true,
+    "screenshots_qa": {
+      "reviewed": 4,
+      "desktop_readable": true,
+      "mobile_no_clipping": true,
+      "tab_and_create_controls_visible": true,
+      "account_identity_absent": true,
+      "existing_business_content_absent": true,
+      "real_api_no_response_fixtures": true
+    },
+    "screenshot_manifest": [
+      {
+        "path": "docs/screenshots/agent-memory-production-personal-desktop.png",
+        "sha256": "8fa5ecdedb467ec93e0ab6e7e2b6de2b48cfdf2965702b35f547f7b8c87843f0"
+      },
+      {
+        "path": "docs/screenshots/agent-memory-production-skill-review-desktop.png",
+        "sha256": "179bb3ba359f10a8164930aa0b1728337a5b0011c2350a8b32d8a57c03796169"
+      },
+      {
+        "path": "docs/screenshots/agent-memory-production-wiki-codegraph-desktop.png",
+        "sha256": "500f4596320580bb97ef1868cd12b0dad12f5ebad66d89567fcc785cdb860229"
+      },
+      {
+        "path": "docs/screenshots/agent-memory-production-wiki-codegraph-mobile.png",
+        "sha256": "08394a319519e605bae88fa76531b796812a7ddfb6e23f2a9890336b9f24e9f5"
+      }
+    ]
+  },
+  "final_service_verification": {
+    "ok": true,
+    "release": "agent-memory-20261012-184000",
+    "checked_at": "2026-10-12T11:42:16.108607+00:00",
+    "checks": {
+      "api_running": true,
+      "worker_running": true,
+      "memory-core_running": true,
+      "memory-knowledge_running": true,
+      "memory-gateway_running": true,
+      "postgres_running": true,
+      "qdrant_running": true,
+      "minio_running": true,
+      "gateway_running": true,
+      "sandbox_running": true,
+      "api_candidate_image": true,
+      "worker_candidate_image": true,
+      "api_healthy": true,
+      "memory-core_healthy": true,
+      "memory-knowledge_healthy": true,
+      "memory-core_same_verified_container": true,
+      "memory-core_no_host_ports": true,
+      "memory-knowledge_same_verified_container": true,
+      "memory-knowledge_no_host_ports": true,
+      "memory-gateway_same_verified_container": true,
+      "memory-gateway_no_host_ports": true,
+      "memory_gateway_routes_healthy": true,
+      "server_http_health_200": true,
+      "vpn_route_preserved": true,
+      "read_only_network_observer_passed": true,
+      "memory-private_fixed_ipam": true,
+      "memory-private_ownership": true,
+      "memory-private_reused": true,
+      "memory-egress_fixed_ipam": true,
+      "memory-egress_ownership": true,
+      "memory-egress_reused": true,
+      "api_private_network_attached": true,
+      "worker_private_network_attached": true,
+      "postgres_original_id_and_mounts_preserved": true,
+      "qdrant_original_id_and_mounts_preserved": true,
+      "minio_original_id_and_mounts_preserved": true,
+      "gateway_original_id_and_mounts_preserved": true,
+      "sandbox_original_id_and_mounts_preserved": true,
+      "api_original_mounts_preserved": true,
+      "worker_original_mounts_preserved": true,
+      "isolated_validation_containers_cleaned": true,
+      "isolated_validation_networks_cleaned": true,
+      "production_report_consistent": true,
+      "external_http_health_200": true,
+      "ssh_connectivity": true
+    },
+    "services": {
+      "api": {
+        "image": "sha256:1bfac5375a3bbf27c0427e9cfeee8e5f4ac22d73f65c89b1ad5797653565a126",
+        "status": "running",
+        "health": "healthy"
+      },
+      "worker": {
+        "image": "sha256:1bfac5375a3bbf27c0427e9cfeee8e5f4ac22d73f65c89b1ad5797653565a126",
+        "status": "running",
+        "health": null
+      },
+      "memory-core": {
+        "image": "sha256:d18f09189803d637de4141b4dbf4cac8baadf7c7ded2355f838531110de59609",
+        "status": "running",
+        "health": "healthy"
+      },
+      "memory-knowledge": {
+        "image": "sha256:4de783a8f4c36c91c716031225c223246d01a95b0005842759e6242cbb79920c",
+        "status": "running",
+        "health": "healthy"
+      },
+      "memory-gateway": {
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null
+      },
+      "postgres": {
+        "image": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+        "status": "running",
+        "health": "healthy"
+      },
+      "qdrant": {
+        "image": "sha256:e35e37cf82b6894049e69e168e1135cbc2a084f3b63bdccc7908afff1bdc57d6",
+        "status": "running",
+        "health": null
+      },
+      "minio": {
+        "image": "sha256:69b2ec208575b69597784255eec6fa6a2985ee9e1a47f4411a51f7f5fdd193a9",
+        "status": "running",
+        "health": null
+      },
+      "gateway": {
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null
+      },
+      "sandbox": {
+        "image": "sha256:1c6d6ea5ca348694849364514e436202092c36d6a0b4040b0ca64937799046d4",
+        "status": "running",
+        "health": "healthy"
+      }
+    },
+    "internal_provider_health": {
+      "core": {
+        "http_status": 200,
+        "status_ok": true
+      },
+      "knowledge": {
+        "http_status": 200,
+        "status_ok": true
+      }
+    },
+    "server_http_health_status": 200,
+    "ssh_remote_execution_succeeded": true,
+    "vpn_route": {
+      "dst": "172.27.238.192",
+      "dev": "ens33",
+      "gateway": "192.168.1.1"
+    },
+    "memory_networks": {
+      "memory-private": {
+        "id": "c49fd465e156f2ebdcbad9c6352b7135bab59c0a04c57fad8506ee739e3c4d14",
+        "subnets": [
+          "10.253.240.0/24"
+        ],
+        "internal": true,
+        "reused_from_preflight": true
+      },
+      "memory-egress": {
+        "id": "212f40351e54566d6b57eea16217c453b892703d17810a4c138aa607a57bb3cc",
+        "subnets": [
+          "10.253.241.0/24"
+        ],
+        "internal": false,
+        "reused_from_preflight": true
+      }
+    },
+    "infrastructure": {
+      "postgres": {
+        "original_container_preserved": true,
+        "original_mounts_preserved": true
+      },
+      "qdrant": {
+        "original_container_preserved": true,
+        "original_mounts_preserved": true
+      },
+      "minio": {
+        "original_container_preserved": true,
+        "original_mounts_preserved": true
+      },
+      "gateway": {
+        "original_container_preserved": true,
+        "original_mounts_preserved": true
+      },
+      "sandbox": {
+        "original_container_preserved": true,
+        "original_mounts_preserved": true
+      }
+    },
+    "isolated_validation_residuals": {
+      "containers": [],
+      "networks": []
+    },
+    "read_only_production_verification": true,
+    "external_http_health_status": 200
+  },
+  "validation_session_cleanup": {
+    "ok": true,
+    "ui_initial_validation_session_revoked": true,
+    "deleted_sessions": 1,
+    "matched_admin_identity_without_logging": true,
+    "matched_unique_login_and_session": true,
+    "narrow_window_utc": [
+      "2026-10-12T11:36:49Z",
+      "2026-10-12T11:37:00Z"
+    ],
+    "other_sessions_untouched": true
+  },
+  "linux_release_build": {
+    "ok": true,
+    "rust_release_tests_passed": 104,
+    "rust_release_tests_failed": 0,
+    "source": "build.log",
+    "build_log_sha256": "e638fb16429c8a4bebeaab300244b1debc576def956273a45ef7e18c21fcc419",
+    "runtime_layer_reused_from_previously_tested_unchanged_source": true
+  },
+  "final_source_hashes": {
+    "backend/src/core_skill_registry.rs": "d75506fdf0b2c56e2076fd021a1e444ee90784f385dde01fb8a7410a6d40e97b",
+    "backend/src/bot_skill_review.rs": "84341ae2de82d525a8e9fbddffe59a03cc0573f442fa03bb7c8c55bb9b1828df",
+    "backend/migrations/016_core_skill_registry.sql": "d0bf08f9780eca6969e7295caaaa917c0b4fdd0234c5ab96f3c2ab91a266f014"
+  },
+  "first_switch_failure_and_completed_rollback": {
+    "ok": false,
+    "stage": "source_manifest_verification",
+    "file": "compose.bot-code.yaml",
+    "cause": "compose.override.yaml symlink target overwritten by copy2",
+    "automatic_application_rollback_completed": true,
+    "database_and_volumes_retained": true
+  },
+  "validation_scope": {
+    "platform_to_core": "Real extraction/registration via the platform API using synthetic completed source-task evidence in an isolated database. This does not assert a real harness worker executed that synthetic source task.",
+    "business_mutations_during_live_ui": 0,
+    "production_database_fixtures_created": false
+  },
+  "limitations": [
+    "Unknown remote extraction acknowledgement requires manual reconciliation; the upstream has no public lookup/cancel by session.",
+    "Existing formatting failures in 11 frontend/src/vendor/bloub/*.ts files remain; feature files passed formatting checks.",
+    "The initial network outage is suspected to involve automatic Docker IPAM overlap; the exact conflicting subnet was not observed."
+  ]
+}

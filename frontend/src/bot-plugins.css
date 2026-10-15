@@ -1,0 +1,734 @@
+.bot-page .modal.wide:has(.harness-plugins) {
+  width: min(1100px, calc(100vw - 36px));
+  max-width: 1100px;
+}
+.bot-page .modal:has(.harness-plugins) .modal-body {
+  padding: 0;
+}
+.harness-plugins {
+  padding: 22px 26px 0;
+  color: #26394c;
+}
+.harness-runtime {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 17px;
+  background: linear-gradient(110deg, #edf5ff, #f5f6ff);
+  border: 1px solid #dfe9f5;
+  border-radius: 14px;
+}
+.harness-runtime-icon,
+.harness-plugin-icon,
+.harness-source-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  color: #567ab1;
+  background: #fff;
+  border: 1px solid #e4eaf3;
+  border-radius: 13px;
+}
+.harness-runtime-info {
+  flex: 1;
+  min-width: 0;
+}
+.harness-runtime-info > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+.harness-runtime-info strong {
+  font-size: 15px;
+}
+.harness-runtime-info p {
+  margin: 6px 0 0;
+  color: #74849b;
+  font-size: 11px;
+}
+.harness-status,
+.harness-plugin-state {
+  white-space: nowrap;
+  padding: 3px 7px;
+  color: #8a7a59;
+  background: #f9f3e5;
+  border-radius: 6px;
+  font-size: 10px;
+}
+.harness-status.ready,
+.harness-plugin-state.enabled {
+  color: #29816d;
+  background: #e6f5ef;
+}
+.harness-engine-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 3px;
+  cursor: pointer;
+}
+.harness-engine-choice input {
+  width: 16px;
+  height: 16px;
+  accent-color: #547caf;
+}
+.harness-engine-choice > span {
+  flex: 1;
+}
+.harness-engine-choice strong,
+.harness-engine-choice small {
+  display: block;
+}
+.harness-engine-choice strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.harness-engine-choice small {
+  margin-top: 4px;
+  color: #8492a3;
+  font-size: 11px;
+}
+.harness-engine-choice > svg {
+  color: #7c93b4;
+}
+.harness-engine-choice.unavailable {
+  cursor: default;
+  opacity: 0.65;
+}
+.harness-error {
+  padding: 10px 12px;
+  margin: 0 0 14px;
+  color: #a7464a;
+  background: #fff2f1;
+  border: 1px solid #f5dddd;
+  border-radius: 9px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.harness-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 3px 0 14px;
+  margin-bottom: 17px;
+  border-bottom: 1px solid #edf0f4;
+}
+.harness-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.harness-tabs button,
+.harness-categories button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 7px;
+  color: #7d8b9b;
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+.harness-tabs button[aria-selected="true"] {
+  color: #3a6396;
+  background: #edf3fa;
+  font-weight: 600;
+}
+.harness-tabs small {
+  padding: 1px 4px;
+  color: #7992ae;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 10px;
+}
+.harness-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.harness-search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid #e1e7ef;
+  border-radius: 9px;
+  background: #fafbfd;
+  color: #94a0b0;
+}
+.harness-search input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 11px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #33465b;
+  font-size: 12px;
+}
+.harness-search-row select,
+.harness-add-form input,
+.harness-add-form select {
+  padding: 10px 11px;
+  border: 1px solid #e1e7ef;
+  border-radius: 8px;
+  color: #596d83;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+}
+.harness-search-row select {
+  max-width: 210px;
+}
+.harness-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 14px 0 7px;
+}
+.harness-categories button {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+.harness-categories button.active {
+  color: #3d689a;
+  background: #f0f5fa;
+}
+.harness-result-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 19px 1px 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.harness-result-caption small {
+  color: #8c9aaa;
+  font-size: 10px;
+  font-weight: 400;
+}
+.harness-plugin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding-bottom: 22px;
+}
+.harness-plugin-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e5eaf1;
+  border-radius: 12px;
+  background: #fff;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.harness-plugin-card:hover {
+  border-color: #c8d8ec;
+  box-shadow: 0 5px 18px #587b9d0c;
+}
+.harness-plugin-card.selected {
+  border-color: #99b5d6;
+  background: #fbfdff;
+}
+.harness-plugin-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.harness-plugin-heading > div {
+  flex: 1;
+  min-width: 0;
+}
+.harness-plugin-icon {
+  width: 36px;
+  height: 36px;
+  background: #f0f5fa;
+  border: 0;
+  border-radius: 10px;
+}
+.harness-plugin-heading h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.harness-plugin-heading small {
+  display: block;
+  color: #8594a6;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.harness-plugin-card > p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: 36px;
+  overflow: hidden;
+  margin: 14px 0 11px;
+  color: #7b8999;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.harness-plugin-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #96a1b0;
+  font-size: 10px;
+}
+.harness-plugin-meta span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.harness-plugin-meta small {
+  white-space: nowrap;
+  font-size: 10px;
+}
+.harness-plugin-details {
+  margin: 10px 0 13px;
+  color: #8193a9;
+  font-size: 10px;
+}
+.harness-plugin-details summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  list-style: none;
+}
+.harness-plugin-details code {
+  display: block;
+  padding: 8px;
+  margin-top: 7px;
+  background: #f7f9fb;
+  border-radius: 5px;
+  color: #7b899b;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.harness-plugin-details a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-top: 7px;
+  color: #5b7fb0;
+  text-decoration: none;
+}
+.harness-plugin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding-top: 11px;
+  border-top: 1px solid #eff2f6;
+}
+.harness-plugins .button {
+  min-height: 30px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.harness-plugin-actions .icon-button {
+  width: 25px;
+  height: 28px;
+  min-width: 0;
+  color: #94a0ad;
+}
+.harness-enable-button,
+.harness-task-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 0;
+  color: #71869f;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 10px;
+  cursor: pointer;
+}
+.harness-enable-button.enabled {
+  color: #75929c;
+}
+.harness-task-select {
+  margin-left: auto;
+  color: #6083af;
+  background: #f2f6fb;
+}
+.harness-task-select.selected {
+  color: #4c779e;
+  background: #e7f0fa;
+}
+.harness-plugins button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.harness-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 20px 45px;
+  text-align: center;
+  color: #8d9baa;
+}
+.harness-empty strong {
+  margin-top: 14px;
+  color: #607288;
+  font-size: 13px;
+}
+.harness-empty p {
+  max-width: 380px;
+  margin: 9px 0 16px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.harness-add-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px;
+  margin: 0 0 20px;
+  border: 1px solid #dfe8f5;
+  background: #f7faff;
+  border-radius: 12px;
+}
+.harness-add-form h3,
+.harness-add-form > p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.harness-add-form h3 {
+  font-size: 13px;
+}
+.harness-add-form > p {
+  color: #8192a7;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.harness-add-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  color: #6a7f97;
+  font-size: 11px;
+}
+.harness-add-form button {
+  align-self: end;
+  justify-self: start;
+}
+.harness-marketplaces {
+  display: grid;
+  gap: 11px;
+  padding-bottom: 26px;
+}
+.harness-marketplaces article {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid #e8edf4;
+  border-radius: 10px;
+}
+.harness-marketplaces article > div {
+  flex: 1;
+  min-width: 0;
+}
+.harness-marketplaces h3 {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+.harness-marketplaces h3 small {
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #7991ad;
+  background: #f1f5fa;
+  font-size: 9px;
+  font-weight: 400;
+}
+.harness-marketplaces code {
+  color: #8d9cab;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.harness-remove-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  margin-top: 11px;
+  border-radius: 7px;
+  background: #fff3f0;
+  color: #ab6560;
+  font-size: 11px;
+}
+.harness-remove-confirm span {
+  flex-basis: 100%;
+  overflow-wrap: anywhere;
+}
+.harness-remove-confirm button {
+  padding: 3px 7px;
+  border: 1px solid #edcfcb;
+  border-radius: 5px;
+  color: inherit;
+  background: #fff;
+  font-size: 10px;
+  cursor: pointer;
+}
+.harness-plugin-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 16px 0;
+  border-top: 1px solid #e8edf4;
+  background: #fff;
+}
+.harness-plugin-footer > span {
+  color: #8191a4;
+  font-size: 11px;
+}
+.bot-heading-right .bot-plugins-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 29px;
+  padding: 0 10px;
+  border: 1px solid #dce5ef;
+  border-radius: 15px;
+  background: #ffffffbf;
+  color: #6783a5;
+  font-size: 11px;
+  cursor: pointer;
+}
+.bot-plugins-entry small {
+  display: grid;
+  place-items: center;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 5px;
+  background: #edf3fa;
+  font-size: 9px;
+}
+.bot-tool-trigger.bot-plugin-trigger:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.bot-cloud-permissions {
+  flex-shrink: 0;
+  padding-top: 7px;
+  margin-top: 9px;
+  border-top: 1px solid #e6edf4;
+}
+.bot-cloud-permissions .bot-cloud-option {
+  padding: 10px 7px;
+}
+.bot-page .modal.wide:has(.harness-config) {
+  width: min(720px, calc(100vw - 30px));
+}
+.harness-config {
+  color: #34495f;
+}
+.harness-config-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.harness-config-heading h3 {
+  margin: 0 0 7px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.harness-config-heading p {
+  margin: 0;
+  color: #8795a6;
+  font-size: 11px;
+}
+.harness-config-help {
+  margin: 18px 0;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #7a8d9f;
+}
+.harness-config-rows {
+  padding: 13px 14px;
+  border: 1px solid #e3eaf3;
+  border-radius: 10px;
+  background: #f7faff;
+}
+.harness-config-rows > strong {
+  font-size: 11px;
+  font-weight: 600;
+}
+.harness-config-rows > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 9px;
+  font-size: 11px;
+}
+.harness-config-rows code {
+  color: #5c7d9f;
+  overflow-wrap: anywhere;
+}
+.harness-config-rows span,
+.harness-config-rows p {
+  color: #8a9bad;
+  overflow-wrap: anywhere;
+}
+.harness-config-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 19px 0 9px;
+  font-size: 12px;
+}
+.harness-config-label .text-button {
+  font-size: 11px;
+}
+.harness-config-editor {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 210px;
+  padding: 13px;
+  border: 1px solid #dce5ef;
+  border-radius: 10px;
+  background: #fbfcfe;
+  color: #426181;
+  font:
+    12px/1.8 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  resize: vertical;
+}
+.harness-config-editor::placeholder {
+  color: #b1bbc8;
+}
+.harness-config-note {
+  display: block;
+  margin: 10px 1px;
+  color: #93a0b0;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.harness-config-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 22px;
+  padding-top: 17px;
+  border-top: 1px solid #e8edf4;
+}
+.harness-config-footer > span {
+  flex: 1;
+}
+.harness-config-footer .text-button {
+  font-size: 11px;
+}
+.harness-config .harness-error .text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  color: inherit;
+}
+@media (max-width: 900px) {
+  .harness-plugin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .harness-runtime {
+    flex-wrap: wrap;
+  }
+  .harness-runtime-info {
+    flex-basis: calc(100% - 60px);
+  }
+}
+@media (max-width: 560px) {
+  .bot-page .modal.wide:has(.harness-plugins) {
+    width: calc(100vw - 14px);
+    max-height: calc(100dvh - 24px);
+  }
+  .harness-plugins {
+    padding: 15px 14px 0;
+  }
+  .harness-runtime {
+    padding: 12px;
+    gap: 9px;
+  }
+  .harness-toolbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  .harness-tabs {
+    flex: 1;
+    gap: 2px;
+  }
+  .harness-tabs button {
+    padding: 8px;
+    font-size: 11px;
+  }
+  .harness-tabs button svg {
+    display: none;
+  }
+  .harness-search-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .harness-search {
+    flex-basis: 100%;
+  }
+  .harness-search-row select {
+    width: 100%;
+    max-width: none;
+  }
+  .harness-plugin-grid,
+  .harness-add-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .harness-plugin-card {
+    padding: 14px;
+  }
+  .harness-plugin-card > p {
+    min-height: 0;
+  }
+  .harness-plugin-footer {
+    padding: 13px 0;
+  }
+  .harness-plugin-footer > span {
+    max-width: 210px;
+    line-height: 1.6;
+  }
+  .bot-heading-right .bot-plugins-entry {
+    padding: 0 8px;
+    font-size: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .harness-plugin-card {
+    transition: none;
+  }
+}

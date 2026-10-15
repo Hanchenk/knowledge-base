@@ -1,0 +1,991 @@
+{
+  "ok": true,
+  "generated_at": "2026-10-13T01:40:08.603123+00:00",
+  "release": "account-memory-20261013-090000",
+  "url": "http://192.168.1.34:18088/app?view=bot",
+  "production": {
+    "ok": true,
+    "release": "account-memory-20261013-090000",
+    "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "schema": 17,
+    "database": {
+      "schema": 17,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32,
+      "active_tasks": 0,
+      "active_studio_jobs": 0,
+      "active_bot_actions": 0
+    },
+    "model_ciphertext_preserved": true,
+    "existing_memory_choices_preserved": true,
+    "runtime_unchanged": true,
+    "configuration_unchanged": true,
+    "existing_services_and_volumes_preserved": true,
+    "docker_networks_unchanged": true,
+    "static_files_verified": 46,
+    "rollback": "python3 /work/project/atlas-knowledge/releases/account-memory-20261013-090000/release-control.py rollback"
+  },
+  "candidate": {
+    "ok": true,
+    "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "release": "account-memory-20261013-090000",
+    "checked_at": "2026-10-13T01:29:10.554529+00:00",
+    "checks": {
+      "isolated_validation_names_initially_absent": true,
+      "schema_16_production_snapshot_restored": true,
+      "schema_16_to_17_preserves_business_counts": true,
+      "migration_preserves_model_ciphertext": true,
+      "migration_preserves_existing_memory_choices": true,
+      "existing_owners_default_skill_capture_enabled": true,
+      "anonymous_settings_denied": true,
+      "new_owner_defaults_compatible": true,
+      "enabled_setting_admits_manual_draft": true,
+      "partial_skill_setting_preserves_memory_choices": true,
+      "settings_reread_persists_choices": true,
+      "empty_patch_is_noop": true,
+      "identity_override_rejected": true,
+      "other_owner_unchanged": true,
+      "disabled_manual_and_model_proposals_rejected": true,
+      "existing_draft_review_remains_available": true,
+      "existing_draft_cleanup_remains_available": true,
+      "task_owner_isolation_preserved": true,
+      "database_rejects_invalid_skill_capture": true,
+      "disabled_setting_persists_after_restart": true,
+      "other_owner_setting_remains_private": true,
+      "migration_17_restart_idempotent": true,
+      "candidate_static_files_match_frozen_frontend": true,
+      "runtime_matches_existing_production": true,
+      "previous_production_binary_accepts_schema_17": true,
+      "legacy_startup_preserves_new_preferences": true,
+      "existing_choices_still_preserved_after_validation": true,
+      "model_ciphertext_still_preserved_after_validation": true,
+      "isolated_postgres_network_none": true,
+      "candidate_shares_only_isolated_loopback": true,
+      "no_docker_network_created_or_modified": true,
+      "isolated_validation_containers_removed": true,
+      "protected_validation_envfile_removed": true,
+      "validation_cleanup_succeeded": true
+    },
+    "restored_database": {
+      "schema": 16,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32
+    },
+    "migrated_database": {
+      "schema": 17,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32
+    },
+    "static_files_verified": 46,
+    "runtime_files_verified": 21,
+    "no_provider_asset_writes": true,
+    "no_production_configuration_changes": true
+  },
+  "build": {
+    "ok": true,
+    "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "linux_release_unit_tests_passed": true,
+    "rust_tests_passed": 109,
+    "rust_tests_failed": 0,
+    "rust_test_suites": 12,
+    "runtime_unchanged": true,
+    "only_binary_and_frontend_layers_changed": true,
+    "rust_dependency_cache_image": "sha256:293292df7f03810bbb5e6aaad385f4da653787d6745105500a079bce300fab20",
+    "final_candidate_tests_counted_separately": true
+  },
+  "local": {
+    "ok": true,
+    "frontend_build": true,
+    "browser_fixture_tests_passed": 16,
+    "frontend_feature_formatting": true,
+    "backend_target_tests_passed": 38,
+    "backend_new_semantic_tests": 5,
+    "backend_fmt": true,
+    "backend_target_clippy": true,
+    "header_long_conversation_geometry_checks": 6,
+    "header_desktop_mobile_js_errors": 0,
+    "note": "Local browser tests use synthetic API fixtures; production UI verification pending.",
+    "independent_integration_review_passed": true,
+    "browser_fixture_test_summary": "15 primary cases passed; after two independent review fixes, the source-navigation case and one additional open-form setting-change case passed (16 unique cases total).",
+    "header_geometry_evidence": "/tmp/zxh-bot-header-ui/after.json",
+    "local_readonly_script_dry_run": true,
+    "postgres_restart_fix": "SELECT 1 AS present avoids sqlx Any PostgreSQL Name decoding; final Linux tests and isolated restart validation will rerun on this source.",
+    "postgres_restart_fix_independent_review_passed": true,
+    "revised_backend_fmt": true
+  },
+  "preflight": {
+    "ok": true,
+    "checked_at": "2026-10-13T00:57:36.330447+00:00",
+    "read_only": true,
+    "checks": {
+      "api_running": true,
+      "worker_running": true,
+      "memory-core_running": true,
+      "memory-knowledge_running": true,
+      "memory-gateway_running": true,
+      "postgres_running": true,
+      "qdrant_running": true,
+      "minio_running": true,
+      "gateway_running": true,
+      "sandbox_running": true,
+      "api_expected_image": true,
+      "worker_expected_image": true,
+      "api_healthy": true,
+      "memory-core_healthy": true,
+      "memory-knowledge_healthy": true,
+      "schema_16": true,
+      "no_active_work": true,
+      "http_health_200": true,
+      "vpn_route_unchanged": true,
+      "memory-private_verified": true,
+      "memory-egress_verified": true,
+      "memory-core_unchanged_since_validation": true,
+      "memory-knowledge_unchanged_since_validation": true,
+      "memory-gateway_unchanged_since_validation": true,
+      "api_agent-runtime/agent.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/agent.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-agent.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-agent.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-cloud.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-cloud.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-docker.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-docker.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-exec.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-exec.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-files.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-files.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-manager.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-manager.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-plugin.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-plugin.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-profile.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-profile.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness-sdk-server.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness-sdk-server.mjs_runtime_unchanged": true,
+      "api_agent-runtime/harness.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/harness.mjs_runtime_unchanged": true,
+      "api_agent-runtime/platform-tools.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/platform-tools.mjs_runtime_unchanged": true,
+      "api_agent-runtime/progress.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/progress.mjs_runtime_unchanged": true,
+      "api_agent-runtime/scripts/harness-smoke.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/scripts/harness-smoke.mjs_runtime_unchanged": true,
+      "api_agent-runtime/stream-output.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/stream-output.mjs_runtime_unchanged": true,
+      "api_agent-runtime/test/cloud.test.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/test/cloud.test.mjs_runtime_unchanged": true,
+      "api_agent-runtime/test/harness-files.test.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/test/harness-files.test.mjs_runtime_unchanged": true,
+      "api_agent-runtime/test/harness.test.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/test/harness.test.mjs_runtime_unchanged": true,
+      "api_agent-runtime/test/memory-tools.test.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/test/memory-tools.test.mjs_runtime_unchanged": true,
+      "api_agent-runtime/test/progress.test.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/test/progress.test.mjs_runtime_unchanged": true,
+      "api_agent-runtime/test/runtime.test.mjs_runtime_unchanged": true,
+      "worker_agent-runtime/test/runtime.test.mjs_runtime_unchanged": true
+    },
+    "services": {
+      "api": {
+        "id": "a33082d2a76df0bf6b6899c1d43fe982142ee7948d35ff1e06067be4394268d3",
+        "image": "sha256:1bfac5375a3bbf27c0427e9cfeee8e5f4ac22d73f65c89b1ad5797653565a126",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_local_files",
+            "Source": "/data/docker/volumes/atlas-knowledge_local_files/_data",
+            "Destination": "/app/data/files",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_harness_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_harness_data/_data",
+            "Destination": "/app/data/harness",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_certs",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_certs/_data",
+            "Destination": "/certs/client",
+            "RW": false
+          }
+        ]
+      },
+      "worker": {
+        "id": "6c8d0ee7103eeaa51fa6be85d3667b1a8f95eb3f785fa49e588e22444c5da9c7",
+        "image": "sha256:1bfac5375a3bbf27c0427e9cfeee8e5f4ac22d73f65c89b1ad5797653565a126",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_local_files",
+            "Source": "/data/docker/volumes/atlas-knowledge_local_files/_data",
+            "Destination": "/app/data/files",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_harness_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_harness_data/_data",
+            "Destination": "/app/data/harness",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_certs",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_certs/_data",
+            "Destination": "/certs/client",
+            "RW": false
+          }
+        ]
+      },
+      "memory-core": {
+        "id": "df6ee415bbac14d99c447bbea9ad85dbe30d0c9dfcf6df478c791ecec3f31797",
+        "image": "sha256:d18f09189803d637de4141b4dbf4cac8baadf7c7ded2355f838531110de59609",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_tencent_memory_core",
+            "Source": "/data/docker/volumes/atlas-knowledge_tencent_memory_core/_data",
+            "Destination": "/data/tdai-memory",
+            "RW": true
+          }
+        ]
+      },
+      "memory-knowledge": {
+        "id": "2775526bfaa650de278f0a97f5567fbfde3721b7846d28eab4a6b35604fc545a",
+        "image": "sha256:4de783a8f4c36c91c716031225c223246d01a95b0005842759e6242cbb79920c",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_tencent_memory_knowledge",
+            "Source": "/data/docker/volumes/atlas-knowledge_tencent_memory_knowledge/_data",
+            "Destination": "/app/data",
+            "RW": true
+          }
+        ]
+      },
+      "memory-gateway": {
+        "id": "15388b5ee348cca6e1a46dc550b57fb50ecfdceb37018dc36211f9d6d6983fa3",
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "bind",
+            "Name": null,
+            "Source": "/work/project/atlas-knowledge/releases/agent-memory-20261012-180500/source/deploy/Caddyfile.tencent-memory",
+            "Destination": "/etc/caddy/Caddyfile",
+            "RW": false
+          }
+        ]
+      },
+      "postgres": {
+        "id": "3df52b7b3d188fad6a45d64dd1e286743de5598dd94a8fd644df149548733ab9",
+        "image": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_postgres_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_postgres_data/_data",
+            "Destination": "/var/lib/postgresql/data",
+            "RW": true
+          }
+        ]
+      },
+      "qdrant": {
+        "id": "b48c62e94071f1a36e6fe2255ddcb17e7aa8b48557de26f081e9a78a89bb1f6e",
+        "image": "sha256:e35e37cf82b6894049e69e168e1135cbc2a084f3b63bdccc7908afff1bdc57d6",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_qdrant_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_qdrant_data/_data",
+            "Destination": "/qdrant/storage",
+            "RW": true
+          }
+        ]
+      },
+      "minio": {
+        "id": "aa46bb1c4ec974062055508abb6f0d21de7607a0827dda5d0bf5aeb382776802",
+        "image": "sha256:69b2ec208575b69597784255eec6fa6a2985ee9e1a47f4411a51f7f5fdd193a9",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_object_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_object_data/_data",
+            "Destination": "/data",
+            "RW": true
+          }
+        ]
+      },
+      "gateway": {
+        "id": "523b4fa160e27a093e5792b5944ccb53159bc2e0d0dba4aabf654ede3211d76c",
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_caddy_config",
+            "Source": "/data/docker/volumes/atlas-knowledge_caddy_config/_data",
+            "Destination": "/config",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_caddy_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_caddy_data/_data",
+            "Destination": "/data",
+            "RW": true
+          },
+          {
+            "Type": "bind",
+            "Name": null,
+            "Source": "/work/project/atlas-knowledge/deploy/Caddyfile",
+            "Destination": "/etc/caddy/Caddyfile",
+            "RW": false
+          }
+        ]
+      },
+      "sandbox": {
+        "id": "a11c886019bed64c42eed7dd3a06533497cd8ce4a2506bbc78420e3a36607d0a",
+        "image": "sha256:1c6d6ea5ca348694849364514e436202092c36d6a0b4040b0ca64937799046d4",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_harness_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_harness_data/_data",
+            "Destination": "/app/data/harness",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_certs",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_certs/_data",
+            "Destination": "/certs/client",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_data/_data",
+            "Destination": "/var/lib/docker",
+            "RW": true
+          }
+        ]
+      }
+    },
+    "database": {
+      "schema": 16,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32,
+      "active_tasks": 0,
+      "active_studio_jobs": 0,
+      "active_bot_actions": 0
+    },
+    "vpn_route": {
+      "dst": "172.27.238.192",
+      "dev": "ens33",
+      "gateway": "192.168.1.1"
+    },
+    "memory_networks": {
+      "memory-private": {
+        "id": "c49fd465e156f2ebdcbad9c6352b7135bab59c0a04c57fad8506ee739e3c4d14",
+        "subnets": [
+          "10.253.240.0/24"
+        ],
+        "internal": true
+      },
+      "memory-egress": {
+        "id": "212f40351e54566d6b57eea16217c453b892703d17810a4c138aa607a57bb3cc",
+        "subnets": [
+          "10.253.241.0/24"
+        ],
+        "internal": false
+      }
+    },
+    "config_hashes": {
+      ".env": "9791ac98d25fef14f5c25a22fc1fc1aa0e69e80dcda7e91c6dacb5acadd3f637",
+      "compose.yaml": "e28b8ee72d889ce537280ad8c49b0a3847f9776a62f1f83615c40ccfa2384049",
+      "compose.override.yaml": "06d810a68734da47ddbf2e886e029db297fd3f5ac615ac10cac9d6ae401261e3",
+      "compose.bot-code.yaml": "03f8e791c7e9070fd7a400128b7c19eee8b144663d9a92fb4a7c8ffcccdb1695",
+      "deploy/Caddyfile": "63af04683bd0ff292edeeb1cfc749983f8e79a420aec473502936d045851ebba",
+      "deploy/Caddyfile.tencent-memory": "ec8bbd3708bd180ea8864fe0da382f84472119fb991aa50b0374a5b36ee77975"
+    },
+    "runtime_hashes": {
+      "agent-runtime/agent.mjs": "3c5e12d7297356f2ec0a238922d464524aba19362adf95e01ba99712f5761ca8",
+      "agent-runtime/harness-agent.mjs": "ba03c640afae9eae4054722aa0510771738711fda3c6d9eda3778abf5493bf43",
+      "agent-runtime/harness-cloud.mjs": "1bce91edb8f76ff65c2adf839fb804e60779ad0fb7ac21d1e71ffe3da2ad503b",
+      "agent-runtime/harness-docker.mjs": "346c6878141ef23bc9e7bfdeb104c4e7c40fb33160d5d58d102753767101986d",
+      "agent-runtime/harness-exec.mjs": "278063cc8c5067bf94f9b7de501027c38c3146a12c2ee28b5ba86d894688baf5",
+      "agent-runtime/harness-files.mjs": "b73b27ea3ba93a7129fecaa2414d3f624d5a8876d4c48576fbc87f7ad564e8f5",
+      "agent-runtime/harness-manager.mjs": "d58b0846b70fb6ebce8cdf73803c8564c742e7ff9f597112a4c2484fa470794c",
+      "agent-runtime/harness-plugin.mjs": "5f4deb7eb47f0f3d76abe5d29eff134a9730cfce14644c7d0cbe995b066659e5",
+      "agent-runtime/harness-profile.mjs": "17b5cd27997e92520c14c377396fc943f5713edb4cfbd79aa559f0e4a3ea56a7",
+      "agent-runtime/harness-sdk-server.mjs": "01815df379de84c729d1fbd478f8ca43c1155c459c332efe4a3b1cd7d28cbb92",
+      "agent-runtime/harness.mjs": "419c691d7da7cea8a210f8042b8b8eb05ee85db0d81b3c58a06a752df26d4935",
+      "agent-runtime/platform-tools.mjs": "292830b6179d552139e7df5412b91d0d28dc690d7169326ea2f73fd1a8bf98ca",
+      "agent-runtime/progress.mjs": "fdb0ed88b8b83c744acee35441817e030c9723ae8031c216f74ecd0b505676a8",
+      "agent-runtime/scripts/harness-smoke.mjs": "ed06a52e23344612f714f09ff234da85a0d65de6f2419d216748754095022cda",
+      "agent-runtime/stream-output.mjs": "a87614a817a1043091d48e3bfc43f8e81dbab44277c0b906529ca2d23e16c927",
+      "agent-runtime/test/cloud.test.mjs": "8ed3a039958063d25059220d62e5fe41b7b17ea15d57cab3754995b65bc2c5be",
+      "agent-runtime/test/harness-files.test.mjs": "f0ed1ed302a6aa7c646b0e25a5eb30ed22f3b6ce164e4651e30d540baeccf067",
+      "agent-runtime/test/harness.test.mjs": "11bbc6ba1b916bfa3ef1a9a899d9d61f41c60aa0eb2f2fe00fceb2d8c227da7b",
+      "agent-runtime/test/memory-tools.test.mjs": "decaae62875a3a10de1b2971718324a6c5bbc02fb7f876259c4e58aa6afdbb0b",
+      "agent-runtime/test/progress.test.mjs": "0bf0bb8a351d4b1e66f66e3860087c2ef679a5a2070b01daa70fea74f911723d",
+      "agent-runtime/test/runtime.test.mjs": "61c013c35481880b48978a381055315c1196216df1d2c26706f5f022abac4e63"
+    },
+    "available_build_cache_images": {
+      "atlas-knowledge:desktop-connection-20261012-091435-test": "sha256:293292df7f03810bbb5e6aaad385f4da653787d6745105500a079bce300fab20",
+      "atlas-knowledge:agent-memory-20261012-184000": "sha256:1bfac5375a3bbf27c0427e9cfeee8e5f4ac22d73f65c89b1ad5797653565a126",
+      "atlas-knowledge:before-creative-harness-20261012-124002": "sha256:90017e1b1bfc9e7b46df9d4aa36b96d4ca90de36973a33fea9aa69b4dda186df"
+    },
+    "free_disk_bytes": 41416278016,
+    "previous_rust_recipe_exists": true,
+    "ssh_remote_execution_succeeded": true
+  },
+  "final_services": {
+    "ok": true,
+    "release": "account-memory-20261013-090000",
+    "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "checked_at": "2026-10-13T01:36:13.143289+00:00",
+    "checks": {
+      "api_running": true,
+      "api_original_mounts_preserved": true,
+      "api_candidate_image": true,
+      "api_no_restart_loop": true,
+      "api_private_network_attached": true,
+      "worker_running": true,
+      "worker_original_mounts_preserved": true,
+      "worker_candidate_image": true,
+      "worker_no_restart_loop": true,
+      "worker_private_network_attached": true,
+      "postgres_running": true,
+      "postgres_original_mounts_preserved": true,
+      "postgres_original_container_and_image_preserved": true,
+      "postgres_not_restarted_during_release": true,
+      "qdrant_running": true,
+      "qdrant_original_mounts_preserved": true,
+      "qdrant_original_container_and_image_preserved": true,
+      "qdrant_not_restarted_during_release": true,
+      "minio_running": true,
+      "minio_original_mounts_preserved": true,
+      "minio_original_container_and_image_preserved": true,
+      "minio_not_restarted_during_release": true,
+      "gateway_running": true,
+      "gateway_original_mounts_preserved": true,
+      "gateway_original_container_and_image_preserved": true,
+      "gateway_not_restarted_during_release": true,
+      "sandbox_running": true,
+      "sandbox_original_mounts_preserved": true,
+      "sandbox_original_container_and_image_preserved": true,
+      "sandbox_not_restarted_during_release": true,
+      "memory-core_running": true,
+      "memory-core_original_mounts_preserved": true,
+      "memory-core_original_container_and_image_preserved": true,
+      "memory-core_not_restarted_during_release": true,
+      "memory-knowledge_running": true,
+      "memory-knowledge_original_mounts_preserved": true,
+      "memory-knowledge_original_container_and_image_preserved": true,
+      "memory-knowledge_not_restarted_during_release": true,
+      "memory-gateway_running": true,
+      "memory-gateway_original_mounts_preserved": true,
+      "memory-gateway_original_container_and_image_preserved": true,
+      "memory-gateway_not_restarted_during_release": true,
+      "api_healthy": true,
+      "memory-core_healthy": true,
+      "memory-knowledge_healthy": true,
+      "memory-core_no_host_ports": true,
+      "memory-knowledge_no_host_ports": true,
+      "memory-gateway_no_host_ports": true,
+      "existing_memory_gateway_routes_healthy": true,
+      "memory_gateway_rejects_unauthenticated_data_routes": true,
+      "server_http_health_200": true,
+      "vpn_route_preserved": true,
+      "all_existing_docker_networks_unchanged": true,
+      "memory-private_fixed_ipam": true,
+      "memory-egress_fixed_ipam": true,
+      "memory_gateway_private_network_only": true,
+      "candidate_restart_and_legacy_compatibility_verified": true,
+      "protected_configuration_hashes_preserved": true,
+      "compose_override_link_preserved": true,
+      "api_runtime_hashes_preserved": true,
+      "worker_runtime_hashes_preserved": true,
+      "production_schema_17_registered_once": true,
+      "all_production_skill_preferences_valid": true,
+      "isolated_validation_containers_removed": true,
+      "protected_validation_envfile_removed": true,
+      "all_release_reports_consistent": true
+    },
+    "services": {
+      "api": {
+        "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0
+      },
+      "worker": {
+        "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+        "status": "running",
+        "health": null,
+        "restart_count": 0
+      },
+      "postgres": {
+        "image": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0
+      },
+      "qdrant": {
+        "image": "sha256:e35e37cf82b6894049e69e168e1135cbc2a084f3b63bdccc7908afff1bdc57d6",
+        "status": "running",
+        "health": null,
+        "restart_count": 0
+      },
+      "minio": {
+        "image": "sha256:69b2ec208575b69597784255eec6fa6a2985ee9e1a47f4411a51f7f5fdd193a9",
+        "status": "running",
+        "health": null,
+        "restart_count": 0
+      },
+      "gateway": {
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null,
+        "restart_count": 0
+      },
+      "sandbox": {
+        "image": "sha256:1c6d6ea5ca348694849364514e436202092c36d6a0b4040b0ca64937799046d4",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0
+      },
+      "memory-core": {
+        "image": "sha256:d18f09189803d637de4141b4dbf4cac8baadf7c7ded2355f838531110de59609",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0
+      },
+      "memory-knowledge": {
+        "image": "sha256:4de783a8f4c36c91c716031225c223246d01a95b0005842759e6242cbb79920c",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0
+      },
+      "memory-gateway": {
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null,
+        "restart_count": 0
+      }
+    },
+    "internal_provider_health": {
+      "core": {
+        "http_status": 200,
+        "status_ok": true,
+        "anonymous_data_status": 401
+      },
+      "knowledge": {
+        "http_status": 200,
+        "status_ok": true,
+        "anonymous_data_status": 401
+      }
+    },
+    "database": {
+      "schema": 17,
+      "migration_17_count": 1,
+      "invalid_skill_capture_rows": 0
+    },
+    "vpn_route": {
+      "dst": "172.27.238.192",
+      "dev": "ens33",
+      "gateway": "192.168.1.1"
+    },
+    "isolated_validation_residuals": [],
+    "ssh_remote_execution_succeeded": true,
+    "read_only_production_verification": true,
+    "no_provider_asset_writes": true
+  },
+  "post_ui": {
+    "ok": true,
+    "release": "account-memory-20261013-090000",
+    "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "checked_at": "2026-10-13T01:39:01.567671+00:00",
+    "checks": {
+      "guarded_services_running_and_healthy": true,
+      "candidate_api_and_worker_image": true,
+      "all_existing_network_ids_subnets_and_internal_preserved": true,
+      "protected_config_and_override_link_preserved": true,
+      "existing_infrastructure_and_providers_ids_images_preserved": true,
+      "all_original_data_mounts_preserved": true,
+      "runtime_hashes_preserved": true,
+      "vpn_route_via_original_interface_and_gateway": true,
+      "ssh_remote_execution_succeeded": true,
+      "server_http_health_200": true,
+      "production_schema_17": true
+    },
+    "read_only_post_ui_verification": true,
+    "business_counts_not_used_after_real_ui": true,
+    "no_provider_asset_writes": true
+  },
+  "browser": {
+    "production": true,
+    "run_started_at": "2026-10-13T01:37:02.872Z",
+    "screenshot_origin": "production",
+    "screenshots": [
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-bot-layout-desktop.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-bot-layout-desktop.png",
+        "sha256": "b5af32260be533736d797953d3fe7b93a6002346ea9288f4cc3c62eae83007ac",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-bot-layout-desktop-completed-task.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-bot-layout-desktop-completed-task.png",
+        "sha256": "d39ac26d12b3b7a8748165c9c831774dad438c7c30eb00bbcfb528ee959295df",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-personal-center-desktop.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-personal-center-desktop.png",
+        "sha256": "0de8be5dba0dedf4a29def4bc3c0068da99aefdafd9f2c4a76caecfa01ac0765",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-memory-personal-desktop.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-memory-personal-desktop.png",
+        "sha256": "6efd914e04f6d65fe0e742115ff243508cd202c23617383ab00b72fa745e0fcf",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-memory-skill-review-desktop.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-memory-skill-review-desktop.png",
+        "sha256": "5971b2b69a4e06f1c7602c0a0e19a717f9e073525fb53b51cf23d907df4cf9aa",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-memory-wiki-codegraph-desktop.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-memory-wiki-codegraph-desktop.png",
+        "sha256": "875002e9018d6a845cb94a9f4b9c318a2d797b588d7542df7e0f63db023225c1",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-personal-center-desktop-returned.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-personal-center-desktop-returned.png",
+        "sha256": "cb3e2a5646d0e603ab9322af61abde8cfede79038cccca0c8695ecafb9219ba8",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-bot-layout-mobile.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-bot-layout-mobile.png",
+        "sha256": "dd1d5d26efdf994329479899b6e1564225a6b2fe8f6d712d446eb360e42162c9",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-personal-center-mobile.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-personal-center-mobile.png",
+        "sha256": "05078e495468ac80cad4b0eceebed701629593e9533da8c40d4e89f22463d3b8",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-memory-personal-mobile.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-memory-personal-mobile.png",
+        "sha256": "b6dc95715c844cbb1bda5a1354d9b8b8a464ca1f11759652ff31cad0889f1f5a",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-memory-skill-review-mobile.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-memory-skill-review-mobile.png",
+        "sha256": "ad2215295c844f01fdc8e84fe5823cefa7f30958674a3ee7abd32456c92f3c83",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-memory-wiki-codegraph-mobile.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-memory-wiki-codegraph-mobile.png",
+        "sha256": "9394736e0546f25e16ecd3ea0a88880640ff5e89699ea2df706118b3990df7c0",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/account-memory-settings-production-personal-center-mobile-returned.png",
+        "relative_path": "docs/screenshots/account-memory-settings-production-personal-center-mobile-returned.png",
+        "sha256": "ab58e95d2083cf5acef8a686de149a5734be73135b416a96a088044dfbe130de",
+        "origin": "production",
+        "masked": true
+      }
+    ],
+    "passed": true,
+    "status": "completed",
+    "api_statuses": {
+      "/api/bot/knowledge/assets": 200,
+      "/api/bot/memory/settings": 200,
+      "/api/personal/preferences": 200,
+      "/api/bot/memory/providers": 200,
+      "/api/bot/memories": 200,
+      "/api/bot/skill-candidates": 200
+    },
+    "business_mutations_sent": false,
+    "unexpected_business_mutation_attempt": false,
+    "cloud_heartbeat_blocked": false,
+    "javascript_errors_seen": false,
+    "credential_values_logged": false,
+    "session_data_saved": false,
+    "screenshots_masked": true,
+    "checks": {
+      "login_api_ok": true,
+      "authenticated_identity_ok": true,
+      "desktop_bot_header_entries_removed": true,
+      "desktop_bot_headers_transparent": true,
+      "desktop_bot_scroll_has_safe_spacing": true,
+      "desktop_bot_page_no_overflow": true,
+      "completed_task_present": true,
+      "desktop-completed-task_bot_header_entries_removed": true,
+      "desktop-completed-task_bot_headers_transparent": true,
+      "desktop-completed-task_bot_scroll_has_safe_spacing": true,
+      "desktop-completed-task_bot_page_no_overflow": true,
+      "desktop_schema17_settings_loaded": true,
+      "desktop_three_switches_match_real_get": true,
+      "desktop_personal_center_no_overflow": true,
+      "desktop_focus_inside_personal_center": true,
+      "desktop_provider_api_ok": true,
+      "desktop_core_provider_configured": true,
+      "desktop_core_provider_available": true,
+      "desktop_knowledge_provider_configured": true,
+      "desktop_knowledge_provider_available": true,
+      "desktop_personal_no_dialog_overflow": true,
+      "desktop_personal_focus_inside_dialog": true,
+      "desktop_skill-review_no_dialog_overflow": true,
+      "desktop_skill-review_focus_inside_dialog": true,
+      "desktop_wiki-codegraph_no_dialog_overflow": true,
+      "desktop_wiki-codegraph_focus_inside_dialog": true,
+      "desktop_escape_returns_to_personal_center": true,
+      "desktop_returned_focus_inside_personal_center": true,
+      "desktop-returned_schema17_settings_loaded": true,
+      "desktop-returned_three_switches_match_real_get": true,
+      "desktop-returned_personal_center_no_overflow": true,
+      "desktop-returned_focus_inside_personal_center": true,
+      "desktop_close_restores_account_focus": true,
+      "mobile_bot_header_entries_removed": true,
+      "mobile_bot_headers_transparent": true,
+      "mobile_bot_scroll_has_safe_spacing": true,
+      "mobile_bot_page_no_overflow": true,
+      "mobile_schema17_settings_loaded": true,
+      "mobile_three_switches_match_real_get": true,
+      "mobile_personal_center_no_overflow": true,
+      "mobile_focus_inside_personal_center": true,
+      "mobile_provider_api_ok": true,
+      "mobile_core_provider_configured": true,
+      "mobile_core_provider_available": true,
+      "mobile_knowledge_provider_configured": true,
+      "mobile_knowledge_provider_available": true,
+      "mobile_personal_no_dialog_overflow": true,
+      "mobile_personal_focus_inside_dialog": true,
+      "mobile_skill-review_no_dialog_overflow": true,
+      "mobile_skill-review_focus_inside_dialog": true,
+      "mobile_wiki-codegraph_no_dialog_overflow": true,
+      "mobile_wiki-codegraph_focus_inside_dialog": true,
+      "mobile_escape_returns_to_personal_center": true,
+      "mobile_returned_focus_inside_personal_center": true,
+      "mobile-returned_schema17_settings_loaded": true,
+      "mobile-returned_three_switches_match_real_get": true,
+      "mobile-returned_personal_center_no_overflow": true,
+      "mobile-returned_focus_inside_personal_center": true,
+      "mobile_close_restores_account_focus": true,
+      "api_0_ok": true,
+      "api_1_ok": true,
+      "api_2_ok": true,
+      "api_3_ok": true,
+      "api_4_ok": true,
+      "api_5_ok": true,
+      "zero_javascript_errors": true,
+      "zero_unexpected_business_mutations": true,
+      "fresh_masked_screenshot_manifest": true
+    },
+    "logout_ok": true,
+    "logout_status": 200,
+    "browser_cleanup_ok": true,
+    "finished_at": "2026-10-13T01:37:10.660Z"
+  },
+  "source_hashes": {
+    "frontend/src/App.tsx": "1fb9037771edd96979d72d8129edf0812096ef4f133bd82b2d2cf73798fb120b",
+    "frontend/src/BotMemory.tsx": "5453f51a3dddfc62de8e73014b6a3c20d80ab1b578fd822a55ad4ee37b44114c",
+    "backend/src/bot_memory.rs": "e0f9f5c847fc3c02159592dcb18f81c751ce7aead0cd533268014c3a9dce5f03",
+    "backend/src/bot_skill_review.rs": "54440b804e2beaa785ab32bb30f745d09059746049068db50e5851bd815cc3f5",
+    "backend/src/db.rs": "28fe1d6a23f050b7e6bbbbda7af1f80ac68b4b23a61747dcc4b471765025ded4",
+    "backend/migrations/017_skill_capture_settings.sql": "21dd94a49981f6fb99a18c9c6611d175480d66cdfab7a6baa65d36be2f3a37b0",
+    "docs/openapi.json": "2aba55f5bb03b05a5e5f9cc9ae1829ff126e6a0c4c56b8c5557f3515c2abd794",
+    "scripts/generate_openapi.py": "33f1963dd92f7af154fadb42ae401f8e682804cd9b5724dd6119e77470f49a31"
+  },
+  "pre_deployment": {
+    "ok": true,
+    "checks": {
+      "all_existing_networks_unchanged": true,
+      "original_production_images_unchanged": true,
+      "infrastructure_and_providers_unchanged": true,
+      "all_mount_fields_and_counts_unchanged": true,
+      "configuration_unchanged": true,
+      "runtime_unchanged": true,
+      "vpn_route_unchanged": true,
+      "all_active_work_zero": true
+    },
+    "checked_at": "2026-10-13T01:32:44.649930+00:00",
+    "services_verified": 10,
+    "read_only": true,
+    "production_not_switched": true
+  },
+  "mount_order_guard_review": {
+    "ok": true,
+    "services": {
+      "api": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "worker": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "postgres": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "qdrant": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "minio": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "gateway": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "sandbox": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "memory-core": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "memory-knowledge": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      },
+      "memory-gateway": {
+        "same_id": true,
+        "same_image": true,
+        "mount_array_equal": true,
+        "mounts_by_destination_equal": true
+      }
+    },
+    "blocked_before_any_service_stop": true,
+    "original_block_reason": "Docker inspect Mounts array order differed while all mount fields matched",
+    "mount_comparison_preserves_every_field_and_list_length": true
+  },
+  "isolated_restart_failure_before_cutover": {
+    "ok": false,
+    "image": "sha256:e181969bd003b8fa511cd2ceec604e3532c93b6a16d5542951fe7b69a921de59",
+    "release": "account-memory-20261013-090000",
+    "stage": "restart_idempotence",
+    "failure_type": "RuntimeError",
+    "checks": {
+      "isolated_validation_names_initially_absent": true,
+      "schema_16_production_snapshot_restored": true,
+      "schema_16_to_17_preserves_business_counts": true,
+      "migration_preserves_model_ciphertext": true,
+      "migration_preserves_existing_memory_choices": true,
+      "existing_owners_default_skill_capture_enabled": true,
+      "anonymous_settings_denied": true,
+      "new_owner_defaults_compatible": true,
+      "enabled_setting_admits_manual_draft": true,
+      "partial_skill_setting_preserves_memory_choices": true,
+      "settings_reread_persists_choices": true,
+      "empty_patch_is_noop": true,
+      "identity_override_rejected": true,
+      "other_owner_unchanged": true,
+      "disabled_manual_and_model_proposals_rejected": true,
+      "existing_draft_review_remains_available": true,
+      "existing_draft_cleanup_remains_available": true,
+      "task_owner_isolation_preserved": true,
+      "database_rejects_invalid_skill_capture": true,
+      "no_docker_network_created_or_modified": true,
+      "isolated_validation_containers_removed": true,
+      "protected_validation_envfile_removed": true,
+      "validation_cleanup_succeeded": true
+    },
+    "no_provider_asset_writes": true
+  },
+  "corrective_change": "PostgreSQL column existence check returns integer instead of catalog name; final isolated validation rerun passed."
+}

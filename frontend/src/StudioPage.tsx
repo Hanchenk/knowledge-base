@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowUp,
+  Brush,
   Check,
   ChevronDown,
   CircleAlert,
   Download,
   Expand,
+  Eraser,
   Film,
+  FileText,
   FolderOpen,
   Globe2,
   ImagePlus,
@@ -14,10 +17,16 @@ import {
   MessageSquare,
   PanelLeft,
   Plus,
+  Palette,
+  Paperclip,
+  ScanLine,
+  Search,
   RefreshCw,
   SlidersHorizontal,
   Sparkles,
+  WandSparkles,
   Wrench,
+  X,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -25,13 +34,28 @@ import { api, post, bytes } from "./api";
 import { randomUuid } from "./ids";
 import { ImagePreview } from "./ImagePreview";
 import { ProductLogo } from "./ProductLogo";
+import { visibleCitationSources } from "./citation-sources";
 import { StudioOptionsPopover } from "./StudioOptionsPopover";
+import { StudioAttachments, useStudioAttachments } from "./StudioAttachments";
+import { StudioMaskEditor } from "./StudioMaskEditor";
+import {
+  removeStudioAttachment,
+  reuseStudioAsset,
+  studioAttachmentUrl,
+  uploadStudioAttachment,
+  type StudioAttachment,
+  type StudioOperation,
+  type StudioUploadPolicy,
+} from "./studio-api";
+import "./studio.css";
 import type { Message, User } from "./types";
 import type { Feedback } from "./App";
 
 type Capabilities = {
   agent: boolean;
   web: boolean;
+  attachments?: StudioUploadPolicy;
+  image_edit?: boolean;
   models: {
     id: string;
     name: string;
@@ -64,9 +88,80 @@ type Asset = {
 };
 type ProjectView = {
   project: { id: string; title: string };
-  messages: Message[];
+  messages: (Message & { attachments?: StudioAttachment[] })[];
   jobs: Job[];
   assets: Asset[];
+};
+const STYLES = [
+  { id: "", name: "自动风格", color: "#e9eef8" },
+  { id: "portrait", name: "人像摄影", color: "#d9c4af" },
+  { id: "cinematic", name: "电影写真", color: "#2e4b62" },
+  { id: "chinese", name: "中国风", color: "#a75944" },
+  { id: "anime", name: "动漫", color: "#b6b8ef" },
+  { id: "3d", name: "3D 渲染", color: "#a8d8cd" },
+  { id: "cyberpunk", name: "赛博朋克", color: "#aa69c4" },
+  { id: "cg", name: "CG 动画", color: "#4baac2" },
+  { id: "ink", name: "水墨画", color: "#8b9691" },
+  { id: "oil", name: "油画", color: "#ca9b62" },
+  { id: "classic", name: "古典", color: "#8a7770" },
+  { id: "watercolor", name: "水彩画", color: "#efb8cc" },
+  { id: "cartoon", name: "卡通", color: "#edca72" },
+];
+const OPERATIONS = [
+  {
+    id: "generate" as const,
+    name: "自由创作",
+    icon: Sparkles,
+    instruction: "",
+    description: "从描述、参考图或资料开始",
+  },
+  {
+    id: "remove_background" as const,
+    name: "AI 抠图",
+    icon: ScanLine,
+    instruction: "去除参考图背景，完整保留主体和边缘细节，输出透明背景。",
+    description: "分离主体，去除背景",
+  },
+  {
+    id: "erase" as const,
+    name: "擦除",
+    icon: Eraser,
+    instruction:
+      "擦除参考图中标记的区域，并根据周围画面自然补全，保留其他内容。",
+    description: "涂抹去除多余对象",
+  },
+  {
+    id: "edit" as const,
+    name: "标记改图",
+    icon: Brush,
+    instruction: "按要求修改参考图中标记的区域，尽量保留未标记的区域。",
+    description: "局部调整画面与内容",
+  },
+  {
+    id: "expand" as const,
+    name: "扩图",
+    icon: Expand,
+    instruction:
+      "将参考图扩展至选择的画幅，自然补全原画面边缘外的内容，保留主体与原有风格。",
+    description: "延伸画面，适配新画幅",
+  },
+  {
+    id: "upscale" as const,
+    name: "变清晰",
+    icon: WandSparkles,
+    instruction:
+      "提高参考图清晰度，修复模糊和噪点，保留主体、构图和原始细节，不添加多余内容。",
+    description: "改善模糊与细节",
+  },
+];
+const readDraft = (userId: string): Record<string, unknown> => {
+  try {
+    return JSON.parse(
+      localStorage.getItem(`atlas:studio:draft:${userId}`) || "{}",
+    );
+  } catch {
+    return {};
+  }
 };
 export function StudioPage({
   user,
@@ -91,13 +186,75 @@ export function StudioPage({
   const [recentLoading, setRecentLoading] = useState(false);
   const works = useRef<HTMLDivElement>(null);
   const promptInput = useRef<HTMLTextAreaElement>(null);
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(() => {
+    const value = readDraft(user.id).prompt;
+    return typeof value === "string" ? value : "";
+  });
   const [kind, setKind] = useState<"image" | "video" | "auto">("image");
   const [imageSize, setImageSize] = useState("1024x1024");
   const [videoSize, setVideoSize] = useState("1280x720");
   const [seconds, setSeconds] = useState(4);
   const [allowWeb, setAllowWeb] = useState(false);
-  const [options, setOptions] = useState<"models" | "parameters">();
+  const [options, setOptions] = useState<"models" | "parameters" | "styles">();
+  const [style, setStyle] = useState(() => {
+    const value = readDraft(user.id).style;
+    return typeof value === "string" && STYLES.some((row) => row.id === value)
+      ? value
+      : "";
+  });
+  const [quality, setQuality] = useState("auto");
+  const [operation, setOperation] = useState<StudioOperation>("generate");
+  const attachments = useStudioAttachments(capabilities?.attachments);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
+  const [dragging, setDragging] = useState(false);
+  const [mask, setMask] = useState<{
+    attachment: StudioAttachment;
+    sourceId: string;
+  }>();
+  const maskRef = useRef(mask);
+  maskRef.current = mask;
+  useEffect(
+    () => () => {
+      if (maskRef.current)
+        void removeStudioAttachment(maskRef.current.attachment.id).catch(
+          () => undefined,
+        );
+    },
+    [],
+  );
+  const [maskEditor, setMaskEditor] = useState(false);
+  const [reusing, setReusing] = useState("");
+  const [workSearch, setWorkSearch] = useState("");
+  const [workFilter, setWorkFilter] = useState("all");
+  const mainImage = attachments.ready.find((item) => item.kind === "image");
+  const currentOperation = OPERATIONS.find((row) => row.id === operation)!;
+  const maskValid = !!mask && mask.sourceId === mainImage?.id;
+  const editReady =
+    operation === "generate" ||
+    (!!capabilities?.image_edit &&
+      !!mainImage &&
+      (!["erase", "edit"].includes(operation) || maskValid));
+  const submittedPrompt = prompt.trim() || currentOperation.instruction;
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        localStorage.setItem(
+          `atlas:studio:draft:${user.id}`,
+          JSON.stringify({ prompt, style }),
+        );
+      } catch {
+        /* Browser storage can be restricted. */
+      }
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [prompt, style, user.id]);
+  useEffect(() => {
+    if (mask && mask.sourceId !== mainImage?.id) {
+      void removeStudioAttachment(mask.attachment.id).catch(() => undefined);
+      setMask(undefined);
+    }
+  }, [mainImage?.id, mask]);
   const closeOptions = useCallback(() => setOptions(undefined), []);
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<{ asset: Asset; prompt: string }>();
@@ -225,7 +382,17 @@ export function StudioPage({
       ? !!(selectedModel("image") || selectedModel("video"))
       : !!selectedModel(kind));
   const ask = async () => {
-    if (busy || !prompt.trim() || !ready) return;
+    if (
+      busy ||
+      !submittedPrompt ||
+      !ready ||
+      !editReady ||
+      attachments.uploading ||
+      attachments.failed ||
+      (kind === "video" &&
+        attachments.ready.filter((row) => row.kind === "image").length > 1)
+    )
+      return;
     const original = prompt;
     setBusy(true);
     setError("");
@@ -234,7 +401,7 @@ export function StudioPage({
     try {
       if (!projectId) {
         const created = await post<{ id: string }>("/api/studio/projects", {
-          title: original,
+          title: original || currentOperation.name,
         });
         projectId = created.id;
         current.current = projectId;
@@ -242,12 +409,17 @@ export function StudioPage({
       }
       const parameters = {
         project_id: projectId,
-        prompt: original,
+        prompt: submittedPrompt,
         kind,
         image_size: imageSize,
         video_size: videoSize,
         seconds,
         allow_web: allowWeb,
+        attachment_ids: attachments.ready.map((row) => row.id),
+        operation,
+        style,
+        image_quality: quality,
+        mask_attachment_id: maskValid ? mask?.attachment.id : undefined,
         image_model_id:
           kind !== "video" ? modelIds.image || undefined : undefined,
         video_model_id:
@@ -261,6 +433,8 @@ export function StudioPage({
         request_id: request.current.id,
       });
       request.current = undefined;
+      setMask(undefined);
+      attachments.clear();
     } catch (error) {
       setError((error as Error).message);
       setPrompt(original);
@@ -326,6 +500,41 @@ export function StudioPage({
         下载{asset.kind === "image" ? "图片" : "视频"}
         <small>{bytes(asset.size)}</small>
       </a>
+      {asset.kind === "image" && capabilities?.attachments?.enabled && (
+        <button
+          type="button"
+          className="text-button studio-use-reference"
+          disabled={
+            busy ||
+            !!reusing ||
+            attachments.items.length >= capabilities.attachments.max_files
+          }
+          onClick={async () => {
+            setReusing(asset.id);
+            setError("");
+            try {
+              attachments.addReference(await reuseStudioAsset(asset.id));
+              setKind("image");
+              promptInput.current?.focus();
+              promptInput.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            } catch (cause) {
+              setError((cause as Error).message);
+            } finally {
+              setReusing("");
+            }
+          }}
+        >
+          {reusing === asset.id ? (
+            <LoaderCircle size={13} className="spin" />
+          ) : (
+            <ImagePlus size={13} />
+          )}
+          用作参考图
+        </button>
+      )}
     </div>
   );
   const newCreation = () => {
@@ -334,8 +543,76 @@ export function StudioPage({
     setPrompt("");
     setError("");
     setAllowWeb(false);
+    setOperation("generate");
+    if (mask)
+      void removeStudioAttachment(mask.attachment.id).catch(() => undefined);
+    setMask(undefined);
+    attachments.clear(true);
+    setWorkSearch("");
+    setWorkFilter("all");
     request.current = undefined;
   };
+  const matchesWork = (
+    row: { kind: string; prompt?: string; model?: string; status?: string },
+    title = "",
+  ) => {
+    const text =
+      `${title} ${row.prompt || ""} ${row.model || ""}`.toLowerCase();
+    return (
+      (!workSearch.trim() || text.includes(workSearch.trim().toLowerCase())) &&
+      (workFilter === "all" ||
+        row.kind === workFilter ||
+        (workFilter === "pending" &&
+          ["queued", "running"].includes(row.status || "")) ||
+        (workFilter === "failed" && row.status === "failed"))
+    );
+  };
+  const recentWorks = recentViews
+    .flatMap((recent) =>
+      recent.assets.map((asset) => ({
+        recent,
+        asset,
+        job: recent.jobs.find((job) => job.id === asset.job_id),
+      })),
+    )
+    .filter(({ recent, asset, job }) =>
+      matchesWork({ ...job, kind: asset.kind }, recent.project.title),
+    );
+  const filteredJobs =
+    view?.jobs.filter((job) => matchesWork(job, view.project.title)) || [];
+  const workControls = (
+    <div className="studio-work-controls">
+      <label className="studio-work-search">
+        <Search size={15} />
+        <input
+          aria-label="搜索创作作品"
+          placeholder="搜索作品、提示词或模型"
+          value={workSearch}
+          onChange={(event) => setWorkSearch(event.target.value)}
+        />
+      </label>
+      <select
+        aria-label="筛选创作作品"
+        value={workFilter}
+        onChange={(event) => setWorkFilter(event.target.value)}
+      >
+        <option value="all">全部作品</option>
+        <option value="image">图片</option>
+        <option value="video">视频</option>
+        {selected && (
+          <>
+            <option value="pending">生成中</option>
+            <option value="failed">失败任务</option>
+          </>
+        )}
+      </select>
+    </div>
+  );
+  const visibleMessages = view?.messages.map((message) => ({
+    ...message,
+    citedSources: visibleCitationSources(message.content, message.citations)
+      .citations,
+  }));
   return (
     <div className={`studio-layout ${historyOpen ? "history-open" : ""}`}>
       <aside className="studio-history" id="studio-history">
@@ -479,19 +756,105 @@ export function StudioPage({
           </div>
           <div className="studio-compose-wrap">
             <form
-              className="studio-composer"
+              className={`studio-composer ${dragging ? "is-dragging" : ""}`}
+              onPaste={(event) => {
+                const files = Array.from(event.clipboardData.files);
+                if (
+                  !files.length ||
+                  busy ||
+                  !capabilities?.attachments?.enabled
+                )
+                  return;
+                event.preventDefault();
+                attachments.addFiles(files);
+              }}
+              onDragEnter={(event) => {
+                if (
+                  !event.dataTransfer.types.includes("Files") ||
+                  busy ||
+                  !capabilities?.attachments?.enabled
+                )
+                  return;
+                event.preventDefault();
+                dragDepth.current += 1;
+                setDragging(true);
+              }}
+              onDragOver={(event) => {
+                if (!event.dataTransfer.types.includes("Files")) return;
+                event.preventDefault();
+                event.dataTransfer.dropEffect =
+                  busy || !capabilities?.attachments?.enabled ? "none" : "copy";
+              }}
+              onDragLeave={(event) => {
+                event.preventDefault();
+                dragDepth.current = Math.max(0, dragDepth.current - 1);
+                if (!dragDepth.current) setDragging(false);
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                dragDepth.current = 0;
+                setDragging(false);
+                if (!busy && capabilities?.attachments?.enabled)
+                  attachments.addFiles(Array.from(event.dataTransfer.files));
+              }}
               onSubmit={(event) => {
                 event.preventDefault();
                 void ask();
               }}
             >
+              <input
+                ref={fileInput}
+                className="studio-file-input"
+                type="file"
+                multiple
+                accept={capabilities?.attachments?.accept.join(",")}
+                aria-label="上传创作参考文件"
+                disabled={busy || !capabilities?.attachments?.enabled}
+                onChange={(event) => {
+                  attachments.addFiles(Array.from(event.target.files || []));
+                  event.target.value = "";
+                }}
+              />
+              {dragging && (
+                <div className="studio-drop-overlay">
+                  <Paperclip size={24} />
+                  <strong>松开以添加参考文件</strong>
+                  <span>图片或文本资料</span>
+                </div>
+              )}
+              <StudioAttachments
+                items={attachments.items}
+                disabled={busy}
+                onRemove={attachments.remove}
+                onRetry={(item) => void attachments.retry(item)}
+              />
+              {operation !== "generate" && (
+                <div className="studio-operation-context">
+                  <currentOperation.icon size={15} />
+                  <strong>{currentOperation.name}</strong>
+                  <span>{currentOperation.description}</span>
+                  <button
+                    type="button"
+                    className="icon-button"
+                    aria-label="取消图片编辑"
+                    disabled={busy}
+                    onClick={() => setOperation("generate")}
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              )}
               <textarea
                 ref={promptInput}
                 aria-label="创作要求"
                 placeholder={
-                  kind === "video"
-                    ? "描述你想创作的视频、镜头与氛围…"
-                    : "描述你想要的画面，让灵感在这里发生…"
+                  operation !== "generate"
+                    ? operation === "edit"
+                      ? "标记区域后，描述你想怎样修改，例如：换成红色外套…"
+                      : `${currentOperation.instruction} 可补充具体要求…`
+                    : kind === "video"
+                      ? "描述你想创作的视频、镜头与氛围…"
+                      : "描述你想要的画面，让灵感在这里发生…"
                 }
                 maxLength={4000}
                 rows={2}
@@ -509,6 +872,94 @@ export function StudioPage({
                   }
                 }}
               />
+              <div className="studio-composer-extras">
+                <button
+                  type="button"
+                  className="studio-extra-button"
+                  disabled={
+                    busy ||
+                    !capabilities?.attachments?.enabled ||
+                    attachments.items.length >=
+                      (capabilities?.attachments?.max_files || 8)
+                  }
+                  title="添加图片或文本资料，也可直接粘贴或拖拽"
+                  onClick={() => fileInput.current?.click()}
+                >
+                  <Paperclip size={15} /> 添加参考
+                </button>
+                <StudioOptionsPopover
+                  label="创作风格"
+                  summary={
+                    STYLES.find((row) => row.id === style)?.name || "自动风格"
+                  }
+                  icon={<Palette size={14} />}
+                  className="studio-style-trigger"
+                  open={options === "styles"}
+                  disabled={busy}
+                  onToggle={() =>
+                    setOptions((value) =>
+                      value === "styles" ? undefined : "styles",
+                    )
+                  }
+                  onClose={closeOptions}
+                >
+                  <div
+                    className="studio-style-grid"
+                    role="group"
+                    aria-label="风格选择"
+                  >
+                    {STYLES.map((row) => (
+                      <button
+                        type="button"
+                        key={row.id}
+                        aria-pressed={style === row.id}
+                        className={style === row.id ? "active" : ""}
+                        onClick={() => {
+                          setStyle(row.id);
+                          closeOptions();
+                        }}
+                      >
+                        <span style={{ background: row.color }} />
+                        <strong>{row.name}</strong>
+                        {style === row.id && <Check size={13} />}
+                      </button>
+                    ))}
+                  </div>
+                </StudioOptionsPopover>
+                <button
+                  type="button"
+                  className="studio-extra-button"
+                  disabled={busy}
+                  onClick={() => {
+                    const template =
+                      kind === "video"
+                        ? "主体：\n场景：\n镜头运动：\n动作与节奏：\n光线与氛围：\n避免出现："
+                        : "主体：\n场景与用途：\n构图：\n光线与配色：\n需要保留的细节：\n避免出现：";
+                    setPrompt((value) =>
+                      value.trim()
+                        ? `${value}\n\n${template}`.slice(0, 4000)
+                        : template,
+                    );
+                    promptInput.current?.focus();
+                  }}
+                >
+                  <WandSparkles size={14} /> 提示词模板
+                </button>
+                {["erase", "edit"].includes(operation) && (
+                  <button
+                    type="button"
+                    className={`studio-extra-button ${maskValid ? "marked" : ""}`}
+                    disabled={busy || !mainImage || attachments.uploading}
+                    onClick={() => setMaskEditor(true)}
+                  >
+                    <Brush size={14} />
+                    {maskValid ? "修改标记" : "标记区域"}
+                  </button>
+                )}
+                <span className="studio-prompt-count">
+                  {prompt.length}/4000
+                </span>
+              </div>
               <div className="studio-composer-toolbar">
                 <div className="studio-controls">
                   <div
@@ -537,7 +988,10 @@ export function StudioPage({
                         }
                         className={kind === item.kind ? "active" : ""}
                         disabled={busy}
-                        onClick={() => setKind(item.kind)}
+                        onClick={() => {
+                          setKind(item.kind);
+                          if (item.kind === "video") setOperation("generate");
+                        }}
                       >
                         <item.icon size={15} />
                         {item.kind === "auto" ? "智能" : item.name}
@@ -641,21 +1095,49 @@ export function StudioPage({
                     onClose={closeOptions}
                   >
                     {kind !== "video" && (
-                      <label className="studio-option-field">
-                        <span>图片画幅</span>
-                        <select
-                          aria-label="图片尺寸"
-                          value={imageSize}
-                          disabled={busy}
-                          onChange={(event) => setImageSize(event.target.value)}
-                        >
-                          <option value="1024x1024">方形 · 1024 × 1024</option>
-                          <option value="1536x1024">横版 · 1536 × 1024</option>
-                          <option value="1024x1536">竖版 · 1024 × 1536</option>
-                          <option value="1792x1024">宽幅 · 1792 × 1024</option>
-                          <option value="1024x1792">长图 · 1024 × 1792</option>
-                        </select>
-                      </label>
+                      <>
+                        <label className="studio-option-field">
+                          <span>图片画幅</span>
+                          <select
+                            aria-label="图片尺寸"
+                            value={imageSize}
+                            disabled={busy}
+                            onChange={(event) =>
+                              setImageSize(event.target.value)
+                            }
+                          >
+                            <option value="1024x1024">
+                              方形 · 1024 × 1024
+                            </option>
+                            <option value="1536x1024">
+                              横版 · 1536 × 1024
+                            </option>
+                            <option value="1024x1536">
+                              竖版 · 1024 × 1536
+                            </option>
+                            <option value="1792x1024">
+                              宽幅 · 1792 × 1024
+                            </option>
+                            <option value="1024x1792">
+                              长图 · 1024 × 1792
+                            </option>
+                          </select>
+                        </label>
+                        <label className="studio-option-field">
+                          <span>图片质量</span>
+                          <select
+                            aria-label="图片质量"
+                            value={quality}
+                            disabled={busy}
+                            onChange={(event) => setQuality(event.target.value)}
+                          >
+                            <option value="auto">自动 · 由模型决定</option>
+                            <option value="low">低 · 更快</option>
+                            <option value="medium">中 · 均衡</option>
+                            <option value="high">高 · 更精细</option>
+                          </select>
+                        </label>
+                      </>
                     )}
                     {kind !== "image" && (
                       <>
@@ -711,7 +1193,17 @@ export function StudioPage({
                   <button
                     className="send-button"
                     aria-label="开始创作"
-                    disabled={busy || !prompt.trim() || !ready}
+                    disabled={
+                      busy ||
+                      !submittedPrompt ||
+                      !ready ||
+                      !editReady ||
+                      attachments.uploading ||
+                      attachments.failed ||
+                      (kind === "video" &&
+                        attachments.ready.filter((row) => row.kind === "image")
+                          .length > 1)
+                    }
                   >
                     {busy ? (
                       <LoaderCircle size={18} className="spin" />
@@ -722,14 +1214,78 @@ export function StudioPage({
                 </div>
               </div>
             </form>
+            {attachments.error && (
+              <p className="studio-error" role="alert">
+                {attachments.error}
+              </p>
+            )}
+            {operation !== "generate" && !mainImage && (
+              <p className="studio-input-hint">
+                添加一张参考图，开始{currentOperation.name}。
+              </p>
+            )}
+            {["erase", "edit"].includes(operation) &&
+              mainImage &&
+              !maskValid && (
+                <p className="studio-input-hint">
+                  点击「标记区域」，涂抹希望
+                  {operation === "erase" ? "擦除" : "修改"}的位置。
+                </p>
+              )}
+            {kind === "video" &&
+              attachments.ready.filter((row) => row.kind === "image").length >
+                1 && (
+                <p className="studio-error" role="alert">
+                  图生视频需要一张参考图，请移除多余图片。
+                </p>
+              )}
+            {operation !== "generate" && mainImage && (
+              <p className="studio-input-hint">
+                图片编辑通过所选模型的编辑接口执行，具体效果和格式支持取决于服务商。
+              </p>
+            )}
             {error && (
               <p className="studio-error" role="alert">
-                {error}。可重试当前请求；已提交的任务会继续生成。
+                {error}
               </p>
             )}
             <small className="composer-note">
-              生成会调用所选服务商，可能产生费用。作品自动保存，可稍后返回查看。
+              {capabilities?.attachments?.enabled
+                ? "支持粘贴、拖拽图片与文档 · "
+                : ""}
+              生成会调用所选服务商，可能产生费用。作品自动保存。
             </small>
+          </div>
+          <div
+            className="studio-edit-tools"
+            role="group"
+            aria-label="图片创作工具"
+          >
+            {OPERATIONS.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                aria-pressed={operation === item.id}
+                className={operation === item.id ? "active" : ""}
+                disabled={
+                  busy || (item.id !== "generate" && !capabilities?.image_edit)
+                }
+                title={
+                  item.id !== "generate" && !capabilities?.image_edit
+                    ? "当前服务尚未启用图片编辑能力"
+                    : item.description
+                }
+                onClick={() => {
+                  setOperation(item.id);
+                  if (item.id !== "generate") setKind("image");
+                  setError("");
+                  promptInput.current?.focus();
+                }}
+              >
+                <item.icon size={18} />
+                <span>{item.name}</span>
+              </button>
+            ))}
           </div>
 
           {!selected ? (
@@ -799,6 +1355,7 @@ export function StudioPage({
                   <h2>最近作品</h2>
                   <span>仅你可见 · 自动保存</span>
                 </div>
+                {workControls}
                 {recentLoading ? (
                   <p className="studio-gallery-state" role="status">
                     <LoaderCircle size={17} className="spin" />
@@ -822,43 +1379,38 @@ export function StudioPage({
                       </p>
                     )}
                     <div className="studio-art-grid">
-                      {recentViews.flatMap((recent) =>
-                        recent.assets.slice(0, 4).map((asset) => {
-                          const job = recent.jobs.find(
-                            (job) => job.id === asset.job_id,
-                          );
-                          return (
-                            <article
-                              className="studio-art-card studio-recent-card"
-                              key={asset.id}
+                      {recentWorks.map(({ recent, asset, job }) => {
+                        return (
+                          <article
+                            className="studio-art-card studio-recent-card"
+                            key={asset.id}
+                          >
+                            {renderAsset(
+                              asset,
+                              job?.prompt || recent.project.title,
+                            )}
+                            <div className="studio-recent-caption">
+                              <strong>{recent.project.title}</strong>
+                              <span>
+                                {asset.kind === "image" ? "图片" : "视频"} ·{" "}
+                                {job?.size}
+                              </span>
+                            </div>
+                            <button
+                              className="text-button"
+                              disabled={busy}
+                              onClick={() => {
+                                setSelected(recent.project.id);
+                                setView(undefined);
+                                setError("");
+                                request.current = undefined;
+                              }}
                             >
-                              {renderAsset(
-                                asset,
-                                job?.prompt || recent.project.title,
-                              )}
-                              <div className="studio-recent-caption">
-                                <strong>{recent.project.title}</strong>
-                                <span>
-                                  {asset.kind === "image" ? "图片" : "视频"} ·{" "}
-                                  {job?.size}
-                                </span>
-                              </div>
-                              <button
-                                className="text-button"
-                                disabled={busy}
-                                onClick={() => {
-                                  setSelected(recent.project.id);
-                                  setView(undefined);
-                                  setError("");
-                                  request.current = undefined;
-                                }}
-                              >
-                                继续创作 <ArrowUp size={13} />
-                              </button>
-                            </article>
-                          );
-                        }),
-                      )}
+                              继续创作 <ArrowUp size={13} />
+                            </button>
+                          </article>
+                        );
+                      })}
                     </div>
                     {!recentViews.some((recent) => recent.assets.length) &&
                       !recentError && (
@@ -869,6 +1421,12 @@ export function StudioPage({
                             描述画面或选择上面的灵感，生成的图片和视频会展示在这里。
                           </p>
                         </div>
+                      )}
+                    {!!recentViews.some((recent) => recent.assets.length) &&
+                      !recentWorks.length && (
+                        <p className="studio-gallery-state">
+                          没有符合条件的作品。试试其他关键词或筛选条件。
+                        </p>
                       )}
                   </>
                 )}
@@ -889,8 +1447,9 @@ export function StudioPage({
                       </span>
                     )}
                   </div>
+                  {workControls}
                   <div className="studio-art-grid">
-                    {view.jobs.map((job) => {
+                    {filteredJobs.map((job) => {
                       const assets = view.assets.filter(
                         (asset) => asset.job_id === job.id,
                       );
@@ -959,8 +1518,19 @@ export function StudioPage({
                             onClick={() => {
                               setPrompt(job.prompt);
                               setKind(job.kind);
+                              setOperation("generate");
+                              if (job.kind === "image") setImageSize(job.size);
+                              else {
+                                setVideoSize(job.size);
+                                setSeconds(job.seconds || 4);
+                              }
                               setError("");
                               request.current = undefined;
+                              promptInput.current?.focus();
+                              promptInput.current?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                              });
                             }}
                           >
                             以此为基础继续创作
@@ -969,6 +1539,11 @@ export function StudioPage({
                       );
                     })}
                   </div>
+                  {!filteredJobs.length && (
+                    <p className="studio-gallery-state">
+                      没有符合条件的作品或任务。
+                    </p>
+                  )}
                 </div>
               )}
               <details className="studio-dialogue">
@@ -987,7 +1562,7 @@ export function StudioPage({
                   </span>
                 </summary>
                 <div className="studio-message-list">
-                  {view?.messages.map((message) => (
+                  {visibleMessages?.map((message) => (
                     <article
                       key={message.id}
                       className={`studio-message ${message.role}`}
@@ -1008,18 +1583,45 @@ export function StudioPage({
                             {message.content}
                           </Markdown>
                         </div>
-                        {!!message.citations.length && (
+                        {!!message.attachments?.length && (
+                          <div
+                            className="studio-message-attachments"
+                            aria-label="本轮参考文件"
+                          >
+                            {message.attachments.map((attachment) => (
+                              <a
+                                key={attachment.id}
+                                href={studioAttachmentUrl(attachment.id)}
+                                target="_blank"
+                                rel="noreferrer"
+                                title={`查看 ${attachment.name}`}
+                              >
+                                {attachment.kind === "image" ? (
+                                  <img
+                                    src={studioAttachmentUrl(attachment.id)}
+                                    alt={attachment.name}
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <FileText size={18} />
+                                )}
+                                <span>{attachment.name}</span>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                        {!!message.citedSources.length && (
                           <div
                             className="studio-evidence"
                             aria-label="引用资料"
                           >
-                            {message.citations.map((citation, index) => (
+                            {message.citedSources.map((citation) => (
                               <button
                                 key={citation.chunk_id}
                                 onClick={() => onDocument(citation.document_id)}
                               >
-                                [{index + 1}] {citation.title} · 第{" "}
-                                {citation.page} 页
+                                [{citation.citation_number}] {citation.title} ·
+                                第 {citation.page} 页
                               </button>
                             ))}
                           </div>
@@ -1098,6 +1700,20 @@ export function StudioPage({
             .split("/")[1]
             .replace("jpeg", "jpg")}
           onClose={() => setPreview(undefined)}
+        />
+      )}
+      {maskEditor && mainImage && (
+        <StudioMaskEditor
+          src={studioAttachmentUrl(mainImage.id)}
+          onClose={() => setMaskEditor(false)}
+          onApply={async (file) => {
+            const next = await uploadStudioAttachment(file);
+            if (mask)
+              void removeStudioAttachment(mask.attachment.id).catch(
+                () => undefined,
+              );
+            setMask({ attachment: next, sourceId: mainImage.id });
+          }}
         />
       )}
     </div>

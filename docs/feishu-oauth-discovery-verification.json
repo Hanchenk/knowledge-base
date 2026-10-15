@@ -1,0 +1,64 @@
+{
+  "checked_at": "2026-10-13T08:28:23.635952+00:00",
+  "read_only": true,
+  "checks": {
+    "resource_http_200": true,
+    "authorization_server_http_200": true,
+    "resource_fixed": true,
+    "registration_fixed": true,
+    "authorization_fixed": true,
+    "token_fixed": true,
+    "public_client": true,
+    "pkce_s256": true,
+    "required_scopes_in_resource": true
+  },
+  "resource": {
+    "resource": "https://mcp.feishu.cn/mcp",
+    "authorization_servers": [
+      "https://accounts.feishu.cn/mcp"
+    ],
+    "scopes_supported": [
+      "mcp-tool:common:fetch-file-v2",
+      "mcp-tool:common:get-user",
+      "mcp-tool:common:search-user",
+      "mcp-tool:docs:search-doc",
+      "mcp-tool:docs:create-doc",
+      "mcp-tool:docs:fetch-doc",
+      "mcp-tool:docs:update-doc",
+      "mcp-tool:docs:get-comments",
+      "mcp-tool:docs:add-comments",
+      "mcp-tool:docs:list-docs-v2",
+      "mcp-tool:im:search-groups",
+      "mcp-tool:im:get-group-members",
+      "mcp-tool:im:get-messages",
+      "mcp-tool:im:get-thread-messages",
+      "mcp-tool:im:search-messages",
+      "mcp-tool:im:get-read-status",
+      "offline_access"
+    ],
+    "bearer_methods_supported": [
+      "header"
+    ],
+    "resource_documentation": "https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/mcp_integration/mcp_introduction"
+  },
+  "authorization_server": {
+    "issuer": "https://accounts.feishu.cn/mcp",
+    "authorization_endpoint": "https://accounts.feishu.cn/oauth/v2/mcp/authorize",
+    "token_endpoint": "https://accounts.feishu.cn/oauth/v3/token",
+    "registration_endpoint": "https://open.feishu.cn/open-apis/app/v1/dcr",
+    "response_types_supported": [
+      "code"
+    ],
+    "grant_types_supported": [
+      "authorization_code",
+      "refresh_token"
+    ],
+    "token_endpoint_auth_methods_supported": [
+      "none"
+    ],
+    "code_challenge_methods_supported": [
+      "S256"
+    ]
+  },
+  "ok": true
+}

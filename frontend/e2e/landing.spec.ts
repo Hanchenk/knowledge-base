@@ -84,12 +84,33 @@ async function mockWorkspace(page: Page, signedIn = false) {
           worker: false,
         },
       });
+    if (path === "/api/bot/plugins/catalog")
+      return route.fulfill({ json: { plugins: [], marketplaces: [] } });
+    if (path === "/api/bot/cloud")
+      return route.fulfill({
+        json: {
+          available: false,
+          connected: false,
+          state: "unavailable",
+          idle_timeout_seconds: 1800,
+          last_activity_at: null,
+          expires_at: null,
+          active_tasks: 0,
+          pending_tasks: 0,
+          persistent: true,
+        },
+      });
+    if (path === "/api/bot/connectors/feishu/status")
+      return route.fulfill({
+        json: { available: false, connected: false, needs_reconnect: false },
+      });
     if (
       [
         "/api/bot/tasks",
         "/api/bot/skills",
         "/api/bot/connectors",
         "/api/bot/devices",
+        "/api/bot/knowledge/assets",
       ].includes(path)
     )
       return route.fulfill({ json: [] });

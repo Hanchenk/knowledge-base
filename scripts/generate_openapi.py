@@ -33,7 +33,7 @@ schemas = {
     "UserUpdate": obj({"name": STRING, "password": {"type": "string", "minLength": 1, "maxLength": 128}, "department_id": NULLABLE, "manager_id": NULLABLE, "role": {"type": "string", "enum": ["member", "admin"]}, "active": BOOLEAN}, ["name", "role", "active"]),
     "Department": obj({"name": STRING, "parent_id": NULLABLE}, ["name"]),
     "ApiKey": obj({"name": STRING, "scopes": arr({"type": "string", "enum": ["search.read", "document.read", "document.write"]}), "expires_days": {"type": "integer", "minimum": 1, "maximum": 365, "default": 30}}, ["name", "scopes"]),
-    "Citation": obj({"chunk_id": UUID, "citation_number": INTEGER, "referenced": BOOLEAN, "document_id": UUID, "space_id": UUID, "title": STRING, "text": STRING, "page": INTEGER, "kind": {"type": "string", "enum": ["text", "table", "table_summary", "image"]}, "image_url": NULLABLE, "source_url": STRING, "version": INTEGER, "score": {"type": "number"}}, ["chunk_id", "document_id", "title", "text", "page"]),
+    "Citation": obj({"chunk_id": UUID, "citation_number": INTEGER, "referenced": BOOLEAN, "document_id": UUID, "space_id": UUID, "title": STRING, "text": STRING, "page": INTEGER, "kind": {"type": "string", "enum": ["text", "table", "table_summary", "image", "wiki_source"]}, "image_url": NULLABLE, "source_url": STRING, "version": INTEGER, "score": {"type": "number"}}, ["chunk_id", "document_id", "title", "text", "page"]),
     "SearchResult": obj({"query": STRING, "mode": {"type": "string", "enum": ["keyword", "hybrid"]}, "hits": arr({"$ref": "#/components/schemas/Citation"}), "warnings": arr(STRING)}),
     "WebSource": obj({"citation_number": INTEGER, "referenced": BOOLEAN, "title": STRING, "url": {"type": "string", "format": "uri"}}),
     "ToolCall": obj({"name": STRING, "success": BOOLEAN, "duration_ms": INTEGER}),
@@ -51,13 +51,28 @@ schemas.update({
     "BotConnectorInput": obj({"name": {"type": "string", "minLength": 1, "maxLength": 60}, "description": {"type": "string", "maxLength": 500}, "url": {"type": "string", "format": "uri"}, "method": {"type": "string", "enum": ["GET", "POST"]}, "token": {"type": "string", "writeOnly": True, "maxLength": 4096}}, ["name", "url", "method"]),
     "BotSkillInput": obj({"name": {"type": "string", "minLength": 1, "maxLength": 60}, "description": {"type": "string", "maxLength": 500}, "instructions": {"type": "string", "minLength": 1, "maxLength": 12000}}, ["name", "instructions"]),
 })
+schemas.update({
+    "PersonalMemoryInput": obj({"content": {"type":"string","minLength":1,"maxLength":2000}, "kind":{"type":"string","enum":["preference","constraint","experience"],"default":"preference"}}, ["content"]),
+    "MemorySettingsInput": {**obj({"enabled":BOOLEAN,"capture":BOOLEAN,"skill_capture":BOOLEAN}), "additionalProperties":False, "description":"Update only supplied preferences; omitted fields retain their saved values. skill_capture controls new skill proposals/extractions, not review or use of existing skills."},
+    "MemoryReviewInput": obj({"decision":{"type":"string","enum":["approve","reject"]}},["decision"]),
+    "SkillCandidateInput": obj({"task_id":UUID,"name":STRING,"description":STRING,"instructions":STRING},["task_id"]),
+    "SkillCandidateEdit": obj({"name":STRING,"description":STRING,"instructions":STRING,"version":INTEGER}),
+    "SkillCandidateReview": obj({"decision":{"type":"string","enum":["approve","reject"]},"note":STRING,"version":INTEGER},["decision"]),
+    "KnowledgeAssetInput": obj({"kind":{"type":"string","enum":["wiki","code_graph"]},"name":STRING,"document_ids":arr(UUID),"repository_url":{"type":"string","description":"Public HTTPS github.com owner/repository only"}},["kind","name"]),
+    "KnowledgeQuery": obj({"query":{"type":"string","minLength":1,"maxLength":2000}},["query"]),
+    "KnowledgeToolInput": obj({"name":STRING,"arguments":{"type":"object"}},["name","arguments"]),
+})
+schemas['BotOptions']['properties'].update({"memory_enabled":{"type":"boolean","default":True},"knowledge_asset_ids":{"type":"array","items":UUID,"maxItems":20,"uniqueItems":True}})
 paths = {}
 
 def endpoint(path, method, summary, body=None, response=None, queries=(), public=False, browser=False):
     operation = {"operationId": method + '_' + path.strip('/').replace('/', '_').replace('{id}', 'by_id'), "summary": summary, "security": [] if public else ([{"sessionCookie": []}] if browser else [{"bearerAuth": []}, {"sessionCookie": []}]), "responses": {"200": {"description": "Success", "content": {"application/json": {"schema": response or {"type": "object"}}}}, "400": {"description": "Invalid request"}, "401": {"description": "Authentication required"}, "403": {"description": "Current ACL or key scope forbids access"}, "404": {"description": "Resource unavailable"}}}
     parameters = []
     if '{id}' in path:
-        parameters.append({"name": "id", "in": "path", "required": True, "schema": UUID})
+        parameter = {"name": "id", "in": "path", "required": True, "schema": STRING if path.startswith('/api/bot/plugins/{id}') else UUID}
+        if path.startswith('/api/bot/plugins/{id}'):
+            parameter['description'] = 'Installed npm package name; URL-encode scoped names such as @scope/dsh-plugin'
+        parameters.append(parameter)
     for name, schema in queries:
         parameters.append({"name": name, "in": "query", "schema": schema})
     if parameters:
@@ -104,13 +119,40 @@ endpoint('/api/bot/artifacts/{id}', 'get', 'Download private task artifact after
 paths['/api/bot/artifacts/{id}']['get']['responses']['200'] = {"description": "Download attachment", "content": {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}}}
 endpoint('/api/bot/connectors', 'get', 'List own connectors without decrypted credentials', response=arr({"type": "object"}), browser=True)
 endpoint('/api/bot/connectors', 'post', 'Create encrypted connector constrained to deployment host allowlist', 'BotConnectorInput', browser=True)
+endpoint('/api/bot/connectors/feishu/status', 'get', 'Read own Feishu OAuth connection readiness; no tokens or client credentials', response=obj({'available': BOOLEAN, 'connected': BOOLEAN, 'connector_id': UUID, 'needs_reconnect': BOOLEAN, 'message': STRING}, ['available', 'connected', 'needs_reconnect']), browser=True)
+endpoint('/api/bot/connectors/feishu/authorize', 'post', 'Start Feishu dynamic client registration and PKCE OAuth bound to this browser session', obj({}), response=obj({'authorization_url': {'type': 'string', 'format': 'uri', 'description': 'Short-lived official Feishu authorization URL. Navigate in this browser; do not log or share.'}}, ['authorization_url']), browser=True)
+endpoint('/api/bot/connectors/feishu/callback', 'get', 'Consume one-use session-bound OAuth state and save encrypted Feishu credentials', queries=[('state', STRING), ('code', {'type': 'string', 'writeOnly': True}), ('error', STRING)], browser=True)
+paths['/api/bot/connectors/feishu/callback']['get']['responses'].pop('200')
+paths['/api/bot/connectors/feishu/callback']['get']['responses']['302'] = {'description': 'Return to the fixed bot page with connected, cancelled or error status; no authorization code or token is included', 'headers': {'Location': {'schema': STRING}}}
+endpoint('/api/bot/connectors/feishu/tools', 'get', 'Discover the selected account Feishu read-only MCP tools and argument schemas', queries=[('connector_id', UUID)], response=obj({'tools': arr({'type': 'object'})}, ['tools']), browser=True)
 endpoint('/api/bot/connectors/{id}', 'delete', 'Disable own connector', browser=True)
 endpoint('/api/bot/connectors/{id}/test', 'post', 'Test GET connection; validate POST without sending a write', browser=True)
 endpoint('/api/bot/actions/{id}/approve', 'post', 'Approve and execute exact persisted POST once, then resume task', browser=True)
 endpoint('/api/bot/actions/{id}/reject', 'post', 'Reject persisted operation and resume own task', browser=True)
+endpoint('/api/bot/memories', 'get', 'List own encrypted personal memories, review status, settings and provider state', browser=True)
+endpoint('/api/bot/memories', 'post', 'Save user-confirmed active personal memory', 'PersonalMemoryInput', browser=True)
+endpoint('/api/bot/memories/{id}', 'put', 'Edit own personal memory with source permission checks', 'PersonalMemoryInput', browser=True)
+endpoint('/api/bot/memories/{id}', 'delete', 'Forget memory locally and queue curated Core snapshot replacement', browser=True)
+endpoint('/api/bot/memories/{id}/review', 'post', 'Approve or reject a pending memory from a completed own task', 'MemoryReviewInput', browser=True)
+endpoint('/api/bot/memories/forget', 'post', 'Forget all personal memories and disable capture; original task history is retained', browser=True)
+endpoint('/api/bot/memory/settings', 'get', 'Read personal recall, memory capture and skill extraction settings', browser=True)
+endpoint('/api/bot/memory/settings', 'put', 'Update supplied personal recall, memory capture and skill extraction preferences', 'MemorySettingsInput', browser=True)
+endpoint('/api/bot/memory/providers', 'get', 'Check configured Core and Knowledge service health without exposing credentials', browser=True)
+endpoint('/api/bot/skill-candidates', 'get', 'List own reviewed or pending task-derived skill drafts', browser=True)
+endpoint('/api/bot/skill-candidates', 'post', 'Extract or manually draft a skill from a completed own task', 'SkillCandidateInput', browser=True)
+endpoint('/api/bot/skill-candidates/{id}', 'put', 'Edit a pending skill draft using versioned review', 'SkillCandidateEdit', browser=True)
+endpoint('/api/bot/skill-candidates/{id}', 'delete', 'Revoke derived skill and queue remote cleanup', browser=True)
+endpoint('/api/bot/skill-candidates/{id}/review', 'post', 'Owner approves workflow text or rejects the draft; live provenance required', 'SkillCandidateReview', browser=True)
+endpoint('/api/bot/knowledge/assets', 'get', 'List own private Wiki and CodeGraph build states', browser=True)
+endpoint('/api/bot/knowledge/assets', 'post', 'Queue Wiki from current authorized docs or CodeGraph from public GitHub', 'KnowledgeAssetInput', browser=True)
+endpoint('/api/bot/knowledge/assets/{id}', 'get', 'Read own knowledge asset metadata', browser=True)
+endpoint('/api/bot/knowledge/assets/{id}', 'delete', 'Tombstone knowledge asset and retry remote purge', browser=True)
+endpoint('/api/bot/knowledge/assets/{id}/sync', 'post', 'Rebuild asset using current authorized source versions', browser=True)
+endpoint('/api/bot/knowledge/assets/{id}/search', 'post', 'Search ready asset with source ACL checks before and after provider call', 'KnowledgeQuery', browser=True)
+endpoint('/api/bot/knowledge/assets/{id}/tools', 'post', 'Call allowlisted read-only Wiki or CodeGraph tool', 'KnowledgeToolInput', browser=True)
 endpoint('/api/bot/skills', 'get', 'List builtin and own imported workflow skills', response=arr({"type": "object"}), browser=True)
 endpoint('/api/bot/skills', 'post', 'Create private workflow skill; no script execution', 'BotSkillInput', browser=True)
-endpoint('/api/bot/skills/{id}', 'delete', 'Delete own imported skill without altering task snapshots', browser=True)
+endpoint('/api/bot/skills/{id}', 'delete', 'Delete own imported skill; further task execution checks live skill availability', browser=True)
 endpoint('/api/auth/login', 'post', 'Log in to a tenant and receive an HttpOnly session', 'Login', public=True)
 endpoint('/api/auth/logout', 'post', 'Revoke the current session', browser=True)
 endpoint('/api/auth/me', 'get', 'Current user and tenant')
@@ -162,11 +204,48 @@ for path in ['/api/models', '/api/models/test', '/api/models/discover']:
     for operation in paths[path].values():
         operation['responses']['409'] = {"description": "Configuration revision changed; reload before saving or testing"}
 endpoint('/api/studio/capabilities', 'get', 'Own tenant creative capabilities; no keys or provider addresses', browser=True)
+schemas['StudioAttachment'] = obj({'id': UUID, 'name': STRING, 'kind': {'type': 'string', 'enum': ['image', 'document']}, 'mime_type': STRING, 'size': INTEGER, 'created_at': INTEGER})
+schemas['StudioChatInput']['properties'].update({
+    'attachment_ids': {'type': 'array', 'items': UUID, 'maxItems': 8, 'uniqueItems': True},
+    'mask_attachment_id': {'type': ['string', 'null'], 'description': 'RGBA PNG matching the first reference image; transparent areas are edited'},
+    'operation': {'type': 'string', 'default': 'generate', 'enum': ['generate', 'remove_background', 'erase', 'edit', 'expand', 'upscale']},
+    'style': {'type': 'string', 'enum': ['', 'none', 'auto', 'portrait', 'cinematic', 'chinese', 'anime', '3d', 'cyberpunk', 'cg', 'ink', 'oil', 'classic', 'watercolor', 'cartoon']},
+    'image_quality': {'type': 'string', 'default': 'auto', 'enum': ['auto', 'low', 'medium', 'high']},
+})
+schemas['StudioJob']['properties'].update({'operation': NULLABLE, 'quality': NULLABLE, 'style': NULLABLE})
+endpoint('/api/studio/attachments', 'post', 'Upload one private reference file (20 MiB; text 2 MiB; max 8 per creation)', response={'$ref': '#/components/schemas/StudioAttachment'}, browser=True)
+paths['/api/studio/attachments']['post']['requestBody'] = {'required': True, 'content': {'multipart/form-data': {'schema': obj({'file': {'type': 'string', 'format': 'binary'}}, ['file'])}}}
+paths['/api/studio/attachments']['post']['responses']['413'] = {'description': 'Reference file exceeds 20 MiB'}
+endpoint('/api/studio/attachments/{id}', 'get', 'Read own private reference image or download document', browser=True)
+paths['/api/studio/attachments/{id}']['get']['responses']['200'] = {'description': 'Private original file', 'content': {'application/octet-stream': {'schema': {'type': 'string', 'format': 'binary'}}}}
+endpoint('/api/studio/attachments/{id}', 'delete', 'Remove unused own reference; files used in a creative request are retained', response=obj({'ok': BOOLEAN}), browser=True)
+endpoint('/api/studio/assets/{id}/reference', 'post', 'Copy own generated image into a private reference attachment', response={'$ref': '#/components/schemas/StudioAttachment'}, browser=True)
+schemas['BotOptions']['properties'].update({'runtime': {'type': ['string', 'null'], 'enum': ['pi-agent-core', 'deepseek-harness', None]}, 'plugin_ids': {'type': 'array', 'maxItems': 20, 'uniqueItems': True, 'items': STRING, 'description': 'Own installed and enabled Harness bundle or Cordis plugin names; unavailable plugins fail before queuing'}})
+endpoint('/api/bot/harness', 'get', 'Installed/latest Harness release and isolated runtime availability (tenant admin)', browser=True)
+endpoint('/api/bot/harness/update', 'post', 'Synchronize official npm latest Harness release (tenant admin)', browser=True)
+endpoint('/api/bot/cloud', 'get', 'Read private cloud computer state without extending its 30-minute idle lease', browser=True)
+for action in ['connect', 'heartbeat', 'disconnect']:
+    endpoint('/api/bot/cloud/' + action, 'post', 'Manage current account cloud computer: ' + action + '; sessions, plugins and files remain persistent', body=obj({}), browser=True)
+endpoint('/api/bot/cloud/files', 'get', 'List private cloud outputs stored in MinIO/S3 after current evidence authorization check', browser=True)
+endpoint('/api/bot/artifacts/{id}/preview', 'get', 'Preview authorized text, image or PDF output; active HTML/SVG is download-only', browser=True)
+endpoint('/api/bot/plugins/catalog', 'get', 'Search configured npm plugin marketplaces and own installed bundles', queries=[('q', STRING), ('marketplace', STRING)], browser=True)
+schemas['HarnessPluginInstall'] = obj({'source': STRING, 'marketplace': STRING}, ['source'])
+schemas['HarnessPluginEnabled'] = obj({'enabled': BOOLEAN}, ['enabled'])
+schemas['HarnessMarketplaceInput'] = obj({'source': STRING, 'name': STRING}, ['source'])
+endpoint('/api/bot/plugins/install', 'post', 'Install a compatible Harness bundle in own isolated profile', 'HarnessPluginInstall', browser=True)
+endpoint('/api/bot/plugins/{id}/enable', 'post', 'Enable or disable own installed Harness bundle', 'HarnessPluginEnabled', browser=True)
+schemas['HarnessPluginConfig'] = obj({'config': {'type': 'object', 'additionalProperties': {'type': 'object'}, 'description': 'Official Cordis row ID to configuration object; empty object resets configuration'}}, ['config'])
+endpoint('/api/bot/plugins/{id}/config', 'get', 'Read own plugin configuration presence and official Cordis rows; secrets are never returned', browser=True)
+endpoint('/api/bot/plugins/{id}/config', 'post', 'Save encrypted own plugin Cordis configuration or reset with an empty object', 'HarnessPluginConfig', browser=True)
+endpoint('/api/bot/plugins/{id}', 'delete', 'Uninstall own Harness bundle', browser=True)
+endpoint('/api/bot/plugins/marketplaces', 'post', 'Add own npm registry marketplace', 'HarnessMarketplaceInput', browser=True)
+endpoint('/api/bot/plugins/marketplaces/{id}', 'delete', 'Remove own custom npm registry marketplace', browser=True)
 endpoint('/api/studio/projects', 'get', 'Own latest 50 creative projects', response=arr({"$ref": '#/components/schemas/StudioProject'}), browser=True)
 endpoint('/api/studio/projects', 'post', 'Create a private creative project', 'StudioProjectInput', browser=True)
 endpoint('/api/studio/projects/{id}', 'get', 'Read own project, authorized messages, jobs and media metadata', response=obj({'project': {"$ref": '#/components/schemas/StudioProject'}, 'messages': arr({"type": "object"}), 'jobs': arr({"$ref": '#/components/schemas/StudioJob'}), 'assets': arr({"$ref": '#/components/schemas/StudioAsset'})}), browser=True)
 endpoint('/api/studio/chat', 'post', 'Pi Agent plans creation and queues image/video tools; request_id deduplicates each media type', 'StudioChatInput', obj({'answer': STRING, 'engine': {"const": "pi-agent-core"}, 'project_id': UUID}), browser=True)
 paths['/api/studio/chat']['post']['responses']['429'] = {"description": "Concurrent creative task limit reached"}
+paths['/api/studio/chat']['post']['responses']['409'] = {"description": "Request UUID already submitted with different prompt, parameters, attachments or mask; create a new request"}
 endpoint('/api/studio/assets/{id}', 'get', 'Read own generated image/video; supports single byte range', browser=True)
 asset_operation = paths['/api/studio/assets/{id}']['get']
 asset_operation.setdefault('parameters', []).append({'name': 'Range', 'in': 'header', 'schema': STRING, 'description': 'Single byte range, e.g. bytes=0-1023'})

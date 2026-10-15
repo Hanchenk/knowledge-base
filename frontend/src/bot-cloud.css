@@ -1,0 +1,149 @@
+.bot-cloud-manager {
+  display: grid;
+  gap: 18px;
+}
+.bot-cloud-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #e5ecf3;
+  border-radius: 14px;
+  background: #f7f9fc;
+}
+.bot-cloud-summary > svg {
+  flex-shrink: 0;
+  color: #54749d;
+}
+.bot-cloud-summary > div {
+  flex: 1;
+  min-width: 0;
+}
+.bot-cloud-summary h3,
+.bot-cloud-file-heading h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.bot-cloud-summary p {
+  margin: 7px 0 0;
+  color: #7b899a;
+  font-size: 12px;
+}
+.bot-cloud-persistence {
+  margin: 0;
+  color: #748399;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.bot-cloud-file-heading,
+.bot-cloud-file-heading > div,
+.bot-cloud-file-heading h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bot-cloud-file-heading {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.bot-cloud-files {
+  display: grid;
+  gap: 8px;
+}
+.bot-cloud-files article {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #edf0f5;
+  border-radius: 10px;
+}
+.bot-cloud-files article > svg {
+  color: #7087a3;
+  flex-shrink: 0;
+}
+.bot-cloud-files article > div:first-of-type {
+  flex: 1;
+  min-width: 0;
+}
+.bot-cloud-files strong {
+  display: block;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.bot-cloud-files small {
+  display: block;
+  margin-top: 5px;
+  color: #8693a4;
+  font-size: 11px;
+}
+.bot-cloud-file-actions {
+  display: flex;
+  gap: 5px;
+}
+.bot-cloud-empty {
+  color: #8794a5;
+  font-size: 13px;
+  line-height: 1.8;
+  text-align: center;
+  padding: 20px 0;
+}
+.bot-heading-right .bot-cloud-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f9fbfd;
+  border: 1px solid #e1e9f3;
+  border-radius: 20px;
+  color: #71849c;
+  padding: 7px 10px;
+  font-size: 10px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.bot-cloud-entry i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a4afbc;
+}
+.bot-cloud-entry i.online {
+  background: #58b39c;
+}
+@media (max-width: 600px) {
+  .bot-chat-shell .bot-chat-pane .bot-heading {
+    flex-wrap: wrap;
+  }
+  .bot-chat-shell .bot-chat-pane .bot-heading-main {
+    flex: 1 1 100%;
+  }
+  .bot-chat-shell .bot-chat-pane .bot-heading h1 {
+    white-space: nowrap;
+  }
+  .bot-chat-shell .bot-chat-pane .bot-heading-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .bot-cloud-summary {
+    flex-wrap: wrap;
+    padding: 14px;
+  }
+  .bot-cloud-summary > button {
+    width: 100%;
+    justify-content: center;
+  }
+  .bot-cloud-files article {
+    flex-wrap: wrap;
+  }
+  .bot-cloud-file-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .bot-heading-right .bot-cloud-entry {
+    padding: 6px;
+    font-size: 9px;
+  }
+  .bot-cloud-entry > span:first-of-type {
+    display: none;
+  }
+}

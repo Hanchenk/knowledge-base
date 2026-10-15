@@ -1,3 +1,4 @@
+import { openComposerMore, openComposerResource } from "./composer-helpers";
 import { test, expect, type Page } from "@playwright/test";
 import { createServer, type ServerResponse } from "node:http";
 import { writeFileSync } from "node:fs";
@@ -458,14 +459,14 @@ test("bot tasks update bloub expressions, restore work and continue conversation
   const before = await path.getAttribute("d");
   await page.getByLabel("任务描述").fill("研究企业知识管理方法，整理报告");
   await expect(avatar).toHaveAttribute("data-mood", "listening");
-  await page.getByRole("button", { name: "技能", exact: true }).click();
+  await openComposerResource(page, "技能");
   await page
     .locator(".bot-picker label")
     .filter({ hasText: "深度研究" })
     .locator("input")
     .check();
   await page.getByRole("button", { name: "完成", exact: true }).click();
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   await page.getByRole("button", { name: "关闭选择面板" }).click();
   await page.getByRole("button", { name: "开始任务" }).click();
   await expect(avatar).toHaveAttribute("data-mood", "thinking");
@@ -526,7 +527,7 @@ test("bot supports mobile, imported skills and real connector request forms", as
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);
-  await page.getByRole("button", { name: "技能", exact: true }).click();
+  await openComposerResource(page, "技能");
   await page.getByRole("button", { name: "管理技能", exact: true }).click();
   await page.getByRole("button", { name: "导入 / 创建技能" }).click();
   await page.getByLabel("导入 Markdown / SKILL.md").setInputFiles({
@@ -544,10 +545,10 @@ test("bot supports mobile, imported skills and real connector request forms", as
     .getByRole("dialog", { name: "管理技能", exact: true })
     .getByRole("button", { name: "关闭", exact: true })
     .click();
-  await page.getByRole("button", { name: "应用连接器", exact: true }).click();
+  await openComposerResource(page, "应用连接器");
   await page.getByRole("button", { name: "管理连接器", exact: true }).click();
   await page
-    .getByRole("button", { name: "添加连接器", exact: true })
+    .getByRole("button", { name: "自定义连接器", exact: true })
     .first()
     .click();
   await page.getByLabel("连接器名称").fill("企业项目工具");
@@ -606,7 +607,7 @@ test("composer searches, limits selections and submits the chosen resources", as
   await expect(page.getByText("从知识到行动", { exact: true })).toHaveCount(0);
   await expect(page.locator(".bot-tabs")).toHaveCount(0);
   await page.getByLabel("任务描述").fill("分析业务报表并核对日历");
-  await page.getByRole("button", { name: "资料", exact: true }).click();
+  await openComposerResource(page, "资料");
   const documents = page.getByRole("dialog", { name: "选择资料", exact: true });
   await page.getByRole("searchbox", { name: "搜索资料" }).fill("业务报表 11");
   await page.getByRole("searchbox", { name: "搜索资料" }).press("Enter");
@@ -621,23 +622,23 @@ test("composer searches, limits selections and submits the chosen resources", as
   await page.keyboard.press("Escape");
   await expect(documents).toBeHidden();
   await expect(
-    page.getByRole("button", { name: "资料", exact: true }),
+    page.getByRole("button", { name: "更多", exact: true }),
   ).toBeFocused();
   await page
     .getByRole("button", { name: "移除 业务报表 1", exact: true })
     .click();
-  await page.getByRole("button", { name: "应用连接器", exact: true }).click();
+  await openComposerResource(page, "应用连接器");
   await page
     .getByRole("dialog", { name: "选择应用连接器" })
     .getByRole("checkbox")
     .check();
-  await page.getByRole("button", { name: "技能", exact: true }).click();
+  await openComposerResource(page, "技能");
   await page
     .getByRole("dialog", { name: "选择技能", exact: true })
     .getByRole("checkbox")
     .first()
     .check();
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   await page.getByRole("button", { name: "关闭选择面板" }).click();
   await page.getByLabel("任务描述").fill("分析业务报表并核对日历");
   await page.getByRole("button", { name: "开始任务" }).click();
@@ -650,7 +651,7 @@ test("composer searches, limits selections and submits the chosen resources", as
   expect(f.requests[0].options.allow_web).toBe(false);
   f.setPhase("completed");
   await page.getByTitle("刷新任务").click();
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   await page.getByRole("button", { name: "关闭选择面板" }).click();
   await page.getByLabel("继续对话", { exact: true }).fill("补充公开来源");
   await page.getByLabel("继续对话", { exact: true }).press("Control+Enter");
@@ -659,6 +660,155 @@ test("composer searches, limits selections and submits the chosen resources", as
   expect(f.requests[1].options.allow_code).toBe(false);
   expect(f.requests[1].options.allow_web).toBe(false);
 });
+
+for (const width of [1440, 390]) {
+  test(`composer more combines tools without wrapping at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    const f = await fixture(page, true);
+    await settleEntrance(page);
+    const composer = page.locator(".bot-composer");
+    const toolbar = composer.locator(".bot-composer-tools");
+    const more = composer.getByRole("button", { name: "更多", exact: true });
+    const prompt = page.getByRole("textbox", { name: "任务描述" });
+    await prompt.fill("核对资料与公开来源，保留这个草稿");
+    await expect(toolbar.locator(".bot-more-trigger, .bot-submit")).toHaveCount(
+      2,
+    );
+    await expect(more).toHaveAttribute("aria-expanded", "false");
+    const before = (await toolbar.boundingBox())!;
+    const composerBefore = (await composer.boundingBox())!;
+
+    const palette = await openComposerMore(page);
+    await expect(more).toHaveAttribute("aria-expanded", "true");
+    for (const name of [
+      "插件市场与任务插件",
+      "技能",
+      "资料",
+      "项目知识",
+      "应用连接器",
+      "云端",
+    ])
+      await expect(
+        palette.getByRole("button", { name, exact: true }),
+      ).toBeVisible();
+    const web = palette.getByRole("switch", {
+      name: "联网搜索",
+      exact: true,
+    });
+    await web.click();
+    await expect(web).toHaveAttribute("aria-checked", "true");
+    await palette.getByRole("switch", { name: "本任务使用个人记忆" }).click();
+    await expect(
+      palette.getByRole("switch", { name: "本任务使用个人记忆" }),
+    ).toHaveAttribute("aria-checked", "false");
+    await page.keyboard.press("Escape");
+    await expect(palette).toBeHidden();
+    await expect(more).toBeFocused();
+    const composerAfterWeb = (await composer.boundingBox())!;
+    expect(composerAfterWeb.height).toBeCloseTo(composerBefore.height, 0);
+    await expect(prompt).toHaveValue("核对资料与公开来源，保留这个草稿");
+    expect(f.requests).toHaveLength(0);
+
+    await openComposerResource(page, "资料");
+    const documents = page.getByRole("dialog", {
+      name: "选择资料",
+      exact: true,
+    });
+    for (let index = 0; index < 3; index++)
+      await documents.getByRole("checkbox").nth(index).check();
+    await documents
+      .getByRole("button", { name: "返回更多功能", exact: true })
+      .click();
+    await expect(palette).toBeVisible();
+    await expect(
+      palette.getByRole("button", { name: "资料", exact: true }),
+    ).toBeFocused();
+    await palette.getByRole("button", { name: "技能", exact: true }).click();
+    const skills = page.getByRole("dialog", { name: "选择技能", exact: true });
+    await skills.getByRole("checkbox").first().check();
+    await page.keyboard.press("Escape");
+    await expect(skills).toBeHidden();
+    await expect(more).toBeFocused();
+    const after = (await toolbar.boundingBox())!;
+    expect(after.height).toBeCloseTo(before.height, 0);
+    await expect(toolbar.locator(".bot-more-trigger, .bot-submit")).toHaveCount(
+      2,
+    );
+
+    const layout = await composer.evaluate((element) => {
+      const tools = element.querySelector(".bot-composer-tools")!;
+      const buttons = Array.from(
+        tools.querySelectorAll(".bot-more-trigger, .bot-submit"),
+      );
+      const centers = buttons.map((button) => {
+        const rect = button.getBoundingClientRect();
+        return rect.y + rect.height / 2;
+      });
+      const selection = element.querySelector(".bot-selection")!;
+      const chips = Array.from(selection.children).map((chip) =>
+        chip.getBoundingClientRect(),
+      );
+      return {
+        toolbarCenterDifference: Math.max(...centers) - Math.min(...centers),
+        chipRowDifference:
+          Math.max(...chips.map((chip) => chip.y + chip.height / 2)) -
+          Math.min(...chips.map((chip) => chip.y + chip.height / 2)),
+        horizontalChipOverflow: selection.scrollWidth > selection.clientWidth,
+        pageOverflow: document.documentElement.scrollWidth > innerWidth,
+        composerOverflow: element.scrollWidth > element.clientWidth,
+      };
+    });
+    expect(layout.toolbarCenterDifference).toBeLessThanOrEqual(1);
+    expect(layout.chipRowDifference).toBeLessThanOrEqual(1);
+    expect(layout.pageOverflow).toBe(false);
+    expect(layout.composerOverflow).toBe(false);
+    if (width === 390) expect(layout.horizontalChipOverflow).toBe(true);
+    await composer.screenshot({
+      path: testInfo.outputPath(`composer-more-${width}.png`),
+      animations: "disabled",
+    });
+    await openComposerMore(page);
+    await palette.screenshot({
+      path: testInfo.outputPath(`composer-more-options-${width}.png`),
+      animations: "disabled",
+    });
+    await page
+      .getByRole("heading", { name: "知小汇 bot", exact: true })
+      .click();
+    await expect(palette).toBeHidden();
+    await expect(prompt).toHaveValue("核对资料与公开来源，保留这个草稿");
+    await page.getByRole("button", { name: "开始任务", exact: true }).click();
+    await expect
+      .poll(() => f.requests[0]?.options)
+      .toMatchObject({
+        document_ids: ["document-0", "document-1", "document-2"],
+        skill_ids: ["research"],
+        memory_enabled: false,
+        allow_web: true,
+      });
+    expect(errors).toEqual([]);
+    writeFileSync(
+      testInfo.outputPath(`composer-more-${width}.json`),
+      JSON.stringify(
+        {
+          width,
+          before,
+          after,
+          composerBefore,
+          composerAfterWeb,
+          layout,
+          errors,
+        },
+        null,
+        2,
+      ),
+    );
+  });
+}
 
 test("composer panels stay usable on narrow screens with a minimal execution selector", async ({
   page,
@@ -678,9 +828,12 @@ test("composer panels stay usable on narrow screens with a minimal execution sel
     }),
   );
   await page.reload();
-  await page.getByRole("button", { name: "云端", exact: true }).click();
-  await expect(page.getByLabel("联网搜索", { exact: true })).toHaveCount(0);
+  await openComposerMore(page);
+  await expect(
+    page.getByRole("switch", { name: "联网搜索", exact: true }),
+  ).toBeDisabled();
   await expect(page.getByLabel("代码执行", { exact: true })).toHaveCount(0);
+  await openComposerResource(page, "云端");
   const cloudPanel = await page
     .getByRole("dialog", { name: "选择云端" })
     .boundingBox();
@@ -688,7 +841,7 @@ test("composer panels stay usable on narrow screens with a minimal execution sel
   expect(cloudPanel!.y).toBeGreaterThanOrEqual(0);
   expect(cloudPanel!.x + cloudPanel!.width).toBeLessThanOrEqual(320);
   await page.getByRole("button", { name: "关闭选择面板" }).click();
-  await page.getByRole("button", { name: "技能", exact: true }).click();
+  await openComposerResource(page, "技能");
   const skillsPanel = await page
     .getByRole("dialog", { name: "选择技能", exact: true })
     .boundingBox();
@@ -700,6 +853,10 @@ test("composer panels stay usable on narrow screens with a minimal execution sel
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(320);
+  await page.screenshot({
+    path: "test-results/bot-cloud-shell-320.png",
+    animations: "disabled",
+  });
 });
 
 test("capture the redesigned composer and picker at desktop and mobile sizes", async ({
@@ -710,7 +867,7 @@ test("capture the redesigned composer and picker at desktop and mobile sizes", a
   await page
     .locator(".bot-page")
     .screenshot({ path: "../docs/screenshots/bot-redesign-desktop.png" });
-  await page.getByRole("button", { name: "技能", exact: true }).click();
+  await openComposerResource(page, "技能");
   await settleEntrance(page);
   expect(
     await page
@@ -1389,9 +1546,9 @@ test("local execution opens code-free connection and queues offline tasks withou
     }),
   );
   await captureDesktopLaunch(page);
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   const panel = page.locator(".bot-execution-panel");
-  await expect(panel.getByRole("button")).toHaveCount(4);
+  await expect(panel.getByRole("button")).toHaveCount(5);
   await expect(panel.getByRole("textbox")).toHaveCount(0);
   await expect(panel).not.toContainText(/配对码|服务器地址|复制|下载|随时可用/);
   await page.getByRole("button", { name: "连接本地", exact: true }).click();
@@ -1536,7 +1693,7 @@ test("execution locations use one aligned dropdown and reveal delete on hover or
     devices = devices.filter((device) => device.id !== id);
     return route.fulfill({ json: { ok: true } });
   });
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   const panel = page.locator(".bot-execution-panel");
   const dropdown = page.getByRole("button", { name: /^本地电脑/ });
   const cloud = page.getByRole("button", { name: "云端执行", exact: true });
@@ -1610,7 +1767,7 @@ test("local dropdown supports keyboard selection, long lists and narrow screens"
       })),
     }),
   );
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   const dropdown = page.getByRole("button", { name: /^本地电脑/ });
   await dropdown.press("ArrowDown");
   const options = page.getByRole("menuitemradio");
@@ -1657,7 +1814,7 @@ test("empty local dropdown remains usable and a blocked popup preserves desktop 
 }) => {
   await fixture(page);
   await captureDesktopLaunch(page, true);
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   await page.getByRole("button", { name: "本地电脑", exact: true }).click();
   await expect(page.getByRole("menu")).toContainText("暂无已连接电脑");
   await page.getByRole("button", { name: "连接本地", exact: true }).click();
@@ -1688,7 +1845,7 @@ test("a newly connected online workspace is selected automatically after browser
     }),
   );
   await captureDesktopLaunch(page);
-  await page.getByRole("button", { name: "云端", exact: true }).click();
+  await openComposerResource(page, "云端");
   await page.getByRole("button", { name: "连接本地", exact: true }).click();
   bound = true;
   const dropdown = page.getByRole("button", {

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Database, ImagePlus, Settings2, Sparkles } from "lucide-react";
+import { Cloud, Database, ImagePlus, Settings2, Sparkles } from "lucide-react";
 import { StorageSettings } from "./StorageSettings";
 import { ModelSettings } from "./ModelSettings";
 import { MediaModelSettings } from "./MediaModelSettings";
+import { CloudSettings } from "./CloudSettings";
 import type { Feedback } from "./App";
 
 export function SettingsPage({
@@ -14,12 +15,12 @@ export function SettingsPage({
   feedback: Feedback;
   onSaved: () => Promise<void>;
 }) {
-  const [section, setSection] = useState<"rag" | "studio" | "storage">(
-    initialSection,
-  );
+  const [section, setSection] = useState<
+    "rag" | "studio" | "storage" | "cloud"
+  >(initialSection);
   const [dirty, setDirty] = useState(false);
   const [notice, setNotice] = useState("");
-  const choose = (next: "rag" | "studio" | "storage") => {
+  const choose = (next: "rag" | "studio" | "storage" | "cloud") => {
     if (next === section) return;
     if (dirty) {
       setNotice("请先保存配置或放弃修改，再切换设置分类。");
@@ -33,7 +34,7 @@ export function SettingsPage({
       <div className="page-heading">
         <div>
           <h1>设置</h1>
-          <p>统一管理模型服务与对象存储，供知识问答、检索与创作使用。</p>
+          <p>统一管理模型、对象存储与云端服务，供知识问答、检索与创作使用。</p>
         </div>
         <span className="tiny-pill">
           <Settings2 size={13} />
@@ -67,6 +68,18 @@ export function SettingsPage({
         </button>
         <button
           role="tab"
+          aria-selected={section === "cloud"}
+          aria-controls="settings-model-content"
+          className={section === "cloud" ? "active" : ""}
+          onClick={() => choose("cloud")}
+        >
+          <Cloud size={17} />
+          <span>
+            云端服务<small>运行环境 · 版本维护</small>
+          </span>
+        </button>
+        <button
+          role="tab"
           aria-selected={section === "storage"}
           aria-controls="settings-model-content"
           className={section === "storage" ? "active" : ""}
@@ -91,7 +104,9 @@ export function SettingsPage({
             ? "问答与检索"
             : section === "studio"
               ? "生图与视频"
-              : "对象存储"
+              : section === "cloud"
+                ? "云端服务"
+                : "对象存储"
         }
       >
         {section === "rag" ? (
@@ -100,6 +115,8 @@ export function SettingsPage({
             onSaved={onSaved}
             onDirtyChange={setDirty}
           />
+        ) : section === "cloud" ? (
+          <CloudSettings feedback={feedback} />
         ) : section === "storage" ? (
           <StorageSettings
             feedback={feedback}

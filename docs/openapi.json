@@ -1475,6 +1475,247 @@
         ]
       }
     },
+    "/api/bot/connectors/feishu/status": {
+      "get": {
+        "operationId": "get_api_bot_connectors_feishu_status",
+        "summary": "Read own Feishu OAuth connection readiness; no tokens or client credentials",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": {
+                      "type": "boolean"
+                    },
+                    "connected": {
+                      "type": "boolean"
+                    },
+                    "connector_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "needs_reconnect": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "available",
+                    "connected",
+                    "needs_reconnect"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      }
+    },
+    "/api/bot/connectors/feishu/authorize": {
+      "post": {
+        "operationId": "post_api_bot_connectors_feishu_authorize",
+        "summary": "Start Feishu dynamic client registration and PKCE OAuth bound to this browser session",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authorization_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Short-lived official Feishu authorization URL. Navigate in this browser; do not log or share."
+                    }
+                  },
+                  "required": [
+                    "authorization_url"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/connectors/feishu/callback": {
+      "get": {
+        "operationId": "get_api_bot_connectors_feishu_callback",
+        "summary": "Consume one-use session-bound OAuth state and save encrypted Feishu credentials",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          },
+          "302": {
+            "description": "Return to the fixed bot page with connected, cancelled or error status; no authorization code or token is included",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "writeOnly": true
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/bot/connectors/feishu/tools": {
+      "get": {
+        "operationId": "get_api_bot_connectors_feishu_tools",
+        "summary": "Discover the selected account Feishu read-only MCP tools and argument schemas",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "tools"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "connector_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
     "/api/bot/connectors/{id}": {
       "delete": {
         "operationId": "delete_api_bot_connectors_by_id",
@@ -1695,6 +1936,1093 @@
         ]
       }
     },
+    "/api/bot/memories": {
+      "get": {
+        "operationId": "get_api_bot_memories",
+        "summary": "List own encrypted personal memories, review status, settings and provider state",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_api_bot_memories",
+        "summary": "Save user-confirmed active personal memory",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalMemoryInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/memories/{id}": {
+      "put": {
+        "operationId": "put_api_bot_memories_by_id",
+        "summary": "Edit own personal memory with source permission checks",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalMemoryInput"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_api_bot_memories_by_id",
+        "summary": "Forget memory locally and queue curated Core snapshot replacement",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/memories/{id}/review": {
+      "post": {
+        "operationId": "post_api_bot_memories_by_id_review",
+        "summary": "Approve or reject a pending memory from a completed own task",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoryReviewInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bot/memories/forget": {
+      "post": {
+        "operationId": "post_api_bot_memories_forget",
+        "summary": "Forget all personal memories and disable capture; original task history is retained",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/memory/settings": {
+      "get": {
+        "operationId": "get_api_bot_memory_settings",
+        "summary": "Read personal recall, memory capture and skill extraction settings",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_api_bot_memory_settings",
+        "summary": "Update supplied personal recall, memory capture and skill extraction preferences",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemorySettingsInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/memory/providers": {
+      "get": {
+        "operationId": "get_api_bot_memory_providers",
+        "summary": "Check configured Core and Knowledge service health without exposing credentials",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      }
+    },
+    "/api/bot/skill-candidates": {
+      "get": {
+        "operationId": "get_api_bot_skill-candidates",
+        "summary": "List own reviewed or pending task-derived skill drafts",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_api_bot_skill-candidates",
+        "summary": "Extract or manually draft a skill from a completed own task",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkillCandidateInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/skill-candidates/{id}": {
+      "put": {
+        "operationId": "put_api_bot_skill-candidates_by_id",
+        "summary": "Edit a pending skill draft using versioned review",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkillCandidateEdit"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_api_bot_skill-candidates_by_id",
+        "summary": "Revoke derived skill and queue remote cleanup",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/skill-candidates/{id}/review": {
+      "post": {
+        "operationId": "post_api_bot_skill-candidates_by_id_review",
+        "summary": "Owner approves workflow text or rejects the draft; live provenance required",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkillCandidateReview"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bot/knowledge/assets": {
+      "get": {
+        "operationId": "get_api_bot_knowledge_assets",
+        "summary": "List own private Wiki and CodeGraph build states",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_api_bot_knowledge_assets",
+        "summary": "Queue Wiki from current authorized docs or CodeGraph from public GitHub",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeAssetInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/knowledge/assets/{id}": {
+      "get": {
+        "operationId": "get_api_bot_knowledge_assets_by_id",
+        "summary": "Read own knowledge asset metadata",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "delete_api_bot_knowledge_assets_by_id",
+        "summary": "Tombstone knowledge asset and retry remote purge",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/knowledge/assets/{id}/sync": {
+      "post": {
+        "operationId": "post_api_bot_knowledge_assets_by_id_sync",
+        "summary": "Rebuild asset using current authorized source versions",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/knowledge/assets/{id}/search": {
+      "post": {
+        "operationId": "post_api_bot_knowledge_assets_by_id_search",
+        "summary": "Search ready asset with source ACL checks before and after provider call",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeQuery"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bot/knowledge/assets/{id}/tools": {
+      "post": {
+        "operationId": "post_api_bot_knowledge_assets_by_id_tools",
+        "summary": "Call allowlisted read-only Wiki or CodeGraph tool",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeToolInput"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/bot/skills": {
       "get": {
         "operationId": "get_api_bot_skills",
@@ -1790,7 +3118,7 @@
     "/api/bot/skills/{id}": {
       "delete": {
         "operationId": "delete_api_bot_skills_by_id",
-        "summary": "Delete own imported skill without altering task snapshots",
+        "summary": "Delete own imported skill; further task execution checks live skill availability",
         "security": [
           {
             "sessionCookie": []
@@ -3900,6 +5228,1053 @@
         }
       }
     },
+    "/api/studio/attachments": {
+      "post": {
+        "operationId": "post_api_studio_attachments",
+        "summary": "Upload one private reference file (20 MiB; text 2 MiB; max 8 per creation)",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioAttachment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          },
+          "413": {
+            "description": "Reference file exceeds 20 MiB"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/studio/attachments/{id}": {
+      "get": {
+        "operationId": "get_api_studio_attachments_by_id",
+        "summary": "Read own private reference image or download document",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private original file",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "delete_api_studio_attachments_by_id",
+        "summary": "Remove unused own reference; files used in a creative request are retained",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/studio/assets/{id}/reference": {
+      "post": {
+        "operationId": "post_api_studio_assets_by_id_reference",
+        "summary": "Copy own generated image into a private reference attachment",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioAttachment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/harness": {
+      "get": {
+        "operationId": "get_api_bot_harness",
+        "summary": "Installed/latest Harness release and isolated runtime availability (tenant admin)",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      }
+    },
+    "/api/bot/harness/update": {
+      "post": {
+        "operationId": "post_api_bot_harness_update",
+        "summary": "Synchronize official npm latest Harness release (tenant admin)",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/cloud": {
+      "get": {
+        "operationId": "get_api_bot_cloud",
+        "summary": "Read private cloud computer state without extending its 30-minute idle lease",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      }
+    },
+    "/api/bot/cloud/connect": {
+      "post": {
+        "operationId": "post_api_bot_cloud_connect",
+        "summary": "Manage current account cloud computer: connect; sessions, plugins and files remain persistent",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/cloud/heartbeat": {
+      "post": {
+        "operationId": "post_api_bot_cloud_heartbeat",
+        "summary": "Manage current account cloud computer: heartbeat; sessions, plugins and files remain persistent",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/cloud/disconnect": {
+      "post": {
+        "operationId": "post_api_bot_cloud_disconnect",
+        "summary": "Manage current account cloud computer: disconnect; sessions, plugins and files remain persistent",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/cloud/files": {
+      "get": {
+        "operationId": "get_api_bot_cloud_files",
+        "summary": "List private cloud outputs stored in MinIO/S3 after current evidence authorization check",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      }
+    },
+    "/api/bot/artifacts/{id}/preview": {
+      "get": {
+        "operationId": "get_api_bot_artifacts_by_id_preview",
+        "summary": "Preview authorized text, image or PDF output; active HTML/SVG is download-only",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/bot/plugins/catalog": {
+      "get": {
+        "operationId": "get_api_bot_plugins_catalog",
+        "summary": "Search configured npm plugin marketplaces and own installed bundles",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "marketplace",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/bot/plugins/install": {
+      "post": {
+        "operationId": "post_api_bot_plugins_install",
+        "summary": "Install a compatible Harness bundle in own isolated profile",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HarnessPluginInstall"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/plugins/{id}/enable": {
+      "post": {
+        "operationId": "post_api_bot_plugins_by_id_enable",
+        "summary": "Enable or disable own installed Harness bundle",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Installed npm package name; URL-encode scoped names such as @scope/dsh-plugin"
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HarnessPluginEnabled"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bot/plugins/{id}/config": {
+      "get": {
+        "operationId": "get_api_bot_plugins_by_id_config",
+        "summary": "Read own plugin configuration presence and official Cordis rows; secrets are never returned",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Installed npm package name; URL-encode scoped names such as @scope/dsh-plugin"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_api_bot_plugins_by_id_config",
+        "summary": "Save encrypted own plugin Cordis configuration or reset with an empty object",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Installed npm package name; URL-encode scoped names such as @scope/dsh-plugin"
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HarnessPluginConfig"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bot/plugins/{id}": {
+      "delete": {
+        "operationId": "delete_api_bot_plugins_by_id",
+        "summary": "Uninstall own Harness bundle",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Installed npm package name; URL-encode scoped names such as @scope/dsh-plugin"
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/plugins/marketplaces": {
+      "post": {
+        "operationId": "post_api_bot_plugins_marketplaces",
+        "summary": "Add own npm registry marketplace",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HarnessMarketplaceInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
+    "/api/bot/plugins/marketplaces/{id}": {
+      "delete": {
+        "operationId": "delete_api_bot_plugins_marketplaces_by_id",
+        "summary": "Remove own custom npm registry marketplace",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Current ACL or key scope forbids access"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trusted browser origin configured in CORS_ORIGINS or PUBLIC_URL"
+          }
+        ]
+      }
+    },
     "/api/studio/projects": {
       "get": {
         "operationId": "get_api_studio_projects",
@@ -4109,6 +6484,9 @@
           },
           "429": {
             "description": "Concurrent creative task limit reached"
+          },
+          "409": {
+            "description": "Request UUID already submitted with different prompt, parameters, attachments or mask; create a new request"
           }
         },
         "requestBody": {
@@ -5087,7 +7465,8 @@
               "text",
               "table",
               "table_summary",
-              "image"
+              "image",
+              "wiki_source"
             ]
           },
           "image_url": {
@@ -5297,6 +7676,64 @@
           "allow_web": {
             "type": "boolean",
             "default": false
+          },
+          "attachment_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 8,
+            "uniqueItems": true
+          },
+          "mask_attachment_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "RGBA PNG matching the first reference image; transparent areas are edited"
+          },
+          "operation": {
+            "type": "string",
+            "default": "generate",
+            "enum": [
+              "generate",
+              "remove_background",
+              "erase",
+              "edit",
+              "expand",
+              "upscale"
+            ]
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "",
+              "none",
+              "auto",
+              "portrait",
+              "cinematic",
+              "chinese",
+              "anime",
+              "3d",
+              "cyberpunk",
+              "cg",
+              "ink",
+              "oil",
+              "classic",
+              "watercolor",
+              "cartoon"
+            ]
+          },
+          "image_quality": {
+            "type": "string",
+            "default": "auto",
+            "enum": [
+              "auto",
+              "low",
+              "medium",
+              "high"
+            ]
           }
         },
         "required": [
@@ -5378,6 +7815,24 @@
           "finished_at": {
             "type": [
               "integer",
+              "null"
+            ]
+          },
+          "operation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quality": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "style": {
+            "type": [
+              "string",
               "null"
             ]
           }
@@ -5462,6 +7917,39 @@
               "string",
               "null"
             ]
+          },
+          "memory_enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "knowledge_asset_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 20,
+            "uniqueItems": true
+          },
+          "runtime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "pi-agent-core",
+              "deepseek-harness",
+              null
+            ]
+          },
+          "plugin_ids": {
+            "type": "array",
+            "maxItems": 20,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "description": "Own installed and enabled Harness bundle or Cordis plugin names; unavailable plugins fail before queuing"
           }
         },
         "required": []
@@ -5545,6 +8033,178 @@
           "instructions"
         ]
       },
+      "PersonalMemoryInput": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "preference",
+              "constraint",
+              "experience"
+            ],
+            "default": "preference"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "MemorySettingsInput": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "capture": {
+            "type": "boolean"
+          },
+          "skill_capture": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "Update only supplied preferences; omitted fields retain their saved values. skill_capture controls new skill proposals/extractions, not review or use of existing skills."
+      },
+      "MemoryReviewInput": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject"
+            ]
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "SkillCandidateInput": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id"
+        ]
+      },
+      "SkillCandidateEdit": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": []
+      },
+      "SkillCandidateReview": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject"
+            ]
+          },
+          "note": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "KnowledgeAssetInput": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "wiki",
+              "code_graph"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "document_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "repository_url": {
+            "type": "string",
+            "description": "Public HTTPS github.com owner/repository only"
+          }
+        },
+        "required": [
+          "kind",
+          "name"
+        ]
+      },
+      "KnowledgeQuery": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "KnowledgeToolInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "arguments"
+        ]
+      },
       "StorageInput": {
         "type": "object",
         "properties": {
@@ -5593,6 +8253,89 @@
         },
         "required": [
           "auto_archive"
+        ]
+      },
+      "StudioAttachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "image",
+              "document"
+            ]
+          },
+          "mime_type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "integer"
+          }
+        },
+        "required": []
+      },
+      "HarnessPluginInstall": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "marketplace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "HarnessPluginEnabled": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "HarnessMarketplaceInput": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "HarnessPluginConfig": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            },
+            "description": "Official Cordis row ID to configuration object; empty object resets configuration"
+          }
+        },
+        "required": [
+          "config"
         ]
       }
     }

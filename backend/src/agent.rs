@@ -23,6 +23,22 @@ pub struct Answer {
     pub tools: Vec<Value>,
     pub outcome: &'static str,
 }
+// A cancelled worker future must end only its own fenced native execution.
+// Its account's computer and persisted sessions remain available for reconnect.
+struct HarnessTaskGuard(Option<(AppState, Actor, crate::bot::Context)>);
+impl Drop for HarnessTaskGuard {
+    fn drop(&mut self) {
+        if let Some((state, actor, context)) = self.0.take() {
+            tokio::spawn(async move {
+                let _ = tokio::time::timeout(
+                    Duration::from_secs(90),
+                    crate::bot_cloud::cancel_task(&state, &actor, &context),
+                )
+                .await;
+            });
+        }
+    }
+}
 struct Tools<'a> {
     state: &'a AppState,
     actor: &'a Actor,
@@ -76,10 +92,43 @@ impl Tools<'_> {
         let actor = current_actor(self.state, self.actor).await?;
         let result = match name {
             "task_plan" | "write_artifact" | "read_artifact" | "run_python" | "connector_call"
-            | "runtime_recall" | "task_memory"
+            | "runtime_recall" | "task_memory" | "memory_search" | "memory_propose"
+            | "skill_propose"
                 if self.bot.is_some() =>
             {
                 crate::bot::tool(self.state, &actor, self.bot.as_ref().unwrap(), name, args).await
+            }
+            "wiki_search" | "wiki_read" | "code_graph_search" | "code_graph_callers"
+            | "code_graph_callees" | "code_graph_impact" | "code_graph_read"
+                if self.bot.is_some() =>
+            {
+                let context = self.bot.as_ref().unwrap().clone();
+                let mut result = crate::bot::tool(self.state, &actor, &context, name, args).await?;
+                crate::bot_memory::record_knowledge(
+                    self.state,
+                    &actor,
+                    &context,
+                    result["asset_id"].as_str().unwrap_or(""),
+                )
+                .await?;
+                let mut citations = vec![];
+                for source in result["sources"].as_array().unwrap_or(&vec![]) {
+                    let key = source["document_id"]
+                        .as_str()
+                        .ok_or_else(|| AppError::bad("Wiki 来源无效"))?;
+                    let doc = documents::accessible(self.state, &actor, key).await?;
+                    let row=self.state.db.one("SELECT id FROM chunks WHERE document_id=? AND version=? ORDER BY position LIMIT 1",vec![json!(key),doc["version"].clone()]).await?.ok_or_else(||AppError::bad("Wiki 来源片段已失效"))?;
+                    let hit = json!({"chunk_id":row["id"],"document_id":key,"space_id":doc["space_id"],"title":doc["title"],"version":doc["version"],"source_url":format!("/api/documents/{key}/file"),"kind":"wiki_source"});
+                    if let Some(cited) = self.cite(hit) {
+                        citations.push(cited);
+                    }
+                }
+                if !crate::studio::valid_evidence(self.state, &actor, &citations).await? {
+                    return Err(AppError::forbidden());
+                }
+                result["citations"] = json!(citations);
+                crate::bot::ensure_running(self.state, &actor, &context).await?;
+                Ok(result)
             }
             "generate_image" | "generate_video" if self.studio.is_some() => {
                 let prompt = args["prompt"]
@@ -364,11 +413,38 @@ pub async fn answer(state: &AppState, actor: &Actor, input: Input) -> Result<Ans
     } else {
         &config.chat_api_key
     };
-    let mut child = Command::new(&config.agent_node)
-        .arg(&config.agent_script)
+    let deepseek_harness = tools
+        .bot
+        .as_ref()
+        .filter(|context| context.options.runtime.as_deref() == Some("deepseek-harness"))
+        .cloned();
+    if let Some(context) = &deepseek_harness {
+        crate::harness::validate_selection(state, actor, &context.options).await?;
+    }
+    let mut harness_cleanup = HarnessTaskGuard(
+        deepseek_harness
+            .as_ref()
+            .map(|context| (state.clone(), actor.clone(), context.clone())),
+    );
+    let runtime_script = if deepseek_harness.is_some() {
+        crate::harness::script(state, "harness-agent.mjs")
+    } else {
+        std::path::PathBuf::from(&config.agent_script)
+    };
+    let mut command = Command::new(&config.agent_node);
+    command
+        .arg(runtime_script)
         .env_clear()
         .env("PATH", std::env::var_os("PATH").unwrap_or_default())
-        .env("NODE_NO_WARNINGS", "1")
+        .env("NODE_NO_WARNINGS", "1");
+    if deepseek_harness.is_some() {
+        for key in ["DOCKER_HOST", "DOCKER_TLS_VERIFY", "DOCKER_CERT_PATH"] {
+            if let Some(value) = std::env::var_os(key) {
+                command.env(key, value);
+            }
+        }
+    }
+    let mut child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
@@ -419,7 +495,15 @@ pub async fn answer(state: &AppState, actor: &Actor, input: Input) -> Result<Ans
     } else {
         vec![]
     };
-    let input = json!({"artifacts":artifact_directory,"resume":resume,"read_history":read_history,"resume_note":resume_note,"context_window":config.agent_context_window,"max_output_tokens":config.agent_max_output_tokens,"slice_seconds":config.bot_slice_seconds,"query":query,"model":config.chat_model,"base_url":base,"api_key":key,"allow_web":allow_web,"system_prompt":prompt,"history":history,"studio_tools":studio_tools,"bot_tools":bot_tools});
+    let harness_config = if let Some(context) = &deepseek_harness {
+        let access = crate::bot_cloud::access(state, actor).await?;
+        Some(
+            json!({"root":config.harness_path.to_string_lossy(),"tenant_id":actor.tenant_id,"user_id":actor.id,"task_id":context.task_id,"lease_token":context.token,"authorized_task_ids":access["authorized_task_ids"],"restricted_task_ids":access["restricted_task_ids"],"plugin_ids":context.options.plugin_ids,"plugin_config":crate::harness::task_configuration(state, actor, &context.options.plugin_ids).await?,"image":config.harness_image,"bridge_host":config.harness_bridge_host}),
+        )
+    } else {
+        None
+    };
+    let input = json!({"deepseek_harness":harness_config,"artifacts":artifact_directory,"resume":resume,"read_history":read_history,"resume_note":resume_note,"context_window":config.agent_context_window,"max_output_tokens":config.agent_max_output_tokens,"slice_seconds":config.bot_slice_seconds,"query":query,"model":config.chat_model,"base_url":base,"api_key":key,"allow_web":allow_web,"system_prompt":prompt,"history":history,"studio_tools":studio_tools,"bot_tools":bot_tools});
     stdin
         .write_all(format!("{input}\n").as_bytes())
         .await
@@ -578,11 +662,20 @@ pub async fn answer(state: &AppState, actor: &Actor, input: Input) -> Result<Ans
                     return Ok((answer, "completed"));
                 }
                 Some("error") => {
+                    if deepseek_harness.is_some() {
+                        return Err(AppError(
+                            StatusCode::BAD_GATEWAY,
+                            message["error"]
+                                .as_str()
+                                .unwrap_or("DeepSeek Harness执行失败")
+                                .to_owned(),
+                        ));
+                    }
                     return Err(AppError(
                         StatusCode::BAD_GATEWAY,
                         "Pi Agent 问答未完成，请检查问答模型的流式输出和工具调用支持，或稍后重试"
                             .into(),
-                    ))
+                    ));
                 }
                 _ => return Err(AppError::bad("Pi Agent 协议错误")),
             }
@@ -602,6 +695,16 @@ pub async fn answer(state: &AppState, actor: &Actor, input: Input) -> Result<Ans
     };
     let _ = child.kill().await;
     let _ = child.wait().await;
+    if let Some(context) = &deepseek_harness {
+        let stopped = tokio::time::timeout(
+            Duration::from_secs(15),
+            crate::bot_cloud::cancel_task(state, actor, context),
+        )
+        .await;
+        if matches!(stopped, Ok(Ok(_))) {
+            harness_cleanup.0 = None;
+        }
+    }
     let (text, outcome) = result?;
     Ok(Answer {
         text,

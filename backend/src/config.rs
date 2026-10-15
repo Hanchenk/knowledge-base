@@ -20,6 +20,16 @@ pub struct Config {
     pub bot_connector_hosts: Vec<String>,
     pub agent_node: String,
     pub agent_script: String,
+    pub harness_enabled: bool,
+    pub harness_path: PathBuf,
+    pub harness_image: String,
+    pub harness_bridge_host: String,
+    pub memory_core_url: String,
+    pub memory_core_token: String,
+    pub memory_core_admin_user_key: String,
+    pub memory_knowledge_url: String,
+    pub memory_knowledge_token: String,
+    pub memory_service_id: String,
     pub agent_web_enabled: bool,
     pub agent_context_window: usize,
     pub agent_max_output_tokens: usize,
@@ -90,6 +100,16 @@ impl Config {
                 .collect(),
             agent_node: get("PI_AGENT_NODE", "node"),
             agent_script: get("PI_AGENT_SCRIPT", "agent-runtime/agent.mjs"),
+            harness_enabled: get("BOT_HARNESS_ENABLED", "true") == "true",
+            harness_path: get("BOT_HARNESS_PATH", "data/harness").into(),
+            harness_image: get("BOT_HARNESS_IMAGE", "node:22-bookworm-slim"),
+            harness_bridge_host: get("BOT_HARNESS_BRIDGE_HOST", "host.docker.internal"),
+            memory_core_url: get("MEMORY_CORE_URL", ""),
+            memory_core_token: get("MEMORY_CORE_TOKEN", ""),
+            memory_core_admin_user_key: get("MEMORY_CORE_ADMIN_USER_KEY", ""),
+            memory_knowledge_url: get("MEMORY_KNOWLEDGE_URL", ""),
+            memory_knowledge_token: get("MEMORY_KNOWLEDGE_TOKEN", ""),
+            memory_service_id: get("MEMORY_SERVICE_ID", "zhixiaohui"),
             agent_web_enabled: get("AGENT_WEB_ENABLED", "true") == "true",
             agent_context_window: get("AGENT_CONTEXT_WINDOW", "32768").parse()?,
             agent_max_output_tokens: get("AGENT_MAX_OUTPUT_TOKENS", "5000").parse()?,
@@ -126,6 +146,33 @@ impl Config {
         anyhow::ensure!(
             (1..=2000).contains(&config.embedding_dimensions),
             "EMBEDDING_DIMENSIONS must be 1..2000 for pgvector HNSW"
+        );
+        for (endpoint, token) in [
+            (&config.memory_core_url, &config.memory_core_token),
+            (&config.memory_knowledge_url, &config.memory_knowledge_token),
+        ] {
+            if !endpoint.is_empty() {
+                let url = reqwest::Url::parse(endpoint)?;
+                anyhow::ensure!(
+                    ["http", "https"].contains(&url.scheme())
+                        && url.host_str().is_some()
+                        && url.username().is_empty()
+                        && url.password().is_none()
+                        && url.query().is_none()
+                        && url.fragment().is_none()
+                        && !token.is_empty(),
+                    "Memory services require a fixed HTTP(S) URL and a non-empty service token"
+                );
+            }
+        }
+        anyhow::ensure!(
+            !config.memory_service_id.is_empty()
+                && config.memory_service_id.len() <= 100
+                && config
+                    .memory_service_id
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_'),
+            "MEMORY_SERVICE_ID must be a single safe namespace"
         );
         anyhow::ensure!(
             (8192..=2_000_000).contains(&config.agent_context_window)

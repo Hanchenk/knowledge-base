@@ -1,9 +1,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { RefObject } from "react";
-import { LoaderCircle, LogOut, UserRound } from "lucide-react";
+import { Brain, LoaderCircle, LogOut, UserRound } from "lucide-react";
 import type { User } from "./types";
 import { api } from "./api";
 import { Modal } from "./components";
+import { memoryApi, type MemorySettings } from "./memory-api";
 
 type PersonalPreferences = {
   auto_archive: boolean;
@@ -153,11 +154,13 @@ export function PersonalCenter({
   tenantName,
   onClose,
   onSaved,
+  onMemory,
 }: {
   user: User;
   tenantName: string;
   onClose: () => void;
   onSaved: () => Promise<void>;
+  onMemory: () => void;
 }) {
   const [preferences, setPreferences] = useState<PersonalPreferences>();
   const [loading, setLoading] = useState(true);
@@ -287,11 +290,133 @@ export function PersonalCenter({
           </p>
         )}
       </div>
+      <PersonalMemoryPreferences onManage={onMemory} />
       <div className="form-actions">
         <button type="button" className="button primary" onClick={onClose}>
           完成
         </button>
       </div>
     </Modal>
+  );
+}
+
+function PersonalMemoryPreferences({ onManage }: { onManage: () => void }) {
+  const [settings, setSettings] = useState<MemorySettings>();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<keyof MemorySettings | null>(null);
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+  const pending = useRef(false);
+  const descriptionId = useId();
+  const load = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      setSettings(await memoryApi.getSettings());
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    void load();
+  }, []);
+  const toggle = async (key: keyof MemorySettings) => {
+    if (!settings || pending.current) return;
+    pending.current = true;
+    setSaving(key);
+    setError("");
+    setSaved(false);
+    try {
+      setSettings(await memoryApi.settings({ [key]: !settings[key] }));
+      setSaved(true);
+    } catch (reason) {
+      setError(`保存失败：${(reason as Error).message}。请重试。`);
+    } finally {
+      pending.current = false;
+      setSaving(null);
+    }
+  };
+  const options = [
+    {
+      key: "enabled",
+      title: "跨任务记忆",
+      description: "允许新任务读取已确认的个人记忆。",
+    },
+    {
+      key: "capture",
+      title: "提取任务经验",
+      description: "允许 Agent 提出候选记忆，经你审核后生效。",
+    },
+    {
+      key: "skill_capture",
+      title: "技能提炼",
+      description:
+        "允许从已完成任务提炼候选技能。关闭后停止新的提炼，已有候选仍可审核。",
+    },
+  ] as const;
+  return (
+    <section className="personal-preferences" aria-label="记忆与经验设置">
+      <div className="personal-preferences-header">
+        <strong>记忆与经验</strong>
+        <button type="button" className="text-button" onClick={onManage}>
+          <Brain size={15} /> 管理记忆与经验
+        </button>
+      </div>
+      {options.map(({ key, title, description }) => (
+        <div className="personal-memory-option" key={key}>
+          <div className="personal-preferences-header">
+            <strong>{title}</strong>
+            <div className="personal-preferences-control">
+              <span aria-live="polite">
+                {(loading || saving === key) && (
+                  <LoaderCircle size={13} className="spin" aria-hidden="true" />
+                )}
+                {loading
+                  ? "加载中…"
+                  : saving === key
+                    ? "保存中…"
+                    : !settings
+                      ? "未加载"
+                      : settings[key]
+                        ? "已开启"
+                        : "已关闭"}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                className="personal-preferences-switch"
+                aria-label={title}
+                aria-describedby={`${descriptionId}-${key}`}
+                aria-checked={settings?.[key] ?? false}
+                disabled={loading || !!saving || !settings}
+                onClick={() => void toggle(key)}
+              >
+                <span aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+          <p id={`${descriptionId}-${key}`}>{description}</p>
+        </div>
+      ))}
+      <div className="personal-preferences-footer">
+        <small>{saved ? "记忆设置已保存" : "更改后自动保存"}</small>
+        {!settings && !loading && (
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => void load()}
+          >
+            重新加载记忆设置
+          </button>
+        )}
+      </div>
+      {error && (
+        <p role="alert" className="notice error-notice">
+          {error}
+        </p>
+      )}
+    </section>
   );
 }

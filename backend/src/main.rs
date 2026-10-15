@@ -12,6 +12,8 @@ async fn main() -> anyhow::Result<()> {
     atlas_server::qdrant::backfill(&state).await?;
     if state.config.worker_enabled || std::env::args().any(|v| v == "--worker") {
         tokio::spawn(atlas_server::bot::worker(state.clone()));
+        tokio::spawn(atlas_server::bot_memory::worker(state.clone()));
+        tokio::spawn(atlas_server::bot_cloud::worker(state.clone()));
         for _ in 0..2 {
             tokio::spawn(atlas_server::studio::worker(state.clone()));
         }

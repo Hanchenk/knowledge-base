@@ -1,0 +1,52 @@
+{
+  "research_date": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "scope": "Public upstream snapshot and current local checkout; no production integration or live LLM evaluation.",
+  "repository": {
+    "url": "https://github.com/TencentCloud/TencentDB-Agent-Memory",
+    "default_branch": "feat/server_team",
+    "created_at": "2026-04-07T06:34:26Z",
+    "pushed_at": "2026-10-10T02:31:39Z",
+    "stars": 27939,
+    "forks": 2722,
+    "open_issues_and_prs": 908,
+    "license_api": "NOASSERTION"
+  },
+  "latest_release": {
+    "tag": "v2.0.2",
+    "published_at": "2026-10-09T11:19:45Z",
+    "prerelease": false,
+    "url": "https://github.com/TencentCloud/TencentDB-Agent-Memory/releases/tag/v2.0.2",
+    "target_commitish": "feat/server_team"
+  },
+  "snapshot": {
+    "commit": "274e549069ad780e411d70e6fff51f6a977d81d3",
+    "commit_date": "2026-10-10",
+    "subject": "docs(knowledge): replace dead data-flow.md link with Auto-Sync section (#1271)"
+  },
+  "root_license": "MIT (verified from LICENSE text; GitHub API returned NOASSERTION)",
+  "runtime_probes": {
+    "isolation_helper": {
+      "node_version": "22.23.1",
+      "default_config": {
+        "enforce": true,
+        "legacyCompatMode": false
+      },
+      "assertIsolation_empty_input": {
+        "userId": "default",
+        "agentId": "default",
+        "sessionId": "default"
+      },
+      "empty_filter_sql_clause": "",
+      "scoped_filter_sql_clause": "team_id = ? AND user_id = ? AND agent_id = ?"
+    },
+    "profile_scope": {
+      "different_users_same_team_and_agent_have_same_scope": true,
+      "user_specific_agent_produces_distinct_scope": true,
+      "profile_filter_fields": [
+        "teamId",
+        "agentId"
+      ]
+    }
+  }
+}

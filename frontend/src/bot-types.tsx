@@ -24,6 +24,8 @@ export type Connector = {
   url: string;
   method: string;
   has_token: boolean;
+  provider?: "feishu" | "generic";
+  status?: "connected" | "reconnect_required";
 };
 export type LocalDevice = {
   id: string;
@@ -51,6 +53,10 @@ export type Task = {
     document_ids: string[];
     parent_task_id?: string;
     local_device_id?: string;
+    runtime?: "deepseek-harness" | "pi-agent-core";
+    plugin_ids?: string[];
+    memory_enabled?: boolean;
+    knowledge_asset_ids?: string[];
   };
   plan: { title: string; status: string }[];
   citations: Citation[];

@@ -10,6 +10,7 @@ services:
     volumes:
       - sandbox_certs:/certs/client
       - sandbox_data:/var/lib/docker
+      - harness_data:/app/data/harness
     networks: [sandbox]
     healthcheck:
       test: ["CMD", "docker", "info"]
@@ -24,20 +25,45 @@ services:
       DOCKER_HOST: tcp://sandbox:2376
       DOCKER_TLS_VERIFY: "1"
       DOCKER_CERT_PATH: /certs/client
+      BOT_HARNESS_BRIDGE_HOST: api-harness
     volumes:
       - sandbox_certs:/certs/client:ro
-    networks: [default, sandbox]
+    networks:
+      default:
+      sandbox:
+        aliases: [api-harness]
     depends_on:
       sandbox: {condition: service_healthy}
+      harness-init: {condition: service_completed_successfully}
   worker:
     environment:
       BOT_CODE_ENABLED: "true"
       DOCKER_HOST: tcp://sandbox:2376
       DOCKER_TLS_VERIFY: "1"
       DOCKER_CERT_PATH: /certs/client
+      BOT_HARNESS_BRIDGE_HOST: worker-harness
     volumes:
       - sandbox_certs:/certs/client:ro
-    networks: [default, sandbox]
+    networks:
+      default:
+      sandbox:
+        aliases: [worker-harness]
+    depends_on:
+      sandbox: {condition: service_healthy}
+      harness-init: {condition: service_completed_successfully}
+  harness-init:
+    image: docker:29-cli
+    entrypoint: ["/bin/sh", "-c"]
+    command: ['chown 10001:10001 /app/data/harness && (docker image inspect "$${BOT_HARNESS_IMAGE}" >/dev/null 2>&1 || docker pull "$${BOT_HARNESS_IMAGE}")']
+    environment:
+      DOCKER_HOST: tcp://sandbox:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
+      BOT_HARNESS_IMAGE: ${BOT_HARNESS_IMAGE:-node:22-bookworm-slim}
+    volumes:
+      - sandbox_certs:/certs/client:ro
+      - harness_data:/app/data/harness
+    networks: [sandbox]
     depends_on:
       sandbox: {condition: service_healthy}
 networks:

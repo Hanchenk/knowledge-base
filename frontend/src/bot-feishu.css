@@ -1,0 +1,87 @@
+.bot-feishu-card {
+  min-width: 0;
+  margin: 0 0 20px;
+  padding: 20px;
+  border: 1px solid #d9e1f7;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #f6f8ff, #fff);
+}
+.bot-feishu-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.bot-feishu-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  height: 42px;
+  border-radius: 12px;
+  color: #3c60cb;
+  background: #e7edff;
+}
+.bot-feishu-brand h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+.bot-feishu-brand p,
+.bot-feishu-help,
+.bot-feishu-message {
+  margin: 0;
+  color: #73798c;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.bot-feishu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.bot-feishu-connected {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #258260;
+  font-size: 13px;
+}
+.bot-feishu-help,
+.bot-feishu-message {
+  margin-top: 10px;
+}
+.bot-feishu-message {
+  color: #8b5c32;
+}
+.bot-tool-panel .bot-feishu-card.compact {
+  margin: 10px 12px;
+  padding: 12px;
+  border-radius: 12px;
+}
+.bot-feishu-card.compact .bot-feishu-brand {
+  gap: 9px;
+  align-items: flex-start;
+}
+.bot-feishu-card.compact .bot-feishu-icon {
+  flex-basis: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
+.bot-feishu-card.compact .bot-feishu-brand h3 {
+  font-size: 14px;
+}
+.bot-feishu-card.compact .bot-feishu-actions {
+  margin-top: 9px;
+}
+.bot-feishu-card.compact .button {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .bot-feishu-card {
+    padding: 16px;
+  }
+}

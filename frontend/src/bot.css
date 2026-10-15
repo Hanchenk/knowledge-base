@@ -42,6 +42,23 @@
   margin-bottom: 28px;
   animation: bot-arrive 550ms var(--bot-ease) both;
 }
+.bot-page.bot-chat-shell .bot-heading {
+  position: relative;
+  flex: 0 0 auto;
+  background: transparent;
+}
+.bot-page.bot-chat-shell .bot-chat-main {
+  margin-top: 8px;
+}
+.bot-page.bot-chat-shell .bot-chat-conversation {
+  flex-direction: column;
+  min-width: 0;
+}
+.bot-page.bot-chat-shell .bot-chat-scroll {
+  min-height: 0;
+  padding-top: 12px;
+  scroll-padding-block: 12px;
+}
 .bot-heading-main {
   display: flex;
   align-items: center;
@@ -400,6 +417,7 @@
 }
 .bot-composer-tools {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -408,6 +426,8 @@
 .bot-tool-triggers {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
   gap: 4px;
   min-width: 0;
 }
@@ -438,6 +458,17 @@
 }
 .bot-tool-trigger.selected {
   color: #436b9e;
+}
+.bot-tool-trigger.bot-web-trigger[aria-checked="true"] {
+  background: #f0f4fa;
+  border-color: #e5ecf5;
+}
+.bot-tool-trigger.bot-web-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.bot-web-trigger small {
+  padding: 0 4px;
 }
 .bot-tool-trigger small {
   display: grid;
@@ -490,12 +521,19 @@
 }
 .bot-selection {
   display: flex;
-  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+  max-height: 34px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
   gap: 7px;
-  padding: 0 24px 6px;
+  padding: 2px 0;
 }
 .bot-selection-chip {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 6px;
   max-width: 210px;
@@ -636,6 +674,90 @@
   width: 27px;
   height: 27px;
   color: #99a6b7;
+}
+.bot-more-trigger {
+  color: #52657d;
+  white-space: nowrap;
+}
+.bot-more-panel {
+  width: min(350px, calc(100% - 30px));
+}
+.bot-more-options {
+  padding: 0 9px 9px;
+}
+.bot-more-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  gap: 10px;
+  padding: 10px 9px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #667d9a;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.bot-more-option > span:first-of-type {
+  flex: 1;
+  color: #405570;
+}
+.bot-more-option > svg {
+  flex-shrink: 0;
+}
+.bot-more-option > small {
+  color: #8e9aab;
+  font-size: 10px;
+}
+.bot-more-option:hover,
+.bot-more-option[aria-checked="true"] {
+  background: #f1f5fb;
+}
+.bot-more-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.bot-more-switch {
+  position: relative;
+  width: 27px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 20px;
+  background: #dce4ee;
+}
+.bot-more-switch::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  top: 2px;
+  left: 2px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 180ms ease;
+}
+.bot-more-option[aria-checked="true"] .bot-more-switch {
+  background: #6287b9;
+}
+.bot-more-option[aria-checked="true"] .bot-more-switch::after {
+  transform: translateX(11px);
+}
+.bot-more-divider {
+  margin: 5px 9px;
+  height: 1px;
+  background: #edf0f5;
+}
+.bot-more-help {
+  margin: 0 9px 5px 36px;
+  color: #8e9aab;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.bot-panel-back {
+  flex-shrink: 0;
 }
 .bot-resource-search {
   display: flex;
@@ -1631,13 +1753,13 @@
 }
 @media (max-width: 850px) and (min-width: 701px) {
   .bot-composer-tools {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .bot-tool-triggers {
-    flex: 1;
+    flex: 0 0 auto;
   }
   .bot-tool-panel {
-    bottom: 108px;
+    bottom: 67px;
   }
 }
 @media (max-width: 700px) {
@@ -1754,7 +1876,7 @@
     border-radius: 17px 17px 0 0;
   }
   .bot-composer-tools {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     padding: 9px 11px 11px;
     gap: 9px;
   }
@@ -1778,7 +1900,7 @@
     border-radius: 9px;
   }
   .bot-selection {
-    padding: 0 16px 6px;
+    padding: 2px 0;
   }
   .bot-selection-chip {
     max-width: 185px;
@@ -1890,17 +2012,15 @@
 }
 @media (max-width: 500px) {
   .bot-tool-triggers {
-    width: 100%;
-    justify-content: space-between;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #f0f2f6;
+    width: auto;
+    padding-bottom: 0;
   }
   .bot-tool-trigger {
     padding: 6px 7px;
     font-size: 11px;
   }
   .bot-tool-panel {
-    bottom: 111px;
+    bottom: 62px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

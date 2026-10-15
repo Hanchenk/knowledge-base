@@ -14,8 +14,7 @@ import {
   Workflow,
   X,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { ArtifactMarkdown } from "./ArtifactMarkdown";
 import { date } from "./api";
 import { type BotMood } from "./BloubAvatar";
 import { BotCompanion } from "./BotCompanion";
@@ -37,11 +36,20 @@ type Props = {
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onFiles: () => void;
+  onArtifact: (id: string) => void;
   onPlay: () => void;
   gameOpen: boolean;
 };
 
-function Reply({ detail, live = false }: { detail: Detail; live?: boolean }) {
+function Reply({
+  detail,
+  live = false,
+  onArtifact,
+}: {
+  detail: Detail;
+  live?: boolean;
+  onArtifact: (id: string) => void;
+}) {
   const latest = detail.messages?.at(-1);
   const active = ["running", "queued"].includes(detail.task.status);
   const output =
@@ -58,7 +66,9 @@ function Reply({ detail, live = false }: { detail: Detail; live?: boolean }) {
         知小汇{streaming && <small>正在输出</small>}
       </div>
       <div className="markdown">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{output}</ReactMarkdown>
+        <ArtifactMarkdown artifacts={detail.artifacts} onArtifact={onArtifact}>
+          {output}
+        </ArtifactMarkdown>
         {streaming && <span className="bot-stream-cursor" aria-hidden="true" />}
       </div>
     </div>
@@ -75,6 +85,7 @@ export function BotConversation({
   onApprove,
   onReject,
   onFiles,
+  onArtifact,
   onPlay,
   gameOpen,
 }: Props) {
@@ -138,7 +149,7 @@ export function BotConversation({
                 <div className="bot-chat-user">
                   <p>{previous.task.prompt}</p>
                 </div>
-                <Reply detail={previous} />
+                <Reply detail={previous} onArtifact={onArtifact} />
               </div>
             ))}
             <div className="bot-chat-turn" key={task.id}>
@@ -192,9 +203,12 @@ export function BotConversation({
                       className="bot-process-message markdown"
                       key={message.id}
                     >
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      <ArtifactMarkdown
+                        artifacts={detail!.artifacts}
+                        onArtifact={onArtifact}
+                      >
                         {message.content}
-                      </ReactMarkdown>
+                      </ArtifactMarkdown>
                     </div>
                   ))}
                   <section className="bot-events">
@@ -268,7 +282,7 @@ export function BotConversation({
                   )}
                 </section>
               ))}
-              <Reply detail={detail!} live />
+              <Reply detail={detail!} live onArtifact={onArtifact} />
               {!task.result &&
                 !latest?.content &&
                 ["queued", "running"].includes(task.status) && (

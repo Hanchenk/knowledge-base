@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
+  Cloud,
   History,
   PanelRightClose,
   PanelRightOpen,
   Clock3,
   Plus,
   Plug,
+  Package,
   RefreshCw,
   ShieldCheck,
   Sparkles,
@@ -35,6 +37,22 @@ import type { Confirm, Feedback } from "./App";
 import { Modal } from "./components";
 import { BloubAvatar, type BotMood } from "./BloubAvatar";
 import { BotComposer } from "./BotComposer";
+import { BotFeishu } from "./BotFeishu";
+import {
+  clearFeishuDraft,
+  feishuApi,
+  officialFeishuAuthorizationUrl,
+  readFeishuReturn,
+  saveFeishuDraft,
+  type FeishuDraft,
+  type FeishuStatus,
+} from "./feishu-api";
+import { BotPlugins } from "./BotPlugins";
+import { BotMemory } from "./BotMemory";
+import { memoryApi, type KnowledgeAsset } from "./memory-api";
+import { useHarnessPlugins } from "./harness-api";
+import { useCloudComputer } from "./cloud-api";
+import { BotCloud } from "./BotCloud";
 import { useBotStream } from "./useBotStream";
 import { readHomepageDraft, clearHomepageDraft } from "./homepageDraft";
 import "./bot.css";
@@ -67,6 +85,8 @@ export function BotPage({
   onDocument,
   onUpload,
   onConfigure,
+  taskRequest,
+  experienceRevision = 0,
 }: {
   user: User;
   feedback: Feedback;
@@ -74,8 +94,41 @@ export function BotPage({
   onDocument: (id: string) => void;
   onUpload: () => void;
   onConfigure: () => void;
+  taskRequest?: { id: string; revision: number };
+  experienceRevision?: number;
 }) {
+  const [feishuReturn] = useState(() => readFeishuReturn(user.id));
+  const feishuDraftRestored = useRef(false);
+  const feishuReturnHandled = useRef(false);
+  const [feishuStatus, setFeishuStatus] = useState<FeishuStatus>();
+  const [feishuError, setFeishuError] = useState("");
+  const [feishuBusy, setFeishuBusy] = useState(false);
   const [library, setLibrary] = useState<Library | null>(null);
+  const [pluginsOpen, setPluginsOpen] = useState(false);
+  const pluginFocus = useRef<HTMLElement | null>(null);
+  const openPlugins = () => {
+    pluginFocus.current = document.activeElement as HTMLElement;
+    setPluginsOpen(true);
+  };
+  const closePlugins = () => {
+    const target = pluginFocus.current;
+    setPluginsOpen(false);
+    requestAnimationFrame(() => {
+      if (target?.isConnected) target.focus({ preventScroll: true });
+    });
+  };
+  const [memoryTab, setMemoryTab] = useState<
+    "memory" | "skills" | "knowledge" | null
+  >(null);
+  const [memoryEnabled, setMemoryEnabled] = useState(true);
+  const [knowledgeAssets, setKnowledgeAssets] = useState<KnowledgeAsset[]>([]);
+  const [knowledgeAssetIds, setKnowledgeAssetIds] = useState<string[]>([]);
+  const [knowledgeError, setKnowledgeError] = useState("");
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const harness = useHarnessPlugins();
+  const cloud = useCloudComputer();
+  const [cloudOpen, setCloudOpen] = useState(false);
+  const [pluginIds, setPluginIds] = useState<string[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
   const [gameMounted, setGameMounted] = useState(false);
@@ -125,6 +178,7 @@ export function BotPage({
   const [workspaceTab, setWorkspaceTab] = useState<"result" | "files">(
     "result",
   );
+  const [selectedArtifactId, setSelectedArtifactId] = useState<string>();
   const [ancestors, setAncestors] = useState<Detail[]>([]);
   const [caps, setCaps] = useState<Caps>();
   const [devices, setDevices] = useState<LocalDevice[]>([]);
@@ -147,20 +201,65 @@ export function BotPage({
   const [connectors, setConnectors] = useState<Connector[]>([]);
   const [docs, setDocs] = useState<Document[]>([]);
   const [selected, setSelected] = useState(
-    () => new URLSearchParams(location.search).get("task") || "",
+    () =>
+      feishuReturn.draft?.taskId ||
+      new URLSearchParams(location.search).get("task") ||
+      "",
   );
   const [detail, setDetail] = useState<Detail>();
+  useEffect(() => {
+    if (taskRequest) {
+      setSelected(taskRequest.id);
+      setPrompt("");
+    }
+  }, [taskRequest]);
+  const previewDetail = detail?.evidence_available
+    ? [detail, ...ancestors]
+        .filter((value): value is Detail => !!value && value.evidence_available)
+        .find((value) =>
+          value.artifacts.some((file) => file.id === selectedArtifactId),
+        )
+    : undefined;
+  const previewArtifact = previewDetail?.artifacts.find(
+    (file) => file.id === selectedArtifactId,
+  );
+  useEffect(() => {
+    setSelectedArtifactId(undefined);
+  }, [selected]);
+  useEffect(() => {
+    if (selectedArtifactId && detail && !previewArtifact)
+      setSelectedArtifactId(undefined);
+  }, [selectedArtifactId, detail, previewArtifact]);
+  const openArtifact = (id: string) => {
+    setSelectedArtifactId(id);
+    setWorkspaceTab("files");
+    setWorkspaceOpen(true);
+  };
   const streamConnected = useBotStream(
     selected,
     detail?.task.status,
     setDetail,
   );
-  const [prompt, setPrompt] = useState(readHomepageDraft);
+  const [prompt, setPrompt] = useState(
+    () => feishuReturn.draft?.prompt ?? readHomepageDraft(),
+  );
   useEffect(() => {
     clearHomepageDraft();
   }, []);
   const [allowWeb, setAllowWeb] = useState(false);
   const [allowCode, setAllowCode] = useState(false);
+  const selectPlugins = (ids: string[]) => {
+    const addedWebPlugin = ids.some(
+      (id) =>
+        !pluginIds.includes(id) &&
+        /^(?:@[^/]+\/)?dsh-web-(?:search|fetch)(?:-|$)/.test(id),
+    );
+    setPluginIds(ids);
+    if (addedWebPlugin && !deviceId && caps?.web) {
+      setAllowWeb(true);
+      feedback("已加入联网插件，并开启本任务联网搜索");
+    }
+  };
   const [skillIds, setSkillIds] = useState<string[]>([]);
   const [connectorIds, setConnectorIds] = useState<string[]>([]);
   const [docIds, setDocIds] = useState<string[]>([]);
@@ -188,6 +287,21 @@ export function BotPage({
   const requestId = useRef<string>("");
   const requestSignature = useRef("");
   const optionsTask = useRef("");
+  const refreshFeishu = useCallback(async () => {
+    try {
+      const status = await feishuApi.status();
+      setFeishuStatus(status);
+      setFeishuError("");
+      return status;
+    } catch (reason) {
+      setFeishuError(
+        reason instanceof Error
+          ? reason.message
+          : "飞书连接暂不可用，请稍后重试。",
+      );
+      throw reason;
+    }
+  }, []);
   const refresh = useCallback(async () => {
     const [c, t, s, cs, d, ds] = await Promise.all([
       api<Caps>("/api/bot/capabilities"),
@@ -205,7 +319,49 @@ export function BotPage({
     setDocs(d.items.filter((v) => v.status === "ready"));
     setLoaded(true);
     setError("");
+    return cs;
   }, []);
+  const refreshAssets = useCallback(async () => {
+    try {
+      const assets = await memoryApi.assets();
+      const ready = assets.filter((asset) => asset.status === "ready");
+      setKnowledgeAssets(ready);
+      setKnowledgeAssetIds((ids) =>
+        ids.filter((id) => ready.some((asset) => asset.id === id)),
+      );
+      setKnowledgeError("");
+    } catch (reason) {
+      setKnowledgeAssets([]);
+      setKnowledgeError(
+        reason instanceof Error ? reason.message : String(reason),
+      );
+    } finally {
+      setAssetsLoaded(true);
+    }
+  }, []);
+  const refreshExperience = useCallback(async () => {
+    await Promise.all([refresh(), refreshAssets()]);
+  }, [refresh, refreshAssets]);
+  useEffect(() => {
+    if (experienceRevision)
+      void refreshExperience().catch((reason: Error) =>
+        setError(reason.message),
+      );
+  }, [experienceRevision, refreshExperience]);
+  useEffect(() => {
+    void refreshAssets();
+  }, [refreshAssets]);
+  useEffect(() => {
+    void refreshFeishu().catch(() => {});
+  }, [refreshFeishu]);
+  useEffect(() => {
+    if (!feishuReturn.result) return;
+    // Keep the initializer read-only; StrictMode may invoke it more than once.
+    if (feishuReturn.draftError) clearFeishuDraft(user.id);
+    const url = new URL(location.href);
+    url.searchParams.delete("feishu");
+    history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [feishuReturn, user.id]);
   useEffect(() => {
     let live = true;
     refresh().catch((e) => {
@@ -301,10 +457,123 @@ export function BotPage({
     setDocIds(options?.document_ids || []);
     setSkillIds(options?.skill_ids || []);
     setConnectorIds(options?.connector_ids || []);
+    setPluginIds(options?.plugin_ids || []);
     setAllowWeb(options?.allow_web || false);
     setAllowCode(options?.allow_code || false);
     setDeviceId(options?.local_device_id || "");
+    setMemoryEnabled(options?.memory_enabled !== false);
+    setKnowledgeAssetIds(options?.knowledge_asset_ids || []);
   }, [selected, detail]);
+  useEffect(() => {
+    const draft = feishuReturn.draft;
+    if (
+      !draft ||
+      draft.userId !== user.id ||
+      feishuDraftRestored.current ||
+      !loaded ||
+      !assetsLoaded ||
+      selected !== draft.taskId ||
+      (selected && detail?.task.id !== selected)
+    )
+      return;
+    feishuDraftRestored.current = true;
+    setAllowWeb(draft.allowWeb);
+    setAllowCode(draft.allowCode);
+    setMemoryEnabled(draft.memoryEnabled);
+    setDocIds(draft.docIds);
+    setSkillIds(draft.skillIds);
+    setConnectorIds(draft.connectorIds);
+    setPluginIds(draft.pluginIds);
+    setKnowledgeAssetIds(draft.knowledgeAssetIds);
+    setDeviceId(draft.deviceId);
+    clearFeishuDraft(user.id);
+  }, [feishuReturn, loaded, assetsLoaded, selected, detail, user.id]);
+  useEffect(() => {
+    if (!feishuReturn.result || feishuReturnHandled.current || !loaded) return;
+    feishuReturnHandled.current = true;
+    const draftNotice = feishuReturn.draftError
+      ? `${feishuReturn.draftError} `
+      : "";
+    if (feishuReturn.result !== "connected") {
+      feedback(
+        draftNotice +
+          (feishuReturn.result === "cancelled"
+            ? "已取消飞书授权，可继续编辑当前任务。"
+            : "飞书授权未完成，可继续编辑当前任务或重试连接。"),
+        feishuReturn.result === "error" || !!feishuReturn.draftError,
+      );
+      return;
+    }
+    void Promise.all([refreshFeishu(), refresh()])
+      .then(([status, currentConnectors]) => {
+        setLibrary("connectors");
+        const verified =
+          status.connected &&
+          !status.needs_reconnect &&
+          currentConnectors.some(
+            (connector) =>
+              connector.id === status.connector_id &&
+              connector.provider === "feishu" &&
+              connector.status !== "reconnect_required",
+          );
+        feedback(
+          draftNotice +
+            (verified
+              ? "飞书已连接。请在应用连接器中选择飞书供当前任务使用。"
+              : "尚未确认飞书连接，请重试或重新授权。当前任务未自动使用飞书。"),
+          !verified || !!feishuReturn.draftError,
+        );
+      })
+      .catch(() => {
+        setLibrary("connectors");
+        feedback(
+          draftNotice + "暂无法确认飞书连接，请重试。请核对当前任务输入。",
+          true,
+        );
+      });
+  }, [feishuReturn, loaded, refreshFeishu, refresh, feedback]);
+
+  const latestFeishuDraft = useRef<FeishuDraft | null>(null);
+  latestFeishuDraft.current = {
+    version: 1,
+    userId: user.id,
+    createdAt: Date.now(),
+    taskId: selected,
+    prompt,
+    allowWeb,
+    allowCode,
+    memoryEnabled,
+    docIds,
+    skillIds,
+    connectorIds,
+    pluginIds,
+    knowledgeAssetIds,
+    deviceId,
+  };
+  const connectFeishu = async () => {
+    if (feishuBusy) return;
+    setFeishuBusy(true);
+    setFeishuError("");
+    try {
+      saveFeishuDraft(latestFeishuDraft.current!);
+      const { authorization_url } = await feishuApi.authorize();
+      const target = officialFeishuAuthorizationUrl(authorization_url);
+      const latest = latestFeishuDraft.current!;
+      if (latest.userId !== user.id)
+        throw new Error("登录账号已变化，请重新连接飞书。");
+      // Keep edits made while the authorization request was in flight.
+      saveFeishuDraft({ ...latest, createdAt: Date.now() });
+      location.assign(target);
+    } catch (reason) {
+      clearFeishuDraft(user.id);
+      setFeishuError(
+        reason instanceof Error
+          ? reason.message
+          : "飞书授权暂未准备好，请重试。",
+      );
+      setFeishuBusy(false);
+    }
+  };
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -346,7 +615,7 @@ export function BotPage({
     detail?.evidence_available,
     feedback,
   ]);
-  const run = async (action: () => Promise<void>) => {
+  const run = async (action: () => Promise<unknown>) => {
     if (busy) return;
     setBusy(true);
     try {
@@ -372,6 +641,19 @@ export function BotPage({
     run(async () => {
       if (deviceId && !devices.some((d) => d.id === deviceId))
         throw new Error("本地设备连接已解除，请重新选择执行位置");
+      if (!deviceId && !cloud.status && !cloud.error)
+        throw new Error("正在连接云端服务，请稍候再提交");
+      const useHarness = !deviceId && !!cloud.status?.available;
+      if (!deviceId && pluginIds.length && !useHarness)
+        throw new Error("云端服务暂不可用，请稍后重试或联系管理员");
+      const invalidPlugins = pluginIds.filter(
+        (id) =>
+          !harness.catalog?.plugins.some(
+            (plugin) => plugin.id === id && plugin.installed && plugin.enabled,
+          ),
+      );
+      if (useHarness && invalidPlugins.length)
+        throw new Error("所选插件已停用或卸载，请在插件面板重新选择");
       const options = {
         ...(deviceId ? { local_device_id: deviceId } : {}),
         allow_web: deviceId ? false : allowWeb,
@@ -379,6 +661,12 @@ export function BotPage({
         skill_ids: skillIds,
         connector_ids: deviceId ? [] : connectorIds,
         document_ids: docIds,
+        plugin_ids: useHarness ? pluginIds : [],
+        memory_enabled: memoryEnabled,
+        knowledge_asset_ids: knowledgeAssetIds,
+        ...(!deviceId
+          ? { runtime: useHarness ? "deepseek-harness" : "pi-agent-core" }
+          : {}),
         ...(parent ? { parent_task_id: parent.id } : {}),
       };
       const body = { prompt: prompt.trim(), options };
@@ -392,6 +680,7 @@ export function BotPage({
         request_id: requestId.current,
       });
       requestId.current = "";
+      void cloud.refresh();
       setSelected(response.id);
       setPrompt("");
       await refresh();
@@ -423,6 +712,12 @@ export function BotPage({
   return (
     <div
       className={`bot-page bot-chat-shell ${workspaceOpen ? "workspace-is-open" : ""}`}
+      onPointerDown={(event) => {
+        if (!deviceId || cloudOpen) cloud.recordActivity(event);
+      }}
+      onKeyDown={(event) => {
+        if (!deviceId || cloudOpen) cloud.recordActivity(event);
+      }}
     >
       <section className="bot-chat-pane" aria-label="对话页面">
         <header className="bot-heading">
@@ -434,14 +729,35 @@ export function BotPage({
               <h1>
                 知小汇 <span>bot</span>
               </h1>
-              <p>
-                {caps?.worker
-                  ? "你的 AI 工作搭档 · 云端已就绪"
-                  : "你的 AI 工作搭档"}
-              </p>
+              <p>你的 AI 工作搭档</p>
             </div>
           </div>
           <div className="bot-heading-right">
+            <button
+              className="bot-cloud-entry"
+              aria-label="云端电脑"
+              aria-haspopup="dialog"
+              aria-expanded={cloudOpen}
+              onClick={() => setCloudOpen(true)}
+            >
+              <Cloud size={14} />
+              <span>云端电脑</span>
+              <i className={cloud.status?.connected ? "online" : ""} />
+              <span className="bot-cloud-entry-status">
+                {cloud.status?.connected ? "已连接" : "未连接"}
+              </span>
+            </button>
+            <button
+              className="bot-plugins-entry"
+              aria-label="插件市场"
+              aria-haspopup="dialog"
+              aria-expanded={pluginsOpen}
+              onClick={openPlugins}
+            >
+              <Package size={14} />
+              插件
+              {!!pluginIds.length && <small>{pluginIds.length}</small>}
+            </button>
             <button
               className="icon-button"
               aria-label="任务历史"
@@ -466,6 +782,9 @@ export function BotPage({
                 setGameOpen(false);
                 setSelected("");
                 setPrompt("");
+                setPluginIds([]);
+                setKnowledgeAssetIds([]);
+                setMemoryEnabled(true);
                 setHistoryOpen(false);
                 requestAnimationFrame(() => input.current?.focus());
               }}
@@ -555,6 +874,7 @@ export function BotPage({
                 gameOpen={gameOpen}
                 detail={detail}
                 ancestors={ancestors}
+                onArtifact={openArtifact}
                 mood={mood}
                 busy={busy}
                 onCancel={() =>
@@ -635,18 +955,22 @@ export function BotPage({
               busy={busy}
               followup={!!selected}
               disabled={
-                !!selected &&
-                (detail?.task.status !== "completed" ||
-                  !detail.evidence_available)
+                feishuBusy ||
+                (!deviceId && !cloud.status && !cloud.error) ||
+                (!!selected &&
+                  (detail?.task.status !== "completed" ||
+                    !detail.evidence_available))
               }
               submitLabel={
-                selected && detail?.task.status !== "completed"
-                  ? detail?.task.status === "waiting"
-                    ? "等待确认"
-                    : activeStates.includes(detail?.task.status || "")
-                      ? "任务执行中"
-                      : "请先恢复任务"
-                  : undefined
+                !deviceId && !cloud.status && !cloud.error
+                  ? "正在连接服务"
+                  : selected && detail?.task.status !== "completed"
+                    ? detail?.task.status === "waiting"
+                      ? "等待确认"
+                      : activeStates.includes(detail?.task.status || "")
+                        ? "任务执行中"
+                        : "请先恢复任务"
+                    : undefined
               }
               onSubmit={() =>
                 void submit(
@@ -656,9 +980,39 @@ export function BotPage({
               docs={docs}
               skills={skills}
               connectors={connectors}
+              feishu={{
+                status: feishuStatus,
+                error: feishuError,
+                busy: feishuBusy,
+                onConnect: () => void connectFeishu(),
+                onRefresh: () => void refreshFeishu().catch(() => {}),
+              }}
               docIds={docIds}
               skillIds={skillIds}
               connectorIds={connectorIds}
+              plugins={
+                harness.catalog?.plugins.filter(
+                  (plugin) => plugin.installed && plugin.enabled,
+                ) || []
+              }
+              pluginIds={deviceId ? [] : pluginIds}
+              onPlugins={selectPlugins}
+              onManagePlugins={openPlugins}
+              memoryEnabled={memoryEnabled}
+              onMemory={setMemoryEnabled}
+              knowledgeAssets={knowledgeAssets.map((asset) => ({
+                id: asset.id,
+                name: asset.name,
+                description:
+                  asset.kind === "wiki"
+                    ? "Wiki · 已授权资料"
+                    : "CodeGraph · 代码关系图",
+              }))}
+              knowledgeAssetIds={knowledgeAssetIds}
+              onKnowledgeAssets={setKnowledgeAssetIds}
+              knowledgeError={knowledgeError}
+              onManageMemory={() => setMemoryTab("knowledge")}
+              harnessEnabled={!!cloud.status?.available && !deviceId}
               onDocs={setDocIds}
               onSkills={setSkillIds}
               onConnectors={setConnectorIds}
@@ -671,7 +1025,10 @@ export function BotPage({
               deviceId={deviceId}
               onDevice={(id) => {
                 setDeviceId(id);
-                if (id) setConnectorIds([]);
+                if (id) {
+                  setConnectorIds([]);
+                  setPluginIds([]);
+                }
               }}
               onManage={setLibrary}
               onUpload={onUpload}
@@ -705,6 +1062,10 @@ export function BotPage({
           />
           <BotWorkspace
             detail={detail}
+            selectedArtifactId={selectedArtifactId}
+            previewArtifact={previewArtifact}
+            previewArtifacts={previewDetail?.artifacts}
+            onArtifact={openArtifact}
             mood={mood}
             tab={workspaceTab}
             onTab={setWorkspaceTab}
@@ -712,6 +1073,51 @@ export function BotPage({
             onDocument={onDocument}
           />
         </>
+      )}
+      {pluginsOpen && (
+        <BotPlugins
+          available={!!cloud.status?.available}
+          catalog={harness.catalog}
+          loading={harness.loading}
+          error={harness.error}
+          pluginIds={pluginIds}
+          local={!!deviceId}
+          onPlugins={selectPlugins}
+          onRefresh={harness.refresh}
+          onClose={closePlugins}
+          feedback={feedback}
+        />
+      )}
+      {memoryTab !== null && (
+        <BotMemory
+          tasks={tasks}
+          docs={docs}
+          selectedTaskId={selected}
+          initialTab={memoryTab}
+          onClose={() => setMemoryTab(null)}
+          onChanged={refreshExperience}
+          onTask={(id) => {
+            setSelected(id);
+            setPrompt("");
+            setMemoryTab(null);
+          }}
+          onDocument={(id) => {
+            setMemoryTab(null);
+            onDocument(id);
+          }}
+          feedback={feedback}
+          confirm={confirm}
+        />
+      )}
+      {cloudOpen && (
+        <BotCloud
+          cloud={cloud}
+          onClose={() => setCloudOpen(false)}
+          onSessions={() => {
+            setCloudOpen(false);
+            setHistoryOpen(true);
+          }}
+        />
       )}
       {loaded && (
         <>
@@ -721,21 +1127,58 @@ export function BotPage({
                 <div className="bot-library-heading">
                   <div>
                     <h2>应用连接器</h2>
-                    <p>
-                      通过企业 API 或桥接服务，连接邮件、日历、消息与项目工具。
-                    </p>
+                    <p>授权飞书，或添加自己的 API 服务供任务使用。</p>
                   </div>
                   <button
-                    className="button primary"
+                    className="button"
                     onClick={() => {
                       setLibrary(null);
                       setConnectorForm(true);
                     }}
                   >
                     <Plus size={16} />
-                    添加连接器
+                    自定义连接器
                   </button>
                 </div>
+                <BotFeishu
+                  status={feishuStatus}
+                  error={feishuError}
+                  busy={feishuBusy}
+                  onConnect={() => void connectFeishu()}
+                  onRefresh={() => void refreshFeishu().catch(() => {})}
+                  onTest={
+                    feishuStatus?.connector_id
+                      ? () =>
+                          void run(async () => {
+                            const result = await post<{ message: string }>(
+                              `/api/bot/connectors/${feishuStatus.connector_id}/test`,
+                              {},
+                            );
+                            feedback(result.message);
+                            await refreshFeishu();
+                          })
+                      : undefined
+                  }
+                  onDisconnect={
+                    feishuStatus?.connector_id
+                      ? () => {
+                          const id = feishuStatus.connector_id!;
+                          confirm(
+                            "断开飞书？之后的新任务将不能使用这项连接。",
+                            async () => {
+                              await api(`/api/bot/connectors/${id}`, {
+                                method: "DELETE",
+                              });
+                              setConnectorIds((ids) =>
+                                ids.filter((value) => value !== id),
+                              );
+                              await Promise.all([refresh(), refreshFeishu()]);
+                            },
+                          );
+                        }
+                      : undefined
+                  }
+                />
                 <div className="bot-notice">
                   <ShieldCheck size={17} />
                   <span>
@@ -743,96 +1186,75 @@ export function BotPage({
                     请求执行前展示完整内容。
                   </span>
                 </div>
-                {connectors.length ? (
+                {connectors.some((c) => c.provider !== "feishu") ? (
                   <div className="bot-library-grid">
-                    {connectors.map((c) => (
-                      <article className="bot-library-card" key={c.id}>
-                        <div className="bot-section-title">
-                          <span className="bot-card-icon">
-                            <Plug size={21} />
-                          </span>
-                          <Badge
-                            status={
-                              c.method === "GET" ? "completed" : "pending"
-                            }
-                          />
-                        </div>
-                        <h3>{c.name}</h3>
-                        <p>{c.description || "自定义应用连接器"}</p>
-                        <code>{c.url}</code>
-                        <small>
-                          {c.method === "GET"
-                            ? "GET · 读取数据"
-                            : "POST · 写入前确认"}
-                          {c.has_token ? " · 已保存凭据" : ""}
-                        </small>
-                        <div className="bot-card-footer">
-                          <button
-                            className="text-button"
-                            disabled={busy}
-                            onClick={() =>
-                              void run(async () => {
-                                const result = await post<{ message: string }>(
-                                  `/api/bot/connectors/${c.id}/test`,
-                                  {},
-                                );
-                                feedback(result.message);
-                              })
-                            }
-                          >
-                            测试配置
-                          </button>
-                          <button
-                            className="icon-button"
-                            title={`移除 ${c.name}`}
-                            onClick={() =>
-                              confirm(
-                                `移除「${c.name}」？它将停止供新任务使用。`,
-                                async () => {
-                                  await api(`/api/bot/connectors/${c.id}`, {
-                                    method: "DELETE",
-                                  });
-                                  await refresh();
-                                  setConnectorIds((ids) =>
-                                    ids.filter((id) => id !== c.id),
-                                  );
-                                },
-                              )
-                            }
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </article>
-                    ))}
+                    {connectors
+                      .filter((c) => c.provider !== "feishu")
+                      .map((c) => (
+                        <article className="bot-library-card" key={c.id}>
+                          <div className="bot-section-title">
+                            <span className="bot-card-icon">
+                              <Plug size={21} />
+                            </span>
+                            <Badge
+                              status={
+                                c.method === "GET" ? "completed" : "pending"
+                              }
+                            />
+                          </div>
+                          <h3>{c.name}</h3>
+                          <p>{c.description || "自定义应用连接器"}</p>
+                          <code>{c.url}</code>
+                          <small>
+                            {c.method === "GET"
+                              ? "GET · 读取数据"
+                              : "POST · 写入前确认"}
+                            {c.has_token ? " · 已保存凭据" : ""}
+                          </small>
+                          <div className="bot-card-footer">
+                            <button
+                              className="text-button"
+                              disabled={busy}
+                              onClick={() =>
+                                void run(async () => {
+                                  const result = await post<{
+                                    message: string;
+                                  }>(`/api/bot/connectors/${c.id}/test`, {});
+                                  feedback(result.message);
+                                })
+                              }
+                            >
+                              测试配置
+                            </button>
+                            <button
+                              className="icon-button"
+                              title={`移除 ${c.name}`}
+                              onClick={() =>
+                                confirm(
+                                  `移除「${c.name}」？它将停止供新任务使用。`,
+                                  async () => {
+                                    await api(`/api/bot/connectors/${c.id}`, {
+                                      method: "DELETE",
+                                    });
+                                    await refresh();
+                                    setConnectorIds((ids) =>
+                                      ids.filter((id) => id !== c.id),
+                                    );
+                                  },
+                                )
+                              }
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </article>
+                      ))}
                   </div>
                 ) : (
                   <div className="bot-empty">
                     <Plug size={38} />
-                    <h3>让 bot 走进你的工作流</h3>
-                    <p>
-                      添加一个固定 API
-                      地址，选择读取或写入，再把它交给任务使用。
-                    </p>
-                    <div className="bot-app-examples">
-                      {[
-                        "飞书 / 钉钉",
-                        "GitHub / 项目",
-                        "邮件 / 日历",
-                        "自定义 API",
-                      ].map((v) => (
-                        <span key={v}>{v}</span>
-                      ))}
-                    </div>
-                    <button
-                      className="button"
-                      onClick={() => {
-                        setLibrary(null);
-                        setConnectorForm(true);
-                      }}
-                    >
-                      添加连接器 <Plus size={15} />
-                    </button>
+                    <h3>也可以连接自己的 API</h3>
+                    <p>通过上方“自定义连接器”添加固定服务地址。</p>
                   </div>
                 )}
               </section>

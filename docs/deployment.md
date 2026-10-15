@@ -2,7 +2,7 @@
 
 ## 当前部署方案
 
-业务数据正式保存在 **PostgreSQL 17**，文本向量在 **Qdrant 1.15.4**，原文件与生成媒体存入 **MinIO**。API 与独立 Worker 使用同一个镜像，Caddy 提供 Web 和 API 入口。Rust + React + Pi Agent 的结构保持不变。
+业务数据正式保存在 **PostgreSQL 17**，文本向量在 **Qdrant 1.15.4**，原文件与生成媒体存入 **MinIO**。API 与独立 Worker 使用同一个镜像，Caddy 提供 Web 和 API 入口。Rust + React 提供工作台，云端 bot 支持官方 DeepSeek Harness 与 Pi Agent；创作台对话继续使用 Pi。Harness 使用账号隔离的持久云端电脑，空闲 30 分钟后回收容器，插件和原生会话目录保留。管理员在「设置 → 云端服务」管理引擎，用户在「云端电脑」访问连接、历史会话和 MinIO 成果，详见 [云端运行说明](harness-cloud.md)。
 
 `compose.yaml` 面向服务器，数据库、Qdrant 和 MinIO 均只在容器网络内可达。应用使用仅能读写删除 `atlas` bucket 的独立服务账号，Bucket 默认私有。数据使用具名卷持久化，不依赖容器文件层。
 
@@ -88,7 +88,9 @@ docker compose -p atlas-knowledge restart worker
 - Qdrant：快照可加速恢复，或从 PostgreSQL 保存的向量重建。
 - 配置：加密保存 `.env`、`MODEL_CONFIG_ENCRYPTION_KEY` 和需保留的本地文件卷；丢失加密密钥会导致模型与存储凭据无法解密。
 
-升级前备份，更新源码后执行 `docker compose -p atlas-knowledge up -d --build`。不要使用 `down -v`，该选项会删除数据卷。数据库迁移受 advisory lock 保护，当前 schema 版本为 10，包含无配对码客户端连接请求表。
+升级前备份，更新源码后执行 `docker compose -p atlas-knowledge up -d --build`。不要使用 `down -v`，该选项会删除数据卷。数据库迁移受 advisory lock 保护，当前 schema 版本为 18，包含客户端连接请求、个人 Harness 插件与市场、私有创作参考附件、个人记忆与技能审核、Wiki / CodeGraph、上游技能身份注册、技能提炼开关及飞书 OAuth 连接记录。启用 Harness 时还应备份 `harness_data` 持久卷。
+
+2026-10-12 的创作台与 Harness 发布、线上验收及回滚命令见 [生产发布记录](creative-harness-production-deployment.md)。隔离沙箱、共享运行时卷与缓存镜像准备见 [Harness 部署](harness-cloud.md)。
 
 ```bash
 docker compose -p atlas-knowledge logs --tail 100 api worker
@@ -97,3 +99,5 @@ python3 scripts/verify_services.py
 ```
 
 验证脚本使用随机名称和临时凭据创建 PostgreSQL、Qdrant、MinIO 容器，运行完整后端测试后删除临时容器，不修改本地正式或服务器数据卷。图像/视频模型在验证中使用协议 fixture，不产生付费调用。
+
+长期记忆、审核技能和 Wiki / CodeGraph 是可选能力。平台侧配置 `MEMORY_CORE_URL`、`MEMORY_CORE_TOKEN`、`MEMORY_KNOWLEDGE_URL`、`MEMORY_KNOWLEDGE_TOKEN` 与 `MEMORY_SERVICE_ID`；上游技能提炼另需 `MEMORY_CORE_ADMIN_USER_KEY`。服务仅通过私有网络和统一认证网关访问，不发布数据端口。已有 API / worker 分离部署必须同时传入这些环境变量。完整流程见 [Agent 记忆接入](agent-memory-integration.md) 与 [Wiki / CodeGraph 部署](wiki-codegraph-integration.md)。

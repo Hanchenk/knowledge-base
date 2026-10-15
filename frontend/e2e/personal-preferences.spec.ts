@@ -43,6 +43,10 @@ test.beforeEach(async ({ page }) => {
     if (["/api/spaces", "/api/conversations"].includes(path)) {
       return route.fulfill({ json: [] });
     }
+    if (path === "/api/bot/memory/settings")
+      return route.fulfill({
+        json: { enabled: true, capture: true, skill_capture: true },
+      });
     return route.fulfill({ status: 404, json: { error: "Unknown fixture" } });
   });
 });
@@ -169,4 +173,103 @@ test("failed preferences load can retry and the switch fits narrow screens", asy
     path: "test-results/personal-center-mobile.png",
     animations: "disabled",
   });
+});
+
+test("memory controls persist separately without overwriting other settings", async ({
+  page,
+}) => {
+  let settings = { enabled: true, capture: true, skill_capture: true };
+  const writes: object[] = [];
+  let releaseSave!: () => void;
+  const pendingSave = new Promise<void>((resolve) => {
+    releaseSave = resolve;
+  });
+  await page.route("**/api/personal/preferences", (route) =>
+    route.fulfill({ json: { auto_archive: false, space_id: null } }),
+  );
+  await page.route("**/api/bot/memory/settings", async (route) => {
+    if (route.request().method() === "PUT") {
+      const value = route.request().postDataJSON();
+      writes.push(value);
+      if (writes.length === 1) await pendingSave;
+      settings = { ...settings, ...value };
+    }
+    await route.fulfill({ json: settings });
+  });
+  await page.goto("/app");
+  const profile = await openProfile(page);
+  const memory = profile.getByRole("switch", {
+    name: "跨任务记忆",
+    exact: true,
+  });
+  const capture = profile.getByRole("switch", {
+    name: "提取任务经验",
+    exact: true,
+  });
+  const skill = profile.getByRole("switch", { name: "技能提炼", exact: true });
+  await expect(memory).toBeChecked();
+  await memory.click();
+  await expect(memory).toBeDisabled();
+  await expect(memory).toBeChecked();
+  await expect(skill).toBeDisabled();
+  await memory.press("Space");
+  expect(writes).toEqual([{ enabled: false }]);
+  releaseSave();
+  await expect(memory).not.toBeChecked();
+  await expect(skill).toBeEnabled();
+  await skill.click();
+  await expect(skill).not.toBeChecked();
+  await expect(capture).toBeChecked();
+  expect(writes).toEqual([{ enabled: false }, { skill_capture: false }]);
+  await profile.getByRole("button", { name: "完成" }).click();
+  await openProfile(page);
+  await expect(memory).not.toBeChecked();
+  await expect(skill).not.toBeChecked();
+  await expect(capture).toBeChecked();
+  await skill.focus();
+  await page.keyboard.press("Space");
+  await expect(skill).toBeChecked();
+  expect(settings).toEqual({
+    enabled: false,
+    capture: true,
+    skill_capture: true,
+  });
+});
+
+test("failed memory save keeps persisted state and all controls fit mobile", async ({
+  page,
+}) => {
+  let settings = { enabled: true, capture: true, skill_capture: true };
+  let fail = true;
+  await page.route("**/api/personal/preferences", (route) =>
+    route.fulfill({ json: { auto_archive: false, space_id: null } }),
+  );
+  await page.route("**/api/bot/memory/settings", async (route) => {
+    if (route.request().method() === "PUT") {
+      if (fail) {
+        fail = false;
+        return route.fulfill({ status: 503, json: { error: "暂不可用" } });
+      }
+      settings = { ...settings, ...route.request().postDataJSON() };
+    }
+    await route.fulfill({ json: settings });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/app");
+  await page.getByRole("button", { name: "展开系统侧边栏" }).click();
+  const profile = await openProfile(page);
+  const skill = profile.getByRole("switch", { name: "技能提炼", exact: true });
+  await expect(skill).toBeChecked();
+  await skill.click();
+  await expect(profile.getByRole("alert")).toContainText("保存失败");
+  await expect(skill).toBeChecked();
+  await expect(skill).toBeEnabled();
+  await skill.click();
+  await expect(skill).not.toBeChecked();
+  await expect(profile.getByRole("alert")).toHaveCount(0);
+  expect(
+    await profile.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth + 1,
+    ),
+  ).toBe(true);
 });

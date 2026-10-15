@@ -1,0 +1,29 @@
+{
+    admin off
+    auto_https off
+}
+:8080 {
+    # Upstream Knowledge deliberately allows several read-only routes without
+    # authentication. Require the service bearer token on all data routes here.
+    handle /core/health {
+        rewrite * /health
+        reverse_proxy memory-core:8420
+    }
+    handle /knowledge/health {
+        rewrite * /health
+        reverse_proxy memory-knowledge:8421
+    }
+    handle_path /core/* {
+        @core_denied not header Authorization "Bearer {$MEMORY_CORE_TOKEN}"
+        respond @core_denied "Unauthorized" 401
+        reverse_proxy memory-core:8420
+    }
+    handle_path /knowledge/* {
+        @knowledge_denied not header Authorization "Bearer {$MEMORY_KNOWLEDGE_TOKEN}"
+        respond @knowledge_denied "Unauthorized" 401
+        reverse_proxy memory-knowledge:8421
+    }
+    handle {
+        respond "Not found" 404
+    }
+}

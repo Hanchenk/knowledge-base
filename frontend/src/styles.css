@@ -1641,6 +1641,10 @@ pre {
   padding: 0 38px;
   gap: 20px;
 }
+.main-column:has(> .bot-workspace) > .topbar {
+  background: transparent;
+  border-bottom-color: transparent;
+}
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -5307,6 +5311,7 @@ legend {
 }
 .settings-model-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 22px;
 }
@@ -5316,6 +5321,7 @@ legend {
   gap: 12px;
   padding: 14px 22px;
   min-width: 220px;
+  flex: 1 1 220px;
   border: 1px solid #e2e8f2;
   border-radius: 12px;
   background: white;
@@ -5356,7 +5362,7 @@ legend {
     gap: 8px;
   }
   .settings-model-tabs > button {
-    flex: 1;
+    flex: 1 1 calc(50% - 4px);
     min-width: 0;
     padding: 12px;
     gap: 8px;
@@ -5467,6 +5473,17 @@ legend {
   font-size: 13px;
   line-height: 1.7;
   margin: 10px 0 12px;
+}
+.personal-memory-option {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.personal-memory-option > p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
 .personal-preferences-footer {
   display: flex;

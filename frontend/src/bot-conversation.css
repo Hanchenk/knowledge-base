@@ -405,10 +405,10 @@
 .bot-chat-composer .bot-composer-tools {
   padding: 9px 11px 11px;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 .bot-chat-composer .bot-tool-triggers {
-  flex: 1;
+  flex: 0 0 auto;
   gap: 0;
 }
 .bot-chat-composer .bot-tool-trigger {
@@ -426,7 +426,7 @@
   font-size: 11px;
 }
 .bot-chat-composer .bot-selection {
-  padding: 0 16px 4px;
+  padding: 2px 0;
 }
 .bot-chat-composer .bot-selection-chip {
   max-width: 175px;
@@ -715,14 +715,13 @@
     padding-right: 15px;
   }
   .bot-chat-composer .bot-tool-triggers {
-    width: 100%;
-    flex-basis: 100%;
-    justify-content: space-between;
-    padding-bottom: 7px;
-    border-bottom: 1px solid #f0f2f6;
+    width: auto;
+    flex-basis: auto;
+    padding-bottom: 0;
+    border-bottom: 0;
   }
   .bot-chat-composer .bot-tool-panel {
-    bottom: 103px;
+    bottom: 60px;
   }
 }
 @media (max-width: 1000px) {
@@ -807,18 +806,17 @@
     padding: 7px 9px 10px;
   }
   .bot-chat-composer .bot-tool-triggers {
-    width: 100%;
-    flex-basis: 100%;
-    justify-content: space-between;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #f0f2f6;
+    width: auto;
+    flex-basis: auto;
+    padding-bottom: 0;
+    border-bottom: 0;
   }
   .bot-chat-composer .bot-tool-trigger {
     padding: 6px 5px;
     font-size: 10px;
   }
   .bot-chat-composer .bot-tool-panel {
-    bottom: 101px;
+    bottom: 58px;
     max-height: min(420px, 60dvh);
   }
   .bot-chat-composer .bot-starters {

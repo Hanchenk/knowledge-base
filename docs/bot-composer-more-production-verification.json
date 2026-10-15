@@ -1,0 +1,1132 @@
+{
+  "ok": true,
+  "release": "composer-more-20261013-120000",
+  "generated_at": "2026-10-13T04:40:01.554202+00:00",
+  "url": "http://192.168.1.34:18088/app?view=bot",
+  "production": {
+    "ok": true,
+    "release": "composer-more-20261013-120000",
+    "image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "api_image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "worker_image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "frontend_only": true,
+    "schema": 17,
+    "database": {
+      "schema": 17,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32,
+      "active_tasks": 0,
+      "active_studio_jobs": 0,
+      "active_bot_actions": 0
+    },
+    "business_counts_preserved": true,
+    "model_ciphertext_preserved": true,
+    "existing_memory_choices_preserved": true,
+    "original_worker_container_and_start_time_preserved": true,
+    "runtime_and_binary_unchanged": true,
+    "configuration_unchanged": true,
+    "existing_infrastructure_providers_and_data_volumes_preserved": true,
+    "docker_networks_unchanged": true,
+    "static_files_verified": 46,
+    "no_database_restore_or_mutation_commands": true,
+    "checked_at": "2026-10-13T04:33:47.107781+00:00",
+    "rollback": "python3 /work/project/atlas-knowledge/releases/composer-more-20261013-120000/release-control.py rollback"
+  },
+  "candidate": {
+    "ok": true,
+    "release": "composer-more-20261013-120000",
+    "image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "base_image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "checked_at": "2026-10-13T04:31:33.027187+00:00",
+    "checks": {
+      "production_protection_guards_pass": true,
+      "base_image_is_frozen_current_production": true,
+      "candidate_image_configuration_identical_to_base": true,
+      "candidate_preserves_all_base_layers": true,
+      "isolated_name_initially_absent": true,
+      "verification_container_network_none": true,
+      "verification_container_has_no_published_ports": true,
+      "verification_runs_only_python_hash_probe": true,
+      "verification_probe_stdin_enabled": true,
+      "server_binary_matches_current_production": true,
+      "all_runtime_files_match_current_production": true,
+      "all_frozen_frontend_files_present_and_match": true,
+      "probe_exit_successful": true,
+      "no_application_startup_database_or_provider_access": true,
+      "isolated_verification_container_removed": true,
+      "all_existing_networks_unmodified": true,
+      "cleanup_succeeded": true
+    },
+    "static_files_verified": 46,
+    "runtime_files_verified": 21,
+    "frontend_only": true,
+    "no_database_or_provider_writes": true
+  },
+  "build": {
+    "ok": true,
+    "release": "composer-more-20261013-120000",
+    "image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "base_image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "frontend_only": true,
+    "rust_not_recompiled": true,
+    "no_application_startup_during_build": true,
+    "no_new_docker_network": true,
+    "only_frontend_dist_layer_added": true
+  },
+  "preflight": {
+    "ok": true,
+    "release": "composer-more-20261013-120000",
+    "checked_at": "2026-10-13T04:02:28.471089+00:00",
+    "read_only": true,
+    "checks": {
+      "previous_release_production_guards_pass": true,
+      "schema_17_unchanged": true,
+      "previous_release_ui_and_post_ui_passed": true,
+      "api_not_restarted_since_previous_release": true,
+      "worker_not_restarted_since_previous_release": true,
+      "postgres_not_restarted_since_previous_release": true,
+      "qdrant_not_restarted_since_previous_release": true,
+      "minio_not_restarted_since_previous_release": true,
+      "gateway_not_restarted_since_previous_release": true,
+      "sandbox_not_restarted_since_previous_release": true,
+      "memory-core_not_restarted_since_previous_release": true,
+      "memory-knowledge_not_restarted_since_previous_release": true,
+      "memory-gateway_not_restarted_since_previous_release": true,
+      "api_and_worker_same_binary": true,
+      "base_tag_pins_current_production_image": true,
+      "server_http_health_200": true,
+      "vpn_route_preserved": true
+    },
+    "services": {
+      "api": {
+        "id": "bd33112136c1fbd4b44bb3de9f9d941022c5d335308eda90e26d860d447157d5",
+        "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_local_files",
+            "Source": "/data/docker/volumes/atlas-knowledge_local_files/_data",
+            "Destination": "/app/data/files",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_harness_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_harness_data/_data",
+            "Destination": "/app/data/harness",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_certs",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_certs/_data",
+            "Destination": "/certs/client",
+            "RW": false
+          }
+        ],
+        "started_at": "2026-10-13T01:35:21.496075636Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_default",
+          "atlas-knowledge_memory-private",
+          "atlas-knowledge_sandbox"
+        ]
+      },
+      "worker": {
+        "id": "42d160ed9edffeebd30b0e059b0618ce798fb40e1d2695720e6fd4c8c488f868",
+        "image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_local_files",
+            "Source": "/data/docker/volumes/atlas-knowledge_local_files/_data",
+            "Destination": "/app/data/files",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_harness_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_harness_data/_data",
+            "Destination": "/app/data/harness",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_certs",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_certs/_data",
+            "Destination": "/certs/client",
+            "RW": false
+          }
+        ],
+        "started_at": "2026-10-13T01:35:28.246889343Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_default",
+          "atlas-knowledge_memory-private",
+          "atlas-knowledge_sandbox"
+        ]
+      },
+      "postgres": {
+        "id": "3df52b7b3d188fad6a45d64dd1e286743de5598dd94a8fd644df149548733ab9",
+        "image": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_postgres_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_postgres_data/_data",
+            "Destination": "/var/lib/postgresql/data",
+            "RW": true
+          }
+        ],
+        "started_at": "2026-10-12T09:54:55.804404359Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_default"
+        ]
+      },
+      "qdrant": {
+        "id": "b48c62e94071f1a36e6fe2255ddcb17e7aa8b48557de26f081e9a78a89bb1f6e",
+        "image": "sha256:e35e37cf82b6894049e69e168e1135cbc2a084f3b63bdccc7908afff1bdc57d6",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_qdrant_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_qdrant_data/_data",
+            "Destination": "/qdrant/storage",
+            "RW": true
+          }
+        ],
+        "started_at": "2026-10-12T09:54:55.896121052Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_default"
+        ]
+      },
+      "minio": {
+        "id": "aa46bb1c4ec974062055508abb6f0d21de7607a0827dda5d0bf5aeb382776802",
+        "image": "sha256:69b2ec208575b69597784255eec6fa6a2985ee9e1a47f4411a51f7f5fdd193a9",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_object_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_object_data/_data",
+            "Destination": "/data",
+            "RW": true
+          }
+        ],
+        "started_at": "2026-10-12T09:54:55.874870354Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_default"
+        ]
+      },
+      "gateway": {
+        "id": "523b4fa160e27a093e5792b5944ccb53159bc2e0d0dba4aabf654ede3211d76c",
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_caddy_config",
+            "Source": "/data/docker/volumes/atlas-knowledge_caddy_config/_data",
+            "Destination": "/config",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_caddy_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_caddy_data/_data",
+            "Destination": "/data",
+            "RW": true
+          },
+          {
+            "Type": "bind",
+            "Name": null,
+            "Source": "/work/project/atlas-knowledge/deploy/Caddyfile",
+            "Destination": "/etc/caddy/Caddyfile",
+            "RW": false
+          }
+        ],
+        "started_at": "2026-10-12T09:54:55.902708336Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_default"
+        ]
+      },
+      "sandbox": {
+        "id": "a11c886019bed64c42eed7dd3a06533497cd8ce4a2506bbc78420e3a36607d0a",
+        "image": "sha256:1c6d6ea5ca348694849364514e436202092c36d6a0b4040b0ca64937799046d4",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_harness_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_harness_data/_data",
+            "Destination": "/app/data/harness",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_certs",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_certs/_data",
+            "Destination": "/certs/client",
+            "RW": true
+          },
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_sandbox_data",
+            "Source": "/data/docker/volumes/atlas-knowledge_sandbox_data/_data",
+            "Destination": "/var/lib/docker",
+            "RW": true
+          }
+        ],
+        "started_at": "2026-10-12T09:54:55.859905961Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_sandbox"
+        ]
+      },
+      "memory-core": {
+        "id": "df6ee415bbac14d99c447bbea9ad85dbe30d0c9dfcf6df478c791ecec3f31797",
+        "image": "sha256:d18f09189803d637de4141b4dbf4cac8baadf7c7ded2355f838531110de59609",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_tencent_memory_core",
+            "Source": "/data/docker/volumes/atlas-knowledge_tencent_memory_core/_data",
+            "Destination": "/data/tdai-memory",
+            "RW": true
+          }
+        ],
+        "started_at": "2026-10-12T10:15:40.010808335Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_memory-egress",
+          "atlas-knowledge_memory-private"
+        ]
+      },
+      "memory-knowledge": {
+        "id": "2775526bfaa650de278f0a97f5567fbfde3721b7846d28eab4a6b35604fc545a",
+        "image": "sha256:4de783a8f4c36c91c716031225c223246d01a95b0005842759e6242cbb79920c",
+        "status": "running",
+        "health": "healthy",
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "atlas-knowledge_tencent_memory_knowledge",
+            "Source": "/data/docker/volumes/atlas-knowledge_tencent_memory_knowledge/_data",
+            "Destination": "/app/data",
+            "RW": true
+          }
+        ],
+        "started_at": "2026-10-12T10:15:39.992238077Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_memory-egress",
+          "atlas-knowledge_memory-private"
+        ]
+      },
+      "memory-gateway": {
+        "id": "15388b5ee348cca6e1a46dc550b57fb50ecfdceb37018dc36211f9d6d6983fa3",
+        "image": "sha256:f77f856a30f0004200b36b322d61da17fade31e24875699d77fb968399b9eb77",
+        "status": "running",
+        "health": null,
+        "mounts": [
+          {
+            "Type": "bind",
+            "Name": null,
+            "Source": "/work/project/atlas-knowledge/releases/agent-memory-20261012-180500/source/deploy/Caddyfile.tencent-memory",
+            "Destination": "/etc/caddy/Caddyfile",
+            "RW": false
+          }
+        ],
+        "started_at": "2026-10-12T10:15:57.082588363Z",
+        "restart_count": 0,
+        "network_names": [
+          "atlas-knowledge_memory-private"
+        ]
+      }
+    },
+    "networks": {
+      "atlas-knowledge_default": {
+        "id": "04e6150f986a047c81b249d782d42d866643df5380be1a294c6dd1c22e8e1d57",
+        "subnets": [
+          "192.168.48.0/20"
+        ],
+        "internal": false
+      },
+      "atlas-knowledge_memory-egress": {
+        "id": "212f40351e54566d6b57eea16217c453b892703d17810a4c138aa607a57bb3cc",
+        "subnets": [
+          "10.253.241.0/24"
+        ],
+        "internal": false
+      },
+      "atlas-knowledge_memory-private": {
+        "id": "c49fd465e156f2ebdcbad9c6352b7135bab59c0a04c57fad8506ee739e3c4d14",
+        "subnets": [
+          "10.253.240.0/24"
+        ],
+        "internal": true
+      },
+      "atlas-knowledge_sandbox": {
+        "id": "a26ac1f47a2428f2de6fe9e6bbd9b052a64eb8295d5c90dd5529dc23725089b4",
+        "subnets": [
+          "192.168.64.0/20"
+        ],
+        "internal": false
+      },
+      "bridge": {
+        "id": "d016ac21138dba712f87b39fdafae6ef323068d6e78333a5f143e0412460da59",
+        "subnets": [
+          "172.18.0.0/16"
+        ],
+        "internal": false
+      },
+      "certificate-website_default": {
+        "id": "d7546c1d26e67701af614698aa6fb60fe216a99ea2ec207f87bb273d3e4c3164",
+        "subnets": [
+          "172.29.0.0/16"
+        ],
+        "internal": false
+      },
+      "czd-net": {
+        "id": "4798e8397f80251f829189300b97a3583e784a6d6632571aa5a07826049209c3",
+        "subnets": [
+          "112.112.88.0/24"
+        ],
+        "internal": false
+      },
+      "docker_ragflow": {
+        "id": "b28b1c26336fa4c7a2021a873e5d0e8c7a2f3181cb0d3660c3c64af11631e925",
+        "subnets": [
+          "192.168.16.0/20"
+        ],
+        "internal": false
+      },
+      "ftp_default": {
+        "id": "86fd76c5eabe735020e91b6318a0383432ab24117dfddd813d75bd67e52fc767",
+        "subnets": [
+          "172.23.0.0/16"
+        ],
+        "internal": false
+      },
+      "gpt-image_default": {
+        "id": "b8a5797ab1cb50fcf3b6374aa6078f0fc3d91a80e8ce87ba2deab19abe9f64d6",
+        "subnets": [
+          "172.28.0.0/16"
+        ],
+        "internal": false
+      },
+      "host": {
+        "id": "d97c665ddb8e9eb76a28c60f35b40bc217b0c0aafbfcd859ad4355e5edd10009",
+        "subnets": [],
+        "internal": false
+      },
+      "mkdocs_default": {
+        "id": "3fa4088122ebc32276e78cae38799e92dc4d92f08c955687f001f9c995206c9f",
+        "subnets": [
+          "172.20.0.0/16"
+        ],
+        "internal": false
+      },
+      "monitor_default": {
+        "id": "ce62ebccf70a5bb34e46d52fb36f415bd481f6d6cfdeee33ffe7df7d9fc6e2e4",
+        "subnets": [
+          "172.17.0.0/16"
+        ],
+        "internal": false
+      },
+      "mqtt-docker_default": {
+        "id": "3a788124c2b94a6259aa885c9446e636e437667f21d24dcff7c6d7d18abd371c",
+        "subnets": [
+          "172.19.0.0/16"
+        ],
+        "internal": false
+      },
+      "none": {
+        "id": "71fd03774dcd5882fa5e4d3fe8a2ee1466b74ce2a4e5b7d3332798cd72b511d0",
+        "subnets": [],
+        "internal": false
+      },
+      "ocr-demo_default": {
+        "id": "4313002da8f11ec1e9b21852dc37c0379bcba550923f9cbb629d37b01374e32b",
+        "subnets": [
+          "172.31.0.0/16"
+        ],
+        "internal": false
+      },
+      "pandawiki_panda-wiki": {
+        "id": "ea0d5c1e7869e348e798ce0f3ed7f8533441fc352eb5b0808f04e9f6a5842d7f",
+        "subnets": [
+          "169.254.15.0/24"
+        ],
+        "internal": false
+      },
+      "pptagent_default": {
+        "id": "49a0d61bc9fd81ad826acbda7e5b851c16451b5d411c035041cfb676b1dd347f",
+        "subnets": [
+          "172.22.0.0/16"
+        ],
+        "internal": false
+      },
+      "server_default": {
+        "id": "43487e103e3172afc6036050b73b0bc53a7001f3e2b0bbf7d35d7732ea2eb992",
+        "subnets": [
+          "172.26.0.0/16"
+        ],
+        "internal": false
+      },
+      "subapi2_sub2api-net": {
+        "id": "f19a187742652919efdc604fc4b6b1a8e134bc05ca4ecc4c7a7692f2bad33c48",
+        "subnets": [
+          "172.24.0.0/16"
+        ],
+        "internal": false
+      },
+      "uav_default": {
+        "id": "b638a92d6cb1ea47e47964dc1e30c4c4e8146026ce98c97ff637c9dc6a34c46c",
+        "subnets": [
+          "172.21.0.0/16"
+        ],
+        "internal": false
+      },
+      "workbuddy2api-panel_default": {
+        "id": "93e517c81737b0888dcb0f5a782548ed661f85f2faf9677c0ea277bbba1f643a",
+        "subnets": [
+          "192.168.32.0/20"
+        ],
+        "internal": false
+      },
+      "yemast-skill_app": {
+        "id": "319276bd8cdc85f4edcb117a5ad27058d640d4ecc35cd2d5d70936f94a3e7879",
+        "subnets": [
+          "172.25.0.0/16"
+        ],
+        "internal": false
+      },
+      "yemast-tools_default": {
+        "id": "cf77c9195dccada8f1f45980b21098e36f18d3e6296d0d4d478e7701e1c3d8d8",
+        "subnets": [
+          "172.30.0.0/16"
+        ],
+        "internal": false
+      }
+    },
+    "database": {
+      "schema": 17,
+      "tenants": 1,
+      "users": 37,
+      "spaces": 4,
+      "documents": 9,
+      "assets": 8,
+      "tasks": 33,
+      "artifacts": 3,
+      "messages": 32,
+      "active_tasks": 0,
+      "active_studio_jobs": 0,
+      "active_bot_actions": 0
+    },
+    "model_ciphertext_hash": "8c1209058c95ae7222747f045bceb754a2842db8d95f4e5a5d6e83bd814bfcc6",
+    "memory_settings_hash": "0c2bb3e89491f61aa1ab25a41727309462bb4ff22e678936a222b313626be386",
+    "config_hashes": {
+      ".env": "9791ac98d25fef14f5c25a22fc1fc1aa0e69e80dcda7e91c6dacb5acadd3f637",
+      "compose.yaml": "e28b8ee72d889ce537280ad8c49b0a3847f9776a62f1f83615c40ccfa2384049",
+      "compose.override.yaml": "06d810a68734da47ddbf2e886e029db297fd3f5ac615ac10cac9d6ae401261e3",
+      "compose.bot-code.yaml": "03f8e791c7e9070fd7a400128b7c19eee8b144663d9a92fb4a7c8ffcccdb1695",
+      "deploy/Caddyfile": "63af04683bd0ff292edeeb1cfc749983f8e79a420aec473502936d045851ebba",
+      "deploy/Caddyfile.tencent-memory": "ec8bbd3708bd180ea8864fe0da382f84472119fb991aa50b0374a5b36ee77975"
+    },
+    "override_link": null,
+    "runtime_hashes": {
+      "agent-runtime/agent.mjs": "3c5e12d7297356f2ec0a238922d464524aba19362adf95e01ba99712f5761ca8",
+      "agent-runtime/harness-agent.mjs": "ba03c640afae9eae4054722aa0510771738711fda3c6d9eda3778abf5493bf43",
+      "agent-runtime/harness-cloud.mjs": "1bce91edb8f76ff65c2adf839fb804e60779ad0fb7ac21d1e71ffe3da2ad503b",
+      "agent-runtime/harness-docker.mjs": "346c6878141ef23bc9e7bfdeb104c4e7c40fb33160d5d58d102753767101986d",
+      "agent-runtime/harness-exec.mjs": "278063cc8c5067bf94f9b7de501027c38c3146a12c2ee28b5ba86d894688baf5",
+      "agent-runtime/harness-files.mjs": "b73b27ea3ba93a7129fecaa2414d3f624d5a8876d4c48576fbc87f7ad564e8f5",
+      "agent-runtime/harness-manager.mjs": "d58b0846b70fb6ebce8cdf73803c8564c742e7ff9f597112a4c2484fa470794c",
+      "agent-runtime/harness-plugin.mjs": "5f4deb7eb47f0f3d76abe5d29eff134a9730cfce14644c7d0cbe995b066659e5",
+      "agent-runtime/harness-profile.mjs": "17b5cd27997e92520c14c377396fc943f5713edb4cfbd79aa559f0e4a3ea56a7",
+      "agent-runtime/harness-sdk-server.mjs": "01815df379de84c729d1fbd478f8ca43c1155c459c332efe4a3b1cd7d28cbb92",
+      "agent-runtime/harness.mjs": "419c691d7da7cea8a210f8042b8b8eb05ee85db0d81b3c58a06a752df26d4935",
+      "agent-runtime/platform-tools.mjs": "292830b6179d552139e7df5412b91d0d28dc690d7169326ea2f73fd1a8bf98ca",
+      "agent-runtime/progress.mjs": "fdb0ed88b8b83c744acee35441817e030c9723ae8031c216f74ecd0b505676a8",
+      "agent-runtime/scripts/harness-smoke.mjs": "ed06a52e23344612f714f09ff234da85a0d65de6f2419d216748754095022cda",
+      "agent-runtime/stream-output.mjs": "a87614a817a1043091d48e3bfc43f8e81dbab44277c0b906529ca2d23e16c927",
+      "agent-runtime/test/cloud.test.mjs": "8ed3a039958063d25059220d62e5fe41b7b17ea15d57cab3754995b65bc2c5be",
+      "agent-runtime/test/harness-files.test.mjs": "f0ed1ed302a6aa7c646b0e25a5eb30ed22f3b6ce164e4651e30d540baeccf067",
+      "agent-runtime/test/harness.test.mjs": "11bbc6ba1b916bfa3ef1a9a899d9d61f41c60aa0eb2f2fe00fceb2d8c227da7b",
+      "agent-runtime/test/memory-tools.test.mjs": "decaae62875a3a10de1b2971718324a6c5bbc02fb7f876259c4e58aa6afdbb0b",
+      "agent-runtime/test/progress.test.mjs": "0bf0bb8a351d4b1e66f66e3860087c2ef679a5a2070b01daa70fea74f911723d",
+      "agent-runtime/test/runtime.test.mjs": "61c013c35481880b48978a381055315c1196216df1d2c26706f5f022abac4e63"
+    },
+    "server_binary_sha256": "00888b1d6848711b6a8c01565e353a46a6aade269296f237bef6db107314fc38",
+    "base_image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "base_image_config_sha256": "33bd2e41ad67c6f6e04bd9145703f4d72875870eaee8461c5d9ee9be59c502dd",
+    "base_image_layers": [
+      "sha256:e58989146fcec76699871403b9897b5c014af1ccd85f5a9300a215e7975525d7",
+      "sha256:916eda96356f5280ba200349e111e70c46d7ec98a4a3dd2c38e88f7b133c17ba",
+      "sha256:694fd645f7c3f2166f87f2929facc4eccb7e1cfda9bfb5d1373f77e6c9c57ea6",
+      "sha256:742affd58633b3e2b85ef86583f2775486468b1317f7214d12e193d948421098",
+      "sha256:84653999bd4858295700d04c102bdec5dd2ed1b693c3c03bf4d20b3f0d58d5a3",
+      "sha256:e301c2e39bdf42b4ef0dea8e56b5ab59282024acdb338aed6ea3499371310f9e",
+      "sha256:bd543b9f7ace386fa34351bcc918a27063273c38eb610e53997370977320cedd",
+      "sha256:141ac9c8ac0065d6fccb5127d9f537dd95f3bbae38b02bce1eee19b96beb1327",
+      "sha256:758c2a9f54829da45be441455d23b8bbb36db532e60e562776f164ef4c1c31cd",
+      "sha256:d28105fa0a6e472e60b25eb1313c0339c19bf330bb62fc900196f06b1476827f",
+      "sha256:439816d746a0d79c90a40e25218c424b3d4df95ce7f4aec87c78d9e72bce6827",
+      "sha256:e7317da6a699f82ea7114d04ddd67b467e4d0c8fa6d4b1c2ee6afc12e323367b",
+      "sha256:5b6e3405cb59223ea9144557213ba13a8b70f4347b16087b62295cd7135a06cf",
+      "sha256:7b61086dd1008e49f23e7d25e9caeaa55e1c7760390fb6f1fea08b8dec6dd61f",
+      "sha256:6d732323fc3c4bd2202b769ae728bb71569bd2b39b2a88e6c4ef7376bb7b1fe9",
+      "sha256:d8c13f7a98e55926e4901d53124eae648e1841b6c998af50693e7dddc88d1a1f",
+      "sha256:4a66d75fe7467b590664b0ee5457c61c9a0dad005bc11d207f7819ed04c3b88f",
+      "sha256:4587243096afeae5bc55f98a6a08558c2abe552476c119ae88b2713953129720",
+      "sha256:3fb832ffd439a9f8717baabd8e9b74bc1e8553a59e66a50b235fbdd7e475e46f",
+      "sha256:defb3d90cc5822e09534536f50218587fd4c87c6f0f4e4d224075433e1ad93d5",
+      "sha256:5d55963ce2ca5d8f405686ecb9a5c37f177158720946e6c4ca2dcb6a47acb464",
+      "sha256:0f3171b1845f1abc6e652834f4e8ef222a050f3ec6b041372a4c41b903a3638f",
+      "sha256:f0ee8ec3b5d135ef234a522791bed33a05f1dc83b27d532265e2fa38df50e0aa",
+      "sha256:598cbbb475823b967e8ccf40ca285664f0f1860f90044cf1aa088557dffbd15e",
+      "sha256:7c350e41a1b64d51bf8447ea5f6fe8ad42e75c1dcb0542a03c419c3e0e79dd11",
+      "sha256:62c97150078435bbe891927d7cebb6dca21b64736c2ece2bcd12bf31c3ff1879",
+      "sha256:ae66ed016284b73aea3949bf52c07bb2f46874780d7155bbed82febccb42debe",
+      "sha256:a488e7da4c0990c9dcbca02b92950b16c722471b26f7dba0625c5ce215c2dea5",
+      "sha256:341f1ba94a54db9c31aca1b6ee762859005be9cd97d5e70ed968b42b2555854b",
+      "sha256:caf8464898a08e1bcb140f325398e9d9d253c82bcd488b1ffee89d5af36b7af5",
+      "sha256:1dcc492379d854aced88e416c219633ae04ea42f149088b8b8ac9347af089018",
+      "sha256:b2909c948a9fd41b20c71096b88a4ee74a7a0844e76ac89cb998afeada8214ad",
+      "sha256:ee8bf954dd1428f362315e55e13a1e22f9bfde56a02e22fe3bd0df307db9c0d5",
+      "sha256:16cc8086bac156e44f33f22e3af44aec4b65214151df132d1b0d23bd6c54e3e7",
+      "sha256:ee8bf954dd1428f362315e55e13a1e22f9bfde56a02e22fe3bd0df307db9c0d5",
+      "sha256:66a5adbde1c26958cbef196cf6bf21aaee5b931fa67f90bd361dcaad1cc6c70b",
+      "sha256:8c3aa92acc41ff280342a5ed8490e174fbbcf1f7337464c4a909ca9bf28314ca",
+      "sha256:5a201b70126d6a467afcf5dd70b3e70ee8439cfae5e99c927d6f42dd96e4df2a",
+      "sha256:6d05dd3e553532ad04c0a293590fa5b538c68aaa362ede86d57cd34eeacb1146",
+      "sha256:91fc3f4997289ab6b6b76e3a1e7aeeff566987adcdbfd5c30ad7d52375ffc8ed",
+      "sha256:b1519990def411ea0264ff853652666ca0ac6547ec6d537ea240a9c54b08b42a",
+      "sha256:00e99d4a2ebdf855405300bddfe276cd5f1da8e927c4cf0ae993635cab0be54c",
+      "sha256:f554327598667ed056105763d5b3f0355ea90f19931ae8103bc553f65edfd915",
+      "sha256:93dd902cee11a761dd6dfd5d40ab9d0e84146b903e30572bab66a1c7ca4601ff",
+      "sha256:0ad84ad9797b20650cf9cdfcdb6111dd31657890830c2dd15bd5f2e15b8fdfce",
+      "sha256:23876c3dc6ee9925158ddd85a153aaea032736bbae4b353181d9502203343d61",
+      "sha256:2c62669e39f5e40a56c60d67f2d29524e1ddf4e8963fb72c25f7f1bfb78108bb",
+      "sha256:e228d0dc2606268173c3803e0ec3b7267a381a32657d82a5b6bbd1b8d0022075",
+      "sha256:185ec306fd86480a6237ec37ef23c3649e42a995afeb6f6041ec7c9a5f17581f",
+      "sha256:4976dc5a90b5b4a4508da9b964530998da14c442ac206b365791f1fb42c00e18",
+      "sha256:01039b4372469d354f6ea6ccd928e4989ce0702d01f008373109a7fffe73c56e",
+      "sha256:0036cb137aeb83d21ef17e1616600d8f89e31e784427cd215f0034af98b04e5e",
+      "sha256:bd83457f8e774eab21369f0adc446fb06e6793a0caaac8a6dbaf549fc5141415",
+      "sha256:41090c4c1d74b8a2459511435857335b086229ad50aec1569f812fbdfd17c26a",
+      "sha256:748662e4ff6718fdfab43b98a731942d9b226275de9839d75345cbeea27a395a",
+      "sha256:2cbc4b298bdd7745b2783395eda38e1c7708e793d588c30396a1606bb939abfe",
+      "sha256:74f2266cb58e89fe072e2a77165dca28d3a759a0a844e140d3dceae12dc70e3a",
+      "sha256:fc1c1836de5f1f60f458cc31dde0808c1f87aa46c0a3b0553abcd0ad8e388829",
+      "sha256:564113d32b32f0d240fc8eb08e7ffcb4a47e85414c76b0b355c016be7b7c71ab",
+      "sha256:b94d552f819b659c4b52e47d264690e209b86812befab9d94c12dc8cfd415c10",
+      "sha256:95c46355269c4f85e1990f3349307ba49e4b0c2bcc3047499f369528a2db32d2",
+      "sha256:79120e04f454d41610fe8367c587ae3b5b944a68781f91974fcf3c671e170c3e",
+      "sha256:9e54c599226b041c5804dd9a39019a3e50561bd7bb14dabbb8b4cbc7e3622db3",
+      "sha256:6315167ea42c042b26d767ba09a7836af0456f0150b0c6abbd5998c223d06cb5",
+      "sha256:c918cbfb05fbac986a31111bba982ae06cbeaadd74411909c4c991e114a5ca66",
+      "sha256:572af2781ebf445f398e1e9d2ec4085342e36c09d3c223936c8532e66026bb2a",
+      "sha256:4fb6bd1eab5243b553b4ab81919252f7c1f3b40a2b47b25598284a57b0b1d88a",
+      "sha256:88d5c71f7b484830de3129334e5b26a50c86c4e461e5ad87f4453fd88cd4344f"
+    ],
+    "vpn_route": {
+      "dst": "172.27.238.192",
+      "dev": "ens33",
+      "gateway": "192.168.1.1"
+    },
+    "free_disk_bytes": 39347286016,
+    "ssh_remote_execution_succeeded": true,
+    "ready_for_cutover": true
+  },
+  "local": {
+    "ok": true,
+    "frontend_build": true,
+    "frontend_typecheck": true,
+    "changed_files_prettier": true,
+    "independent_review_passed": true,
+    "browser_unique_cases_passed": 20,
+    "existing_browser_regressions_passed": 17,
+    "new_desktop_mobile_cases_passed": 2,
+    "browser_geometry": [
+      {
+        "width": 1440,
+        "before": {
+          "x": 254,
+          "y": 863,
+          "width": 596.09375,
+          "height": 55
+        },
+        "after": {
+          "x": 254,
+          "y": 863,
+          "width": 596.09375,
+          "height": 55
+        },
+        "composerBefore": {
+          "x": 253,
+          "y": 786,
+          "width": 598.09375,
+          "height": 133
+        },
+        "composerAfterWeb": {
+          "x": 253,
+          "y": 786,
+          "width": 598.09375,
+          "height": 133
+        },
+        "layout": {
+          "toolbarCenterDifference": 0,
+          "chipRowDifference": 0,
+          "horizontalChipOverflow": true,
+          "pageOverflow": false,
+          "composerOverflow": false
+        },
+        "errors": []
+      },
+      {
+        "width": 390,
+        "before": {
+          "x": 16,
+          "y": 712,
+          "width": 358,
+          "height": 52
+        },
+        "after": {
+          "x": 16,
+          "y": 712,
+          "width": 358,
+          "height": 52
+        },
+        "composerBefore": {
+          "x": 15,
+          "y": 645.8125,
+          "width": 360,
+          "height": 119.1875
+        },
+        "composerAfterWeb": {
+          "x": 15,
+          "y": 645.8125,
+          "width": 360,
+          "height": 119.1875
+        },
+        "layout": {
+          "toolbarCenterDifference": 0,
+          "chipRowDifference": 0,
+          "horizontalChipOverflow": true,
+          "pageOverflow": false,
+          "composerOverflow": false
+        },
+        "errors": []
+      }
+    ],
+    "initial_test_assumption_failures": "New test initially counted chip remove buttons as main controls; second attempt compared chip tops instead of vertically centered rows. Corrected only test assumptions; final geometry cases pass.",
+    "no_backend_runtime_or_schema_changes": true,
+    "note": "Browser cases use synthetic API fixtures; completed production verification is recorded separately in the production browser evidence.",
+    "focused_plugin_close_regression": {
+      "passed": true,
+      "checks": [
+        "More → plugin → Done returns focus to More",
+        "Header plugin → Close returns focus to header entry",
+        "More → plugin → Escape returns focus to More",
+        "Preserves draft; no fixture business writes"
+      ],
+      "mobile_geometry_rechecked_after_BotPage_fix": true
+    },
+    "focus_fix_independent_review_passed": true,
+    "validation_note": "19 primary cases passed; scoped BotPage focus fix then passed one new plugin-opener regression and repeated mobile geometry (20 unique total)."
+  },
+  "final_services": {
+    "ok": true,
+    "release": "composer-more-20261013-120000",
+    "image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "api_image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "worker_image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "checked_at": "2026-10-13T04:34:04.200699+00:00",
+    "checks": {
+      "api_candidate_image_and_health": true,
+      "worker_original_container_image_and_started_at": true,
+      "all_existing_network_ids_subnets_and_internal_preserved": true,
+      "all_original_network_attachments_preserved": true,
+      "protected_configuration_and_override_link_preserved": true,
+      "container_environment_hashes_preserved": true,
+      "infrastructure_and_providers_original_ids_images_and_started_at_preserved": true,
+      "all_original_data_mounts_preserved": true,
+      "server_binary_and_runtime_hashes_preserved": true,
+      "vpn_original_interface_and_gateway_preserved": true,
+      "schema_remains_17": true,
+      "ssh_remote_execution_succeeded": true,
+      "server_http_health_200": true,
+      "existing_memory_gateway_health_routes_200": true,
+      "existing_memory_gateway_anonymous_data_denied": true,
+      "api_not_restarting": true,
+      "isolated_static_validation_container_removed": true
+    },
+    "provider_health": {
+      "core": {
+        "http_status": 200,
+        "status_ok": true,
+        "anonymous_data_status": 401
+      },
+      "knowledge": {
+        "http_status": 200,
+        "status_ok": true,
+        "anonymous_data_status": 401
+      }
+    },
+    "read_only_post_ui_verification": false,
+    "read_only_production_verification": true,
+    "business_counts_not_used_after_real_ui": false,
+    "no_provider_asset_writes": true
+  },
+  "post_ui": {
+    "ok": true,
+    "release": "composer-more-20261013-120000",
+    "image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "api_image": "sha256:17e855ac33285ec8589db8dca221cb093a686895c5c4b2d3a3fe98f7b43dccb5",
+    "worker_image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "checked_at": "2026-10-13T04:38:47.465228+00:00",
+    "checks": {
+      "api_candidate_image_and_health": true,
+      "worker_original_container_image_and_started_at": true,
+      "all_existing_network_ids_subnets_and_internal_preserved": true,
+      "all_original_network_attachments_preserved": true,
+      "protected_configuration_and_override_link_preserved": true,
+      "container_environment_hashes_preserved": true,
+      "infrastructure_and_providers_original_ids_images_and_started_at_preserved": true,
+      "all_original_data_mounts_preserved": true,
+      "server_binary_and_runtime_hashes_preserved": true,
+      "vpn_original_interface_and_gateway_preserved": true,
+      "schema_remains_17": true,
+      "ssh_remote_execution_succeeded": true,
+      "server_http_health_200": true,
+      "existing_memory_gateway_health_routes_200": true,
+      "existing_memory_gateway_anonymous_data_denied": true,
+      "api_not_restarting": true,
+      "isolated_static_validation_container_removed": true
+    },
+    "provider_health": {
+      "core": {
+        "http_status": 200,
+        "status_ok": true,
+        "anonymous_data_status": 401
+      },
+      "knowledge": {
+        "http_status": 200,
+        "status_ok": true,
+        "anonymous_data_status": 401
+      }
+    },
+    "read_only_post_ui_verification": true,
+    "read_only_production_verification": false,
+    "business_counts_not_used_after_real_ui": true,
+    "no_provider_asset_writes": true
+  },
+  "browser": {
+    "production": true,
+    "passed": true,
+    "status": "completed",
+    "run_started_at": "2026-10-13T04:37:01.011Z",
+    "screenshot_origin": "production",
+    "screenshots": [
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-composer-toolbar-desktop-empty.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-composer-toolbar-desktop-empty.png",
+        "sha256": "38610ec86fa19ec3a4fca740607d64acad747d52386b1445967b10fe8b7a176d",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-more-palette-desktop-empty.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-more-palette-desktop-empty.png",
+        "sha256": "1e1f53d2d17fa79cb12c190f0227f36c3050b16132951216f440788bbaa0e7b2",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-composer-toolbar-desktop-completed.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-composer-toolbar-desktop-completed.png",
+        "sha256": "424c2e8992557d5f249a6c4870486a05e381c2304a63ce38b982218f77dab7dd",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-more-palette-desktop-completed.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-more-palette-desktop-completed.png",
+        "sha256": "e307eaaa2ca5895cced0545f6c64aee0881ccce33037f6059ad9d57d8d3fb544",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-composer-toolbar-mobile-empty.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-composer-toolbar-mobile-empty.png",
+        "sha256": "f2c888d39f573ab2c1e9bbf6cffb72d51dd93d05a9d4cce36c14f3cb9a219285",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-more-palette-mobile-empty.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-more-palette-mobile-empty.png",
+        "sha256": "4f14a7f2e9ef7406fab4307802f06571f5dbef9835ff6b69e37caf25ab29ce35",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-composer-toolbar-mobile-completed.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-composer-toolbar-mobile-completed.png",
+        "sha256": "83e4855b3d2bb78d5a0c0c96c966d37597e9985e054787405cc386f65c6fcca7",
+        "origin": "production",
+        "masked": true
+      },
+      {
+        "path": "/Users/steven/Desktop/Project/knowledge-base/docs/screenshots/bot-composer-more-production-more-palette-mobile-completed.png",
+        "relative_path": "docs/screenshots/bot-composer-more-production-more-palette-mobile-completed.png",
+        "sha256": "b9c1a45dd23d7066803d69eae74ab60681f603f2a8fb6bcc348806c08445620c",
+        "origin": "production",
+        "masked": true
+      }
+    ],
+    "business_mutations_sent": false,
+    "unexpected_business_mutation_attempt": false,
+    "cloud_heartbeat_blocked": false,
+    "switches_toggled": false,
+    "resources_selected": false,
+    "javascript_errors_seen": false,
+    "credential_values_logged": false,
+    "session_data_saved": false,
+    "screenshots_masked": true,
+    "checks": {
+      "login_api_ok": true,
+      "real_capabilities_get_ok": true,
+      "real_completed_task_available": true,
+      "desktop-empty_sameRow": true,
+      "desktop-empty_toolbarInViewport": true,
+      "desktop-empty_transparentHeaders": true,
+      "desktop-empty_safeHeaderGap": true,
+      "desktop-empty_noOverflow": true,
+      "desktop-empty_chipSameRow": true,
+      "desktop-empty_single_more_control_and_send": true,
+      "desktop-empty_empty_prompt_send_disabled": true,
+      "desktop-empty_switches_match_real_options_and_capabilities": true,
+      "desktop-empty_plugins_visible_or_scroll_reachable": true,
+      "desktop-empty_documents_visible_or_scroll_reachable": true,
+      "desktop-empty_connectors_visible_or_scroll_reachable": true,
+      "desktop-empty_skills_visible_or_scroll_reachable": true,
+      "desktop-empty_knowledge_visible_or_scroll_reachable": true,
+      "desktop-empty_cloud_visible_or_scroll_reachable": true,
+      "desktop-empty_palette_no_horizontal_overflow": true,
+      "desktop-empty_palette_escape_restores_more_focus": true,
+      "desktop-empty_documents_picker_focus_inside": true,
+      "desktop-empty_documents_back_restores_option_focus": true,
+      "desktop-empty_documents_escape_restores_more_focus": true,
+      "desktop-empty_connectors_picker_focus_inside": true,
+      "desktop-empty_connectors_back_restores_option_focus": true,
+      "desktop-empty_connectors_escape_restores_more_focus": true,
+      "desktop-empty_skills_picker_focus_inside": true,
+      "desktop-empty_skills_back_restores_option_focus": true,
+      "desktop-empty_skills_escape_restores_more_focus": true,
+      "desktop-empty_knowledge_picker_focus_inside": true,
+      "desktop-empty_knowledge_back_restores_option_focus": true,
+      "desktop-empty_knowledge_escape_restores_more_focus": true,
+      "desktop-empty_cloud_picker_focus_inside": true,
+      "desktop-empty_cloud_back_restores_option_focus": true,
+      "desktop-empty_cloud_escape_restores_more_focus": true,
+      "desktop-empty_plugin_opens_existing_dialog": true,
+      "desktop-empty_plugin_close_restores_more_focus": true,
+      "desktop-completed_sameRow": true,
+      "desktop-completed_toolbarInViewport": true,
+      "desktop-completed_transparentHeaders": true,
+      "desktop-completed_safeHeaderGap": true,
+      "desktop-completed_noOverflow": true,
+      "desktop-completed_chipSameRow": true,
+      "desktop-completed_single_more_control_and_send": true,
+      "desktop-completed_empty_prompt_send_disabled": true,
+      "desktop-completed_switches_match_real_options_and_capabilities": true,
+      "desktop-completed_plugins_visible_or_scroll_reachable": true,
+      "desktop-completed_documents_visible_or_scroll_reachable": true,
+      "desktop-completed_connectors_visible_or_scroll_reachable": true,
+      "desktop-completed_skills_visible_or_scroll_reachable": true,
+      "desktop-completed_knowledge_visible_or_scroll_reachable": true,
+      "desktop-completed_cloud_visible_or_scroll_reachable": true,
+      "desktop-completed_palette_no_horizontal_overflow": true,
+      "desktop-completed_palette_escape_restores_more_focus": true,
+      "mobile-empty_sameRow": true,
+      "mobile-empty_toolbarInViewport": true,
+      "mobile-empty_transparentHeaders": true,
+      "mobile-empty_safeHeaderGap": true,
+      "mobile-empty_noOverflow": true,
+      "mobile-empty_chipSameRow": true,
+      "mobile-empty_single_more_control_and_send": true,
+      "mobile-empty_empty_prompt_send_disabled": true,
+      "mobile-empty_switches_match_real_options_and_capabilities": true,
+      "mobile-empty_plugins_visible_or_scroll_reachable": true,
+      "mobile-empty_documents_visible_or_scroll_reachable": true,
+      "mobile-empty_connectors_visible_or_scroll_reachable": true,
+      "mobile-empty_skills_visible_or_scroll_reachable": true,
+      "mobile-empty_knowledge_visible_or_scroll_reachable": true,
+      "mobile-empty_cloud_visible_or_scroll_reachable": true,
+      "mobile-empty_palette_no_horizontal_overflow": true,
+      "mobile-empty_palette_escape_restores_more_focus": true,
+      "mobile-empty_documents_picker_focus_inside": true,
+      "mobile-empty_documents_back_restores_option_focus": true,
+      "mobile-empty_documents_escape_restores_more_focus": true,
+      "mobile-empty_connectors_picker_focus_inside": true,
+      "mobile-empty_connectors_back_restores_option_focus": true,
+      "mobile-empty_connectors_escape_restores_more_focus": true,
+      "mobile-empty_skills_picker_focus_inside": true,
+      "mobile-empty_skills_back_restores_option_focus": true,
+      "mobile-empty_skills_escape_restores_more_focus": true,
+      "mobile-empty_knowledge_picker_focus_inside": true,
+      "mobile-empty_knowledge_back_restores_option_focus": true,
+      "mobile-empty_knowledge_escape_restores_more_focus": true,
+      "mobile-empty_cloud_picker_focus_inside": true,
+      "mobile-empty_cloud_back_restores_option_focus": true,
+      "mobile-empty_cloud_escape_restores_more_focus": true,
+      "mobile-empty_plugin_opens_existing_dialog": true,
+      "mobile-empty_plugin_close_restores_more_focus": true,
+      "mobile-completed_sameRow": true,
+      "mobile-completed_toolbarInViewport": true,
+      "mobile-completed_transparentHeaders": true,
+      "mobile-completed_safeHeaderGap": true,
+      "mobile-completed_noOverflow": true,
+      "mobile-completed_chipSameRow": true,
+      "mobile-completed_single_more_control_and_send": true,
+      "mobile-completed_empty_prompt_send_disabled": true,
+      "mobile-completed_switches_match_real_options_and_capabilities": true,
+      "mobile-completed_plugins_visible_or_scroll_reachable": true,
+      "mobile-completed_documents_visible_or_scroll_reachable": true,
+      "mobile-completed_connectors_visible_or_scroll_reachable": true,
+      "mobile-completed_skills_visible_or_scroll_reachable": true,
+      "mobile-completed_knowledge_visible_or_scroll_reachable": true,
+      "mobile-completed_cloud_visible_or_scroll_reachable": true,
+      "mobile-completed_palette_no_horizontal_overflow": true,
+      "mobile-completed_palette_escape_restores_more_focus": true,
+      "zero_javascript_errors": true,
+      "zero_unexpected_business_mutations": true,
+      "fresh_masked_screenshot_manifest": true
+    },
+    "logout_ok": true,
+    "logout_status": 200,
+    "browser_cleanup_ok": true,
+    "finished_at": "2026-10-13T04:37:26.453Z"
+  },
+  "source_hashes": {
+    "frontend/src/BotComposer.tsx": "156d987c2ed28441b98d0e55617ab000c6f9f06e8ff9aba72ed2ced0605fe4c9",
+    "frontend/src/BotPage.tsx": "9840e0ac4319085280f962660d81a6da8b00cc7c74fb1d0b361a8cf9c1dda1e1",
+    "frontend/src/bot.css": "2ec8c1b54c72e41be1e7dea9f0d8db5615d2373c84ed56be87af003a682abea2",
+    "frontend/src/bot-conversation.css": "b3e73b5ebaeafde94ae24d065e84f5f994866b05244e5e20a66efb5bb74fbd12"
+  },
+  "initial_production_focus_failure": {
+    "production": true,
+    "passed": false,
+    "status": "desktop-empty_plugin_open",
+    "run_started_at": "2026-10-13T04:19:54.693Z",
+    "screenshot_origin": "production",
+    "screenshots": [
+      {
+        "filename": "composer-toolbar-desktop-empty.png",
+        "path": "/tmp/zxh-composer-more-production-ui/failed-run-03/composer-toolbar-desktop-empty.png",
+        "origin": "production",
+        "masked": true,
+        "sha256": "38610ec86fa19ec3a4fca740607d64acad747d52386b1445967b10fe8b7a176d"
+      },
+      {
+        "filename": "more-palette-desktop-empty.png",
+        "path": "/tmp/zxh-composer-more-production-ui/failed-run-03/more-palette-desktop-empty.png",
+        "origin": "production",
+        "masked": true,
+        "sha256": "1e1f53d2d17fa79cb12c190f0227f36c3050b16132951216f440788bbaa0e7b2"
+      }
+    ],
+    "business_mutations_sent": false,
+    "unexpected_business_mutation_attempt": false,
+    "cloud_heartbeat_blocked": false,
+    "switches_toggled": false,
+    "resources_selected": false,
+    "javascript_errors_seen": false,
+    "credential_values_logged": false,
+    "session_data_saved": false,
+    "screenshots_masked": false,
+    "checks": {
+      "login_api_ok": true,
+      "real_capabilities_get_ok": true,
+      "real_completed_task_available": true,
+      "desktop-empty_sameRow": true,
+      "desktop-empty_toolbarInViewport": true,
+      "desktop-empty_transparentHeaders": true,
+      "desktop-empty_safeHeaderGap": true,
+      "desktop-empty_noOverflow": true,
+      "desktop-empty_chipSameRow": true,
+      "desktop-empty_single_more_control_and_send": true,
+      "desktop-empty_empty_prompt_send_disabled": true,
+      "desktop-empty_switches_match_real_options_and_capabilities": true,
+      "desktop-empty_plugins_visible_or_scroll_reachable": true,
+      "desktop-empty_documents_visible_or_scroll_reachable": true,
+      "desktop-empty_connectors_visible_or_scroll_reachable": true,
+      "desktop-empty_skills_visible_or_scroll_reachable": true,
+      "desktop-empty_knowledge_visible_or_scroll_reachable": true,
+      "desktop-empty_cloud_visible_or_scroll_reachable": true,
+      "desktop-empty_palette_no_horizontal_overflow": true,
+      "desktop-empty_palette_escape_restores_more_focus": true,
+      "desktop-empty_documents_picker_focus_inside": true,
+      "desktop-empty_documents_back_restores_option_focus": true,
+      "desktop-empty_documents_escape_restores_more_focus": true,
+      "desktop-empty_connectors_picker_focus_inside": true,
+      "desktop-empty_connectors_back_restores_option_focus": true,
+      "desktop-empty_connectors_escape_restores_more_focus": true,
+      "desktop-empty_skills_picker_focus_inside": true,
+      "desktop-empty_skills_back_restores_option_focus": true,
+      "desktop-empty_skills_escape_restores_more_focus": true,
+      "desktop-empty_knowledge_picker_focus_inside": true,
+      "desktop-empty_knowledge_back_restores_option_focus": true,
+      "desktop-empty_knowledge_escape_restores_more_focus": true,
+      "desktop-empty_cloud_picker_focus_inside": true,
+      "desktop-empty_cloud_back_restores_option_focus": true,
+      "desktop-empty_cloud_escape_restores_more_focus": true,
+      "desktop-empty_plugin_opens_existing_dialog": true
+    },
+    "failure_expectation": "toBeFocused",
+    "logout_ok": true,
+    "logout_status": 200,
+    "browser_cleanup_ok": true,
+    "finished_at": "2026-10-13T04:20:12.097Z"
+  },
+  "restage": {
+    "ok": true,
+    "release": "composer-more-20261013-120000",
+    "attempt": 2,
+    "current_api_image": "sha256:b2da9a75fb9062c54de7a89f697bcf3fa1a7733456b6ea171d3c9fe016e11e20",
+    "candidate_from_image": "sha256:b98a5fe1241b56740432659013116b6adfb39047a410f217cd142e459e234cbf",
+    "original_rollback_image_retained": true,
+    "original_source_dist_backup_retained_and_extended": true,
+    "first_attempt_reports_source_and_image_retained": true,
+    "protected_frontend_source_files": 4,
+    "production_services_not_switched": true,
+    "worker_networks_configuration_runtime_and_database_unchanged": true
+  },
+  "corrective_change": "BotPage captures and restores the actual plugin opener after the dialog closes; final production verification rerun passed."
+}

@@ -1,6 +1,7 @@
 use serde_json::{json, Value};
 use sqlx::{
-    any::AnyPoolOptions, Any, AnyPool, Column, Executor, Row, Transaction, TypeInfo, ValueRef,
+    any::AnyPoolOptions, Acquire, Any, AnyPool, Column, Executor, Row, Transaction, TypeInfo,
+    ValueRef,
 };
 
 #[derive(Clone)]
@@ -107,6 +108,60 @@ impl Db {
         sqlx::raw_sql(include_str!("../migrations/010_bot_connections.sql"))
             .execute(&mut *connection)
             .await?;
+        sqlx::raw_sql(include_str!("../migrations/011_harness.sql"))
+            .execute(&mut *connection)
+            .await?;
+        sqlx::raw_sql(include_str!("../migrations/012_studio_inputs.sql"))
+            .execute(&mut *connection)
+            .await?;
+        sqlx::raw_sql(include_str!("../migrations/013_bot_memory.sql"))
+            .execute(&mut *connection)
+            .await?;
+        sqlx::raw_sql(include_str!("../migrations/014_bot_skill_review.sql"))
+            .execute(&mut *connection)
+            .await?;
+        sqlx::raw_sql(include_str!("../migrations/015_bot_knowledge.sql"))
+            .execute(&mut *connection)
+            .await?;
+        sqlx::raw_sql(include_str!("../migrations/016_core_skill_registry.sql"))
+            .execute(&mut *connection)
+            .await?;
+        // SQLite lacks ADD COLUMN IF NOT EXISTS. Serialize its column check and
+        // ALTER in one write transaction; PostgreSQL already holds the advisory lock.
+        let mut migration = connection.begin().await?;
+        let skill_capture_exists = if self.postgres {
+            sqlx::query("SELECT 1 AS present FROM pg_attribute WHERE attrelid='bot_memory_settings'::regclass AND attname='skill_capture' AND NOT attisdropped")
+                .fetch_optional(&mut *migration).await?.is_some()
+        } else {
+            migration
+                .execute("UPDATE schema_migrations SET applied_at=applied_at WHERE version=16")
+                .await?;
+            sqlx::query("PRAGMA table_info(bot_memory_settings)")
+                .fetch_all(&mut *migration)
+                .await?
+                .iter()
+                .any(|row| {
+                    row.try_get::<String, _>("name")
+                        .is_ok_and(|name| name == "skill_capture")
+                })
+        };
+        if !skill_capture_exists {
+            sqlx::raw_sql(include_str!("../migrations/017_skill_capture_settings.sql"))
+                .execute(&mut *migration)
+                .await?;
+        }
+        let registration = self.sql("INSERT INTO schema_migrations(version,applied_at) VALUES(17,?) ON CONFLICT(version) DO NOTHING");
+        bind(&registration, vec![json!(now())])
+            .execute(&mut *migration)
+            .await?;
+        migration.commit().await?;
+        sqlx::raw_sql(include_str!("../migrations/018_bot_feishu.sql"))
+            .execute(&mut *connection)
+            .await?;
+        let registration = self.sql("INSERT INTO schema_migrations(version,applied_at) VALUES(18,?) ON CONFLICT(version) DO NOTHING");
+        bind(&registration, vec![json!(now())])
+            .execute(&mut *connection)
+            .await?;
         if self.postgres && !qdrant {
             connection
                 .execute("CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public")
@@ -134,6 +189,12 @@ impl Db {
         self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(8,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
         self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(9,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
         self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(10,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
+        self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(11,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
+        self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(12,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
+        self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(13,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
+        self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(14,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
+        self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(15,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
+        self.exec("INSERT INTO schema_migrations(version,applied_at) VALUES(16,?) ON CONFLICT(version) DO NOTHING", vec![json!(now())]).await?;
         Ok(())
     }
     pub async fn rows(&self, sql: &str, args: Vec<Value>) -> anyhow::Result<Vec<Record>> {

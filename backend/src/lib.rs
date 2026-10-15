@@ -5,14 +5,22 @@ pub mod api;
 pub mod auth;
 pub mod bot;
 pub mod bot_bridge;
+pub mod bot_cloud;
 pub mod bot_connection;
+pub mod bot_feishu;
+pub mod bot_knowledge;
+pub mod bot_memory;
+pub mod bot_skill_review;
 pub mod config;
+pub mod core_skill_registry;
 pub mod db;
 pub mod documents;
 pub mod error;
+pub mod harness;
 pub mod indexer;
 pub mod inspiration;
 pub mod mcp;
+pub mod memory_provider;
 pub mod models;
 pub mod org;
 pub mod personal;
@@ -23,6 +31,7 @@ pub mod seed;
 pub mod sso;
 pub mod storage;
 pub mod studio;
+pub mod studio_inputs;
 pub mod web;
 use axum::{
     extract::{DefaultBodyLimit, Request, State},
@@ -209,6 +218,42 @@ pub fn router(state: AppState) -> Router {
         .route("/api/studio/projects/{id}", get(studio::get_project))
         .route("/api/studio/chat", post(studio::chat))
         .route("/api/studio/assets/{id}", get(studio::asset))
+        .route(
+            "/api/studio/attachments",
+            post(studio_inputs::upload)
+                .layer(DefaultBodyLimit::max(studio_inputs::MAX_BYTES + 1_048_576)),
+        )
+        .route(
+            "/api/studio/attachments/{id}",
+            get(studio_inputs::read).delete(studio_inputs::remove),
+        )
+        .route(
+            "/api/studio/assets/{id}/reference",
+            post(studio_inputs::reference),
+        )
+        .route("/api/bot/harness", get(harness::status))
+        .route("/api/bot/harness/update", post(harness::update))
+        .route("/api/bot/cloud", get(bot_cloud::status))
+        .route("/api/bot/cloud/connect", post(bot_cloud::connect))
+        .route("/api/bot/cloud/heartbeat", post(bot_cloud::heartbeat))
+        .route("/api/bot/cloud/disconnect", post(bot_cloud::disconnect))
+        .route("/api/bot/cloud/files", get(bot_cloud::files))
+        .route("/api/bot/plugins/catalog", get(harness::catalog))
+        .route("/api/bot/plugins/install", post(harness::install))
+        .route(
+            "/api/bot/plugins/{id}",
+            axum::routing::delete(harness::remove),
+        )
+        .route("/api/bot/plugins/{id}/enable", post(harness::enable))
+        .route(
+            "/api/bot/plugins/{id}/config",
+            get(harness::configuration).post(harness::configure),
+        )
+        .route("/api/bot/plugins/marketplaces", post(harness::add_market))
+        .route(
+            "/api/bot/plugins/marketplaces/{id}",
+            axum::routing::delete(harness::remove_market),
+        )
         .route("/api/bot/devices", get(bot_bridge::devices))
         .route(
             "/api/bot/devices/{id}",
@@ -256,6 +301,8 @@ pub fn router(state: AppState) -> Router {
         .route("/api/bot/tasks/{id}/cancel", post(bot::cancel))
         .route("/api/bot/tasks/{id}/retry", post(bot::retry))
         .route("/api/bot/artifacts/{id}", get(bot::artifact))
+        .route("/api/bot/artifacts/{id}/preview", get(bot_cloud::preview))
+        .route("/api/bot/artifacts/{id}/render", get(bot_cloud::render))
         .route(
             "/api/bot/connectors",
             get(bot::connectors).post(bot::create_connector),
@@ -265,8 +312,62 @@ pub fn router(state: AppState) -> Router {
             axum::routing::delete(bot::delete_connector),
         )
         .route("/api/bot/connectors/{id}/test", post(bot::test_connector))
+        .route("/api/bot/connectors/feishu/status", get(bot_feishu::status))
+        .route("/api/bot/connectors/feishu/authorize", post(bot_feishu::authorize))
+        .route("/api/bot/connectors/feishu/callback", get(bot_feishu::callback).layer(SetResponseHeaderLayer::overriding(
+            header::REFERRER_POLICY,
+            HeaderValue::from_static("no-referrer"),
+        )))
+        .route("/api/bot/connectors/feishu/tools", get(bot_feishu::tools))
         .route("/api/bot/actions/{id}/approve", post(bot::approve))
         .route("/api/bot/actions/{id}/reject", post(bot::reject))
+        .route(
+            "/api/bot/memories",
+            get(bot_memory::list).post(bot_memory::create),
+        )
+        .route(
+            "/api/bot/memories/{id}",
+            axum::routing::put(bot_memory::update).delete(bot_memory::remove),
+        )
+        .route("/api/bot/memories/{id}/review", post(bot_memory::review))
+        .route("/api/bot/memories/forget", post(bot_memory::forget))
+        .route(
+            "/api/bot/memory/settings",
+            get(bot_memory::get_settings).put(bot_memory::save_settings),
+        )
+        .route("/api/bot/memory/providers", get(memory_provider::status))
+        .route(
+            "/api/bot/skill-candidates",
+            get(bot_skill_review::list).post(bot_skill_review::create),
+        )
+        .route(
+            "/api/bot/skill-candidates/{id}",
+            axum::routing::put(bot_skill_review::update).delete(bot_skill_review::remove),
+        )
+        .route(
+            "/api/bot/skill-candidates/{id}/review",
+            post(bot_skill_review::review),
+        )
+        .route(
+            "/api/bot/knowledge/assets",
+            get(bot_knowledge::list).post(bot_knowledge::create),
+        )
+        .route(
+            "/api/bot/knowledge/assets/{id}",
+            get(bot_knowledge::get).delete(bot_knowledge::delete),
+        )
+        .route(
+            "/api/bot/knowledge/assets/{id}/sync",
+            post(bot_knowledge::sync),
+        )
+        .route(
+            "/api/bot/knowledge/assets/{id}/search",
+            post(bot_knowledge::search),
+        )
+        .route(
+            "/api/bot/knowledge/assets/{id}/tools",
+            post(bot_knowledge::tools),
+        )
         .route("/api/bot/skills", get(bot::skills).post(bot::create_skill))
         .route(
             "/api/bot/skills/{id}",
@@ -310,7 +411,10 @@ pub fn router(state: AppState) -> Router {
             header::CACHE_CONTROL,
             HeaderValue::from_static("no-store"),
         ))
-        .layer(TraceLayer::new_for_http())
+        .layer(TraceLayer::new_for_http().make_span_with(|request: &Request| {
+            // OAuth codes/state and other sensitive query values never enter spans.
+            tracing::info_span!("http_request", method = %request.method(), path = %request.uri().path())
+        }))
         .with_state(state)
 }
 async fn health(State(state): State<AppState>) -> Response {
