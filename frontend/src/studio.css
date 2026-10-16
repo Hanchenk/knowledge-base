@@ -262,6 +262,11 @@
   flex-shrink: 0;
   height: 35px;
   margin: 0;
+  /* 固定高度时清掉全局 input/select 继承来的 11px 垂直内边距，
+     否则内容区只剩 11px，12px 中文被上下裁切（与 .studio-option-field > select 保持一致） */
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1.2;
   font-size: 12px;
 }
 .studio-use-reference {
