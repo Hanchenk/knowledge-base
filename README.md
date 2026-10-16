@@ -206,6 +206,7 @@ python3 scripts/generate_openapi.py
 | 记忆、技能与知识资产 | [记忆与经验](docs/agent-memory-integration.md) · [Wiki / CodeGraph](docs/wiki-codegraph-integration.md) |
 | 飞书与创作 | [飞书连接器及当前阻点](docs/feishu-connector.md) · [创作台](docs/studio.md) · [创作台升级](docs/creative-harness-upgrade.md) |
 | 部署与验收 | [部署运维](docs/deployment.md) · [验收说明](docs/verification.md) · [飞书最新发布记录](docs/feishu-connector-production-deployment.md) |
+| 编码与协作规范 | [项目记忆](项目记忆.md) · [Agent 协作约定](AGENTS.md) |
 
 ## 目录
 
@@ -222,3 +223,9 @@ deploy/         TLS 入口和对象存储权限配置
 ## 当前边界
 
 飞书目前实现只读连接流程，真实授权尚未联通；第三方知识源的持续同步、钉钉 / SharePoint 集成、私有仓库 CodeGraph、SCIM、行业 reranker、WORM 合规存储、原生图像向量与高负载压测尚未提供。云端文件自动导入限制为单文件 5 MB、每次合计 30 MB / 最多 30 份；插件网络与执行能力的边界见 Harness 文档，各解析格式的支持边界见架构说明。
+
+## 开源许可
+
+本项目代码采用 [MIT License](LICENSE)，允许商用、修改和分发，使用时须保留版权及许可声明。
+
+第三方代码、依赖及资源遵循各自的许可证与声明。内置 Bloub SVG 引擎的原作者信息与 MIT 声明保留在 [第三方许可证](frontend/src/vendor/bloub/LICENSE) 和 [来源说明](frontend/src/vendor/bloub/README.md) 中。
