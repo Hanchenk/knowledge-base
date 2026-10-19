@@ -4,12 +4,10 @@ import {
   Brush,
   Check,
   ChevronDown,
-  CircleAlert,
   Download,
   Expand,
   Eraser,
   Film,
-  FileText,
   FolderOpen,
   Globe2,
   ImagePlus,
@@ -25,16 +23,12 @@ import {
   SlidersHorizontal,
   Sparkles,
   WandSparkles,
-  Wrench,
   X,
 } from "lucide-react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { api, post, bytes } from "./api";
 import { randomUuid } from "./ids";
 import { ImagePreview } from "./ImagePreview";
 import { ProductLogo } from "./ProductLogo";
-import { visibleCitationSources } from "./citation-sources";
 import { StudioOptionsPopover } from "./StudioOptionsPopover";
 import { StudioAttachments, useStudioAttachments } from "./StudioAttachments";
 import { StudioMaskEditor } from "./StudioMaskEditor";
@@ -48,7 +42,13 @@ import {
   type StudioUploadPolicy,
 } from "./studio-api";
 import "./studio.css";
-import type { Message, User } from "./types";
+import type { User } from "./types";
+import {
+  StudioConversation,
+  type StudioMessage,
+  type StudioJob as Job,
+  type StudioAsset as Asset,
+} from "./StudioConversation";
 import type { Feedback } from "./App";
 
 type Capabilities = {
@@ -67,33 +67,14 @@ type Capabilities = {
   image: { enabled: boolean; model: string };
   video: { enabled: boolean; model: string };
 };
-type Job = {
-  id: string;
-  kind: "image" | "video";
-  prompt: string;
-  model: string;
-  size: string;
-  seconds: number;
-  status: string;
-  progress: number;
-  error?: string;
-  created_at: number;
-};
-type Asset = {
-  id: string;
-  job_id: string;
-  kind: string;
-  mime_type: string;
-  size: number;
-};
 type ProjectView = {
   project: { id: string; title: string };
-  messages: (Message & { attachments?: StudioAttachment[] })[];
+  messages: StudioMessage[];
   jobs: Job[];
   assets: Asset[];
 };
 const STYLES = [
-  { id: "", name: "自动风格", color: "#e9eef8" },
+  { id: "", name: "不指定风格", color: "#e9eef8" },
   { id: "portrait", name: "人像摄影", color: "#d9c4af" },
   { id: "cinematic", name: "电影写真", color: "#2e4b62" },
   { id: "chinese", name: "中国风", color: "#a75944" },
@@ -163,6 +144,7 @@ const readDraft = (userId: string): Record<string, unknown> => {
     return {};
   }
 };
+/** 管理私人创作对话、乐观消息与生成作品，发送后立即进入对话。 */
 export function StudioPage({
   user,
   feedback,
@@ -257,6 +239,12 @@ export function StudioPage({
   }, [mainImage?.id, mask]);
   const closeOptions = useCallback(() => setOptions(undefined), []);
   const [busy, setBusy] = useState(false);
+  const sending = useRef(false);
+  const [optimistic, setOptimistic] = useState<StudioMessage>();
+  const [worksOpen, setWorksOpen] = useState(false);
+  const conversationActive = !!selected || !!optimistic;
+  const conversationScroll = useRef<HTMLDivElement>(null);
+  const followConversation = useRef(true);
   const [preview, setPreview] = useState<{ asset: Asset; prompt: string }>();
   const preferenceKey = `atlas:studio:models:${user.id}`;
   const [modelIds, setModelIds] = useState<{ image: string; video: string }>(
@@ -381,8 +369,10 @@ export function StudioPage({
     (kind === "auto"
       ? !!(selectedModel("image") || selectedModel("video"))
       : !!selectedModel(kind));
+  /** 先展示原始消息，再调用后台；失败保留请求编号，且不覆盖等待期间的新草稿。 */
   const ask = async () => {
     if (
+      sending.current ||
       busy ||
       !submittedPrompt ||
       !ready ||
@@ -394,50 +384,76 @@ export function StudioPage({
     )
       return;
     const original = prompt;
+    const parameters = {
+      prompt: submittedPrompt,
+      kind,
+      image_size: imageSize,
+      video_size: videoSize,
+      seconds,
+      allow_web: allowWeb,
+      attachment_ids: attachments.ready.map((row) => row.id),
+      operation,
+      style,
+      image_quality: quality,
+      mask_attachment_id: maskValid ? mask?.attachment.id : undefined,
+      image_model_id:
+        kind !== "video" ? modelIds.image || undefined : undefined,
+      video_model_id:
+        kind !== "image" ? modelIds.video || undefined : undefined,
+    };
+    const signature = JSON.stringify({ ...parameters, project_id: selected });
+    if (request.current?.signature !== signature)
+      request.current = { signature, id: randomUuid() };
+    const requestId = request.current.id;
+    sending.current = true;
+    followConversation.current = true;
+    setWorksOpen(false);
+    setOptimistic({
+      id: `local-${requestId}`,
+      request_id: requestId,
+      role: "user",
+      content: submittedPrompt,
+      citations: [],
+      attachments: [...attachments.ready],
+    });
     setBusy(true);
     setError("");
     setPrompt("");
     let projectId = selected;
     try {
       if (!projectId) {
-        const created = await post<{ id: string }>("/api/studio/projects", {
-          title: original || currentOperation.name,
-        });
+        const created = await post<{ id: string; title: string }>(
+          "/api/studio/projects",
+          {
+            title: original || currentOperation.name,
+          },
+        );
         projectId = created.id;
+        // 创建成功即更新历史选项，不必等待整次回复完成。
+        setProjects((history) => [
+          created,
+          ...history.filter((item) => item.id !== created.id),
+        ]);
         current.current = projectId;
         setSelected(projectId);
       }
-      const parameters = {
-        project_id: projectId,
-        prompt: submittedPrompt,
-        kind,
-        image_size: imageSize,
-        video_size: videoSize,
-        seconds,
-        allow_web: allowWeb,
-        attachment_ids: attachments.ready.map((row) => row.id),
-        operation,
-        style,
-        image_quality: quality,
-        mask_attachment_id: maskValid ? mask?.attachment.id : undefined,
-        image_model_id:
-          kind !== "video" ? modelIds.image || undefined : undefined,
-        video_model_id:
-          kind !== "image" ? modelIds.video || undefined : undefined,
+      // 新会话创建后更新签名，失败重试继续使用相同编号，避免重复计费。
+      request.current = {
+        signature: JSON.stringify({ ...parameters, project_id: projectId }),
+        id: requestId,
       };
-      const signature = JSON.stringify(parameters);
-      if (request.current?.signature !== signature)
-        request.current = { signature, id: randomUuid() };
       await post("/api/studio/chat", {
         ...parameters,
-        request_id: request.current.id,
+        project_id: projectId,
+        request_id: requestId,
       });
       request.current = undefined;
       setMask(undefined);
       attachments.clear();
     } catch (error) {
       setError((error as Error).message);
-      setPrompt(original);
+      // 用户可在等待期间输入下一条消息，失败时只恢复空白草稿。
+      setPrompt((draft) => draft || original);
     } finally {
       if (projectId) {
         try {
@@ -449,6 +465,7 @@ export function StudioPage({
           setLoadError((error as Error).message);
         }
       }
+      sending.current = false;
       setBusy(false);
       void refresh().catch((error) => setLoadError((error as Error).message));
     }
@@ -537,7 +554,10 @@ export function StudioPage({
       )}
     </div>
   );
+  /** 开始全新创作并清理上次会话的本地消息和作品筛选。 */
   const newCreation = () => {
+    setOptimistic(undefined);
+    setWorksOpen(false);
     setSelected("");
     setView(undefined);
     setPrompt("");
@@ -608,13 +628,41 @@ export function StudioPage({
       </select>
     </div>
   );
-  const visibleMessages = view?.messages.map((message) => ({
-    ...message,
-    citedSources: visibleCitationSources(message.content, message.citations)
-      .citations,
-  }));
+  // 服务端消息到达后去掉乐观副本；兼容尚无 request_id 的历史记录。
+  const optimisticVisible =
+    optimistic &&
+    !view?.messages.some(
+      (message) =>
+        message.request_id === optimistic.request_id ||
+        (message.role === "user" &&
+          !message.request_id &&
+          message.content === optimistic.content),
+    )
+      ? optimistic
+      : undefined;
+  const conversationMessages = [
+    ...(view?.messages || []),
+    ...(optimisticVisible ? [optimisticVisible] : []),
+  ];
+  /** 服务端确认消息后清理乐观副本，失败且未落库时继续保留原话。 */
+  useEffect(() => {
+    if (!busy && optimistic && !optimisticVisible) setOptimistic(undefined);
+  }, [busy, optimistic, optimisticVisible]);
+  /** 仅在用户接近底部时跟随新消息，避免打断阅读较早的内容。 */
+  useEffect(() => {
+    const container = conversationScroll.current;
+    if (container && followConversation.current)
+      container.scrollTop = container.scrollHeight;
+  }, [view, optimistic, busy]);
+  /** 按需打开作品列表后定位到列表，保持输入栏固定。 */
+  useEffect(() => {
+    if (worksOpen)
+      works.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [worksOpen]);
   return (
-    <div className={`studio-layout ${historyOpen ? "history-open" : ""}`}>
+    <div
+      className={`studio-layout ${historyOpen ? "history-open" : ""} ${conversationActive ? "is-conversation" : ""}`}
+    >
       <aside className="studio-history" id="studio-history">
         <button className="button" disabled={busy} onClick={newCreation}>
           <Plus size={16} />
@@ -627,7 +675,10 @@ export function StudioPage({
             className={`history-item ${selected === project.id ? "active" : ""}`}
             disabled={busy}
             onClick={() => {
+              /** 切换历史时清理本地占位，避免显示上一个会话的消息。 */
               if (selected === project.id) return;
+              setOptimistic(undefined);
+              setWorksOpen(false);
               setSelected(project.id);
               setView(undefined);
               setError("");
@@ -650,6 +701,9 @@ export function StudioPage({
           value={selected}
           disabled={busy}
           onChange={(event) => {
+            /** 移动端切换创作记录时重置本地对话状态。 */
+            setOptimistic(undefined);
+            setWorksOpen(false);
             setSelected(event.target.value);
             setView(undefined);
             setPrompt("");
@@ -679,7 +733,7 @@ export function StudioPage({
             <strong>创作台</strong>
           </div>
           <div className="studio-heading-actions">
-            {selected && (
+            {conversationActive && (
               <button
                 className="icon-button"
                 aria-label="新的创作"
@@ -691,12 +745,16 @@ export function StudioPage({
             )}
             <button
               className="button studio-works-link"
-              onClick={() =>
-                works.current?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                })
-              }
+              onClick={() => {
+                /** 在对话内按需展开作品，在首页定位最近作品。 */
+                if (conversationActive) setWorksOpen((open) => !open);
+                else
+                  works.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+              }}
+              aria-expanded={conversationActive ? worksOpen : undefined}
             >
               <FolderOpen size={15} />
               我的作品
@@ -723,7 +781,7 @@ export function StudioPage({
             先启用支持工具调用的问答模型，开始与创作助手协作。
             {user.role === "admin" && (
               <button className="text-button" onClick={onConfigureAgent}>
-                配置主智能体
+                配置对话模型
               </button>
             )}
           </div>
@@ -743,17 +801,155 @@ export function StudioPage({
             </div>
           )}
         <div className="studio-content">
-          <div className={`studio-welcome ${selected ? "continuing" : ""}`}>
-            <h1>
-              <ProductLogo decorative />
-              {selected ? view?.project.title || "继续创作" : "AI 创作"}
-            </h1>
-            <p>
-              {selected
-                ? "从一个新想法出发，继续完善你的作品"
-                : "让想法，成为作品。"}
-            </p>
-          </div>
+          {!conversationActive && (
+            <div className={`studio-welcome ${selected ? "continuing" : ""}`}>
+              <h1>
+                <ProductLogo decorative />
+                {selected ? view?.project.title || "继续创作" : "AI 创作"}
+              </h1>
+              <p>
+                {selected
+                  ? "从一个新想法出发，继续完善你的作品"
+                  : "让想法，成为作品。"}
+              </p>
+            </div>
+          )}
+          {conversationActive && (
+            <div
+              className="studio-conversation"
+              ref={conversationScroll}
+              onScroll={(event) => {
+                /** 记录阅读位置，向上浏览时暂停自动滚动。 */
+                const container = event.currentTarget;
+                followConversation.current =
+                  container.scrollHeight -
+                    container.scrollTop -
+                    container.clientHeight <
+                  80;
+              }}
+            >
+              <StudioConversation
+                messages={conversationMessages}
+                jobs={view?.jobs || []}
+                assets={view?.assets || []}
+                busyRequestId={busy ? optimistic?.request_id : undefined}
+                renderAsset={renderAsset}
+                onDocument={onDocument}
+              />
+              {worksOpen && !!view?.jobs.length && (
+                <div className="studio-gallery" ref={works}>
+                  <div className="section-heading">
+                    <h2>
+                      作品与任务 <span>{view.jobs.length}</span>
+                    </h2>
+                    {pending && (
+                      <span>
+                        <LoaderCircle size={14} className="spin" />
+                        自动更新进度
+                      </span>
+                    )}
+                  </div>
+                  {workControls}
+                  <div className="studio-art-grid">
+                    {filteredJobs.map((job) => {
+                      const assets = view.assets.filter(
+                        (asset) => asset.job_id === job.id,
+                      );
+                      return (
+                        <article className="studio-art-card" key={job.id}>
+                          <div className="studio-art-heading">
+                            <strong>
+                              {job.kind === "image" ? (
+                                <ImagePlus size={15} />
+                              ) : (
+                                <Film size={15} />
+                              )}{" "}
+                              {job.kind === "image" ? "图片作品" : "视频作品"}
+                            </strong>
+                            <span className={`studio-job-status ${job.status}`}>
+                              {{
+                                queued: "等待生成",
+                                running: "生成中",
+                                completed: "已完成",
+                                failed: "生成失败",
+                              }[job.status] || job.status}
+                            </span>
+                          </div>
+                          {assets.map((asset) =>
+                            renderAsset(asset, job.prompt),
+                          )}
+                          {!assets.length && (
+                            <div
+                              className={`studio-generation ${job.status === "failed" ? "failed" : ""}`}
+                            >
+                              {job.status === "failed" ? (
+                                <RefreshCw size={25} />
+                              ) : job.status === "completed" ? (
+                                <Check size={25} />
+                              ) : (
+                                <LoaderCircle size={25} className="spin" />
+                              )}
+                              <span>
+                                {job.error ||
+                                  (job.status === "queued"
+                                    ? "正在生成，请稍候"
+                                    : job.status === "completed"
+                                      ? "作品已生成"
+                                      : "正在生成，请稍候")}
+                              </span>
+                              {job.kind === "video" &&
+                                job.status === "running" && (
+                                  <progress value={job.progress} max={100} />
+                                )}
+                            </div>
+                          )}
+                          <div className="studio-art-meta">
+                            <span>
+                              {job.size}
+                              {job.seconds ? ` · ${job.seconds} 秒` : ""}
+                            </span>
+                            <span title={job.model}>{job.model}</span>
+                          </div>
+                          <details className="studio-prompt">
+                            <summary>查看提示词</summary>
+                            <p>{job.prompt}</p>
+                          </details>
+                          <button
+                            className="text-button"
+                            disabled={busy}
+                            onClick={() => {
+                              setPrompt(job.prompt);
+                              setKind(job.kind);
+                              setOperation("generate");
+                              if (job.kind === "image") setImageSize(job.size);
+                              else {
+                                setVideoSize(job.size);
+                                setSeconds(job.seconds || 4);
+                              }
+                              setError("");
+                              request.current = undefined;
+                              promptInput.current?.focus();
+                              promptInput.current?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                              });
+                            }}
+                          >
+                            以此为基础继续创作
+                          </button>
+                        </article>
+                      );
+                    })}
+                  </div>
+                  {!filteredJobs.length && (
+                    <p className="studio-gallery-state">
+                      没有符合条件的作品或任务。
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           <div className="studio-compose-wrap">
             <form
               className={`studio-composer ${dragging ? "is-dragging" : ""}`}
@@ -823,7 +1019,7 @@ export function StudioPage({
                 </div>
               )}
               <StudioAttachments
-                items={attachments.items}
+                items={busy ? [] : attachments.items}
                 disabled={busy}
                 onRemove={attachments.remove}
                 onRetry={(item) => void attachments.retry(item)}
@@ -859,7 +1055,6 @@ export function StudioPage({
                 maxLength={4000}
                 rows={2}
                 value={prompt}
-                disabled={busy}
                 onChange={(event) => setPrompt(event.target.value)}
                 onKeyDown={(event) => {
                   if (
@@ -890,7 +1085,7 @@ export function StudioPage({
                 <StudioOptionsPopover
                   label="创作风格"
                   summary={
-                    STYLES.find((row) => row.id === style)?.name || "自动风格"
+                    STYLES.find((row) => row.id === style)?.name || "不指定风格"
                   }
                   icon={<Palette size={14} />}
                   className="studio-style-trigger"
@@ -972,7 +1167,7 @@ export function StudioPage({
                       { kind: "video" as const, name: "视频", icon: Film },
                       {
                         kind: "auto" as const,
-                        name: "Agent 自主选择",
+                        name: "智能选择",
                         icon: Sparkles,
                       },
                     ].map((item) => (
@@ -983,7 +1178,7 @@ export function StudioPage({
                         aria-label={item.name}
                         title={
                           item.kind === "auto"
-                            ? "让 Agent 自主选择图片或视频工具"
+                            ? "根据对话选择图片或视频"
                             : item.name
                         }
                         className={kind === item.kind ? "active" : ""}
@@ -1205,11 +1400,7 @@ export function StudioPage({
                           .length > 1)
                     }
                   >
-                    {busy ? (
-                      <LoaderCircle size={18} className="spin" />
-                    ) : (
-                      <ArrowUp size={21} />
-                    )}
+                    <ArrowUp size={21} />
                   </button>
                 </div>
               </div>
@@ -1256,39 +1447,42 @@ export function StudioPage({
               生成会调用所选服务商，可能产生费用。作品自动保存。
             </small>
           </div>
-          <div
-            className="studio-edit-tools"
-            role="group"
-            aria-label="图片创作工具"
-          >
-            {OPERATIONS.map((item) => (
-              <button
-                type="button"
-                key={item.id}
-                aria-pressed={operation === item.id}
-                className={operation === item.id ? "active" : ""}
-                disabled={
-                  busy || (item.id !== "generate" && !capabilities?.image_edit)
-                }
-                title={
-                  item.id !== "generate" && !capabilities?.image_edit
-                    ? "当前服务尚未启用图片编辑能力"
-                    : item.description
-                }
-                onClick={() => {
-                  setOperation(item.id);
-                  if (item.id !== "generate") setKind("image");
-                  setError("");
-                  promptInput.current?.focus();
-                }}
-              >
-                <item.icon size={18} />
-                <span>{item.name}</span>
-              </button>
-            ))}
-          </div>
+          {!conversationActive && (
+            <div
+              className="studio-edit-tools"
+              role="group"
+              aria-label="图片创作工具"
+            >
+              {OPERATIONS.map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  aria-pressed={operation === item.id}
+                  className={operation === item.id ? "active" : ""}
+                  disabled={
+                    busy ||
+                    (item.id !== "generate" && !capabilities?.image_edit)
+                  }
+                  title={
+                    item.id !== "generate" && !capabilities?.image_edit
+                      ? "当前服务尚未启用图片编辑能力"
+                      : item.description
+                  }
+                  onClick={() => {
+                    setOperation(item.id);
+                    if (item.id !== "generate") setKind("image");
+                    setError("");
+                    promptInput.current?.focus();
+                  }}
+                >
+                  <item.icon size={18} />
+                  <span>{item.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
-          {!selected ? (
+          {!conversationActive && (
             <>
               <div className="studio-inspirations" aria-label="创作灵感">
                 {[
@@ -1400,6 +1594,9 @@ export function StudioPage({
                               className="text-button"
                               disabled={busy}
                               onClick={() => {
+                                /** 从最近作品进入对应对话，清理上次的临时消息。 */
+                                setOptimistic(undefined);
+                                setWorksOpen(false);
                                 setSelected(recent.project.id);
                                 setView(undefined);
                                 setError("");
@@ -1432,262 +1629,6 @@ export function StudioPage({
                 )}
               </div>
             </>
-          ) : (
-            <>
-              {!!view?.jobs.length && (
-                <div className="studio-gallery" ref={works}>
-                  <div className="section-heading">
-                    <h2>
-                      作品与任务 <span>{view.jobs.length}</span>
-                    </h2>
-                    {pending && (
-                      <span>
-                        <LoaderCircle size={14} className="spin" />
-                        自动更新进度
-                      </span>
-                    )}
-                  </div>
-                  {workControls}
-                  <div className="studio-art-grid">
-                    {filteredJobs.map((job) => {
-                      const assets = view.assets.filter(
-                        (asset) => asset.job_id === job.id,
-                      );
-                      return (
-                        <article className="studio-art-card" key={job.id}>
-                          <div className="studio-art-heading">
-                            <strong>
-                              {job.kind === "image" ? (
-                                <ImagePlus size={15} />
-                              ) : (
-                                <Film size={15} />
-                              )}{" "}
-                              {job.kind === "image" ? "图片作品" : "视频作品"}
-                            </strong>
-                            <span className={`studio-job-status ${job.status}`}>
-                              {{
-                                queued: "等待生成",
-                                running: "生成中",
-                                completed: "已完成",
-                                failed: "生成失败",
-                              }[job.status] || job.status}
-                            </span>
-                          </div>
-                          {assets.map((asset) =>
-                            renderAsset(asset, job.prompt),
-                          )}
-                          {!assets.length && (
-                            <div
-                              className={`studio-generation ${job.status === "failed" ? "failed" : ""}`}
-                            >
-                              {job.status === "failed" ? (
-                                <RefreshCw size={25} />
-                              ) : job.status === "completed" ? (
-                                <Check size={25} />
-                              ) : (
-                                <LoaderCircle size={25} className="spin" />
-                              )}
-                              <span>
-                                {job.error ||
-                                  (job.status === "queued"
-                                    ? "已提交任务，等待生成"
-                                    : job.status === "completed"
-                                      ? "作品已生成"
-                                      : "正在生成，请稍候")}
-                              </span>
-                              {job.kind === "video" &&
-                                job.status === "running" && (
-                                  <progress value={job.progress} max={100} />
-                                )}
-                            </div>
-                          )}
-                          <div className="studio-art-meta">
-                            <span>
-                              {job.size}
-                              {job.seconds ? ` · ${job.seconds} 秒` : ""}
-                            </span>
-                            <span title={job.model}>{job.model}</span>
-                          </div>
-                          <details className="studio-prompt">
-                            <summary>查看提示词</summary>
-                            <p>{job.prompt}</p>
-                          </details>
-                          <button
-                            className="text-button"
-                            disabled={busy}
-                            onClick={() => {
-                              setPrompt(job.prompt);
-                              setKind(job.kind);
-                              setOperation("generate");
-                              if (job.kind === "image") setImageSize(job.size);
-                              else {
-                                setVideoSize(job.size);
-                                setSeconds(job.seconds || 4);
-                              }
-                              setError("");
-                              request.current = undefined;
-                              promptInput.current?.focus();
-                              promptInput.current?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center",
-                              });
-                            }}
-                          >
-                            以此为基础继续创作
-                          </button>
-                        </article>
-                      );
-                    })}
-                  </div>
-                  {!filteredJobs.length && (
-                    <p className="studio-gallery-state">
-                      没有符合条件的作品或任务。
-                    </p>
-                  )}
-                </div>
-              )}
-              <details className="studio-dialogue">
-                <summary>
-                  <span className="studio-dialogue-title">
-                    <MessageSquare size={17} aria-hidden="true" />
-                    <strong>创作对话</strong>
-                    <span className="studio-dialogue-count">
-                      {view?.messages.length || 0} 条
-                    </span>
-                  </span>
-                  <span className="studio-dialogue-toggle">
-                    <span className="when-closed">展开</span>
-                    <span className="when-open">收起</span>
-                    <ChevronDown size={15} aria-hidden="true" />
-                  </span>
-                </summary>
-                <div className="studio-message-list">
-                  {visibleMessages?.map((message) => (
-                    <article
-                      key={message.id}
-                      className={`studio-message ${message.role}`}
-                    >
-                      <div className="studio-message-avatar" aria-hidden="true">
-                        {message.role === "assistant" ? (
-                          <ProductLogo decorative />
-                        ) : (
-                          <span>{user.name.slice(-1)}</span>
-                        )}
-                      </div>
-                      <div className="studio-message-body">
-                        <small className="studio-message-author">
-                          {message.role === "assistant" ? "创作助手" : "你"}
-                        </small>
-                        <div className="markdown">
-                          <Markdown remarkPlugins={[remarkGfm]}>
-                            {message.content}
-                          </Markdown>
-                        </div>
-                        {!!message.attachments?.length && (
-                          <div
-                            className="studio-message-attachments"
-                            aria-label="本轮参考文件"
-                          >
-                            {message.attachments.map((attachment) => (
-                              <a
-                                key={attachment.id}
-                                href={studioAttachmentUrl(attachment.id)}
-                                target="_blank"
-                                rel="noreferrer"
-                                title={`查看 ${attachment.name}`}
-                              >
-                                {attachment.kind === "image" ? (
-                                  <img
-                                    src={studioAttachmentUrl(attachment.id)}
-                                    alt={attachment.name}
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <FileText size={18} />
-                                )}
-                                <span>{attachment.name}</span>
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                        {!!message.citedSources.length && (
-                          <div
-                            className="studio-evidence"
-                            aria-label="引用资料"
-                          >
-                            {message.citedSources.map((citation) => (
-                              <button
-                                key={citation.chunk_id}
-                                onClick={() => onDocument(citation.document_id)}
-                              >
-                                [{citation.citation_number}] {citation.title} ·
-                                第 {citation.page} 页
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {!!message.tool_calls?.length && (
-                          <details className="tool-trace studio-tools">
-                            <summary>
-                              <Wrench size={13} aria-hidden="true" />
-                              <span>
-                                工具调用 · {message.tool_calls.length} 次
-                              </span>
-                              <ChevronDown size={13} aria-hidden="true" />
-                            </summary>
-                            <ul>
-                              {message.tool_calls.map((tool, index) => (
-                                <li
-                                  key={index}
-                                  className={
-                                    tool.success ? "success" : "failed"
-                                  }
-                                >
-                                  <span className="studio-tool-name">
-                                    {tool.success ? (
-                                      <Check size={13} aria-hidden="true" />
-                                    ) : (
-                                      <CircleAlert
-                                        size={13}
-                                        aria-hidden="true"
-                                      />
-                                    )}
-                                    {{
-                                      generate_image: "图片生成",
-                                      generate_video: "视频生成",
-                                      creation_status: "生成进度",
-                                      knowledge_search: "知识库检索",
-                                      knowledge_read: "文档读取",
-                                      knowledge_spaces: "空间查询",
-                                      web_search: "联网搜索",
-                                      web_fetch: "网页读取",
-                                    }[tool.name] || tool.name}
-                                  </span>
-                                  <span className="studio-tool-status">
-                                    {tool.success ? "已完成调用" : "调用失败"}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          </details>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                  {!view?.messages.length && (
-                    <p className="studio-dialogue-empty">
-                      暂无对话，提交创作要求后会显示在这里。
-                    </p>
-                  )}
-                </div>
-              </details>
-            </>
-          )}
-          {busy && (
-            <p className="studio-thinking" role="status">
-              <LoaderCircle size={15} className="spin" />
-              Pi Agent 正在整理要求并调用创作工具…
-            </p>
           )}
         </div>
       </section>

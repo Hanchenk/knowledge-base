@@ -1949,6 +1949,7 @@ async fn media_model_discovery_preserves_secrets_revisions_and_legacy_settings()
 }
 
 #[tokio::test]
+/// 验证创作策略传入模型、作品与对话请求关联，以及私有媒体和重试幂等。
 async fn studio_pi_tools_generate_persisted_media_with_private_assets_and_idempotency() {
     use axum::{http::HeaderMap, response::IntoResponse};
     use base64::{engine::general_purpose::STANDARD, Engine};
@@ -2128,6 +2129,8 @@ async fn studio_pi_tools_generate_persisted_media_with_private_assets_and_idempo
     assert_eq!(view["jobs"].as_array().unwrap().len(), 1);
     assert_eq!(view["jobs"][0]["status"], "completed");
     assert_eq!(view["jobs"][0]["model"], "image-secondary");
+    assert_eq!(view["jobs"][0]["request_id"], input["request_id"]);
+    assert_eq!(view["messages"][0]["request_id"], input["request_id"]);
     assert_eq!(view["messages"].as_array().unwrap().len(), 2);
     assert_eq!(view["messages"][1]["tool_calls"][0]["success"], true);
     assert!(!view.to_string().contains("media-fixture-secret"));
@@ -2291,6 +2294,10 @@ async fn studio_pi_tools_generate_persisted_media_with_private_assets_and_idempo
     assert!(projects.as_array().unwrap().is_empty());
     {
         let calls = agent_calls.lock().unwrap();
+        let system = calls[0]["messages"][0]["content"].as_str().unwrap();
+        assert!(system.contains("默认将用户原始描述直接作为生成提示词"));
+        assert!(system.contains("只有用户明确提出优化提示词的需求时才优化"));
+        assert!(system.contains("用户闲聊、提问、讨论方案或仅要求优化提示词时，直接回答"));
         assert!(calls[0]["tools"]
             .as_array()
             .unwrap()

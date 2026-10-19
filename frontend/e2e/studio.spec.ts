@@ -52,6 +52,7 @@ async function login(page: Page, member = false) {
   await expect(page.getByRole("heading", { name: /欢迎回来/ })).toBeVisible();
 }
 
+/** 验证模型选择、失败重试、媒体预览与按轮次展示的创作历史。 */
 test("studio discovers models, tracks image/video jobs, restores history and renders private media", async ({
   page,
 }) => {
@@ -210,6 +211,7 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
         const key = `${input.kind}-${jobs.length}`;
         messages.push({
           id: `user-${key}`,
+          request_id: input.request_id,
           role: "user",
           content: input.prompt,
           citations: [],
@@ -237,6 +239,7 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
       }
       messages.push({
         id: `assistant-${jobs.length}`,
+        request_id: input.request_id,
         role: "assistant",
         content: "已提交任务，作品区将显示进度。",
         citations: [],
@@ -352,7 +355,7 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
   const initialComposer = (await page
     .locator(".studio-composer")
     .boundingBox())!;
-  for (const name of ["视频", "Agent 自主选择", "生图"]) {
+  for (const name of ["视频", "智能选择", "生图"]) {
     await page.getByRole("button", { name, exact: true }).click();
     expect(
       (await page.locator(".studio-composer").boundingBox())!.height,
@@ -372,7 +375,7 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
   expect(jobs.length).toBe(1);
   expect(chatRequests[0].image_model_id).toBe(imageAlternative);
   expect(jobs[0].model).toBe("image-alternative");
-  await expect(page.getByText("图片作品", { exact: true })).toBeVisible();
+  await expect(page.locator(".studio-dialogue")).toBeVisible();
   const image = page.locator(".studio-asset img");
   await expect(image).toBeVisible();
   await expect
@@ -455,17 +458,13 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
   await page.keyboard.press("Escape");
   await expect(videoPreview).toHaveCount(0);
   const dialogue = page.locator(".studio-dialogue");
-  await dialogue.locator(":scope > summary").click();
   await expect(dialogue.locator(".studio-message.user").first()).toContainText(
     "蓝色企业海报",
   );
   await expect(
     dialogue.locator(".studio-message.assistant").last(),
   ).toContainText("已提交任务");
-  await dialogue.locator(".studio-tools").last().locator("summary").click();
-  await expect(dialogue.locator(".studio-tools").last()).toContainText(
-    "视频生成",
-  );
+  await expect(dialogue.locator(".studio-tools")).toHaveCount(0);
   const firstUser = (await dialogue
     .locator(".studio-message.user .markdown")
     .first()
@@ -476,21 +475,15 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
     .boundingBox())!;
   expect(firstUser.x).toBeGreaterThan(firstAssistant.x);
   expect((await dialogue.boundingBox())!.x).toBeCloseTo(
-    (await page.locator(".studio-gallery").boundingBox())!.x,
+    (await page.locator(".studio-compose-wrap").boundingBox())!.x,
   );
   await page.screenshot({
-    path: "../docs/screenshots/studio-dialogue.png",
+    path: "test-results/studio-dialogue.png",
     fullPage: true,
   });
-  await dialogue.locator(":scope > summary").focus();
-  await page.keyboard.press("Enter");
-  await expect(dialogue).not.toHaveAttribute("open", "");
-  await page.locator(".studio-gallery").scrollIntoViewIfNeeded();
-  expect(
-    (await page.locator(".studio-compose-wrap").boundingBox())!.y,
-  ).toBeLessThan(1000);
+  await expect(page.getByLabel("创作要求")).toBeEditable();
   await page.screenshot({
-    path: "../docs/screenshots/studio.png",
+    path: "test-results/studio.png",
     fullPage: true,
   });
   const download = page.waitForEvent("download");
@@ -512,7 +505,7 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
     .getByRole("button", { name: /继续创作/ })
     .click();
   await expect(
-    page.locator(".studio-gallery .studio-asset video"),
+    page.locator(".studio-dialogue .studio-asset video"),
   ).toBeVisible();
   await page.getByRole("button", { name: "打开创作记录" }).click();
   await page
@@ -556,7 +549,6 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
   expect((await previewVideo.boundingBox())!.width).toBeLessThanOrEqual(390);
   await page.getByRole("button", { name: "关闭视频预览" }).click();
   await expect(videoPreview).toHaveCount(0);
-  await dialogue.locator(":scope > summary").click();
   await expect(
     dialogue.locator(".studio-message.assistant").last(),
   ).toBeVisible();
@@ -566,12 +558,12 @@ test("studio discovers models, tracks image/video jobs, restores history and ren
     ),
   ).toBe(true);
   await page.screenshot({
-    path: "../docs/screenshots/studio-dialogue-mobile.png",
+    path: "test-results/studio-dialogue-mobile.png",
     fullPage: true,
   });
-  await page.locator(".studio-gallery").scrollIntoViewIfNeeded();
+  await page.locator(".studio-dialogue").scrollIntoViewIfNeeded();
   await page.screenshot({
-    path: "../docs/screenshots/studio-mobile.png",
+    path: "test-results/studio-mobile.png",
     fullPage: true,
   });
 });
@@ -603,6 +595,7 @@ test("studio member cannot open model settings and missing models are explained"
   await expect(page.getByRole("button", { name: "开始创作" })).toBeDisabled();
 });
 
+/** 验证宽屏创作台和紧凑导航的布局边界。 */
 test("wide workspace uses the full content area beside compact navigation", async ({
   page,
 }) => {
@@ -643,7 +636,7 @@ test("wide workspace uses the full content area beside compact navigation", asyn
   ).toBeLessThanOrEqual(200);
   await page.getByRole("button", { name: "收起创作记录" }).click();
   await page.screenshot({
-    path: "../docs/screenshots/studio-wide.png",
+    path: "test-results/studio-wide.png",
     fullPage: true,
     animations: "disabled",
   });

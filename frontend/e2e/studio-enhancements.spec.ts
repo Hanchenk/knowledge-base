@@ -221,6 +221,7 @@ async function studioFixture(page: Page) {
   return { uploads, requests, deleted };
 }
 
+/** 验证参考资料上传、失败重试及风格质量参数。 */
 test("studio accepts pasted images and dragged documents, retries failures and sends references with style/quality", async ({
   page,
 }) => {
@@ -286,7 +287,7 @@ test("studio accepts pasted images and dragged documents, retries failures and s
   await page.getByLabel("图片质量", { exact: true }).selectOption("high");
   await page.getByRole("button", { name: "关闭生成参数", exact: true }).click();
   await page.screenshot({
-    path: "../docs/screenshots/studio-enhanced-desktop.png",
+    path: "test-results/studio-enhanced-desktop.png",
     fullPage: true,
   });
   await page.getByRole("button", { name: "开始创作", exact: true }).click();
@@ -299,7 +300,6 @@ test("studio accepts pasted images and dragged documents, retries failures and s
     attachment_ids: ["upload-0", "upload-2"],
   });
   await expect(page.getByLabel("参考文件", { exact: true })).toHaveCount(0);
-  await page.getByText("创作对话", { exact: true }).click();
   await expect(page.getByLabel("本轮参考文件")).toContainText("retry.md");
 });
 
@@ -369,6 +369,7 @@ test("studio reuses private artwork, marks an erase region and submits its PNG m
   expect(fixture.requests[0].prompt).toContain("擦除");
 });
 
+/** 验证移动端草稿恢复与横向布局。 */
 test("studio preserves text drafts and remains usable at mobile width", async ({
   page,
 }) => {
@@ -403,7 +404,7 @@ test("studio preserves text drafts and remains usable at mobile width", async ({
   }));
   expect(width.content).toBeLessThanOrEqual(width.viewport);
   await page.screenshot({
-    path: "../docs/screenshots/studio-enhanced-mobile.png",
+    path: "test-results/studio-enhanced-mobile.png",
     fullPage: true,
   });
 });
